@@ -23,7 +23,7 @@ const checkProjResult = checkComposedProjection(warehouse_protocol, subs_warehou
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))
 
 // Projection of warehouse || factory over D
-const projectionInfoResult = projectionAndInformation(warehouse_factory_protocol, subs_composition, "D")
+const projectionInfoResult = projectionAndInformation(warehouse_protocol, subs_warehouse, "D")
 if (projectionInfoResult.type == 'ERROR') throw new Error('error getting projection')
 const projectionInfo = projectionInfoResult.data
 
@@ -50,7 +50,7 @@ async function main() {
                 if (Object.keys(s1 || {}).includes('close')) {
                     s1.close()
                 }
-            }, getRandomInt(5500, 8000))
+            }, getRandomInt(4000, 5000))
             break
           }
       }

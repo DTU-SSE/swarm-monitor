@@ -26,7 +26,7 @@ const checkProjResult = checkComposedProjection(warehouse_protocol, subs_warehou
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))
 
 // Projection of warehouse || factory over FL
-const projectionInfoResult = projectionAndInformation(warehouse_factory_protocol, subs_composition, "FL")
+const projectionInfoResult = projectionAndInformation(warehouse_protocol, subs_warehouse, "FL")
 if (projectionInfoResult.type == 'ERROR') throw new Error('error getting projection')
 const projectionInfo = projectionInfoResult.data
 

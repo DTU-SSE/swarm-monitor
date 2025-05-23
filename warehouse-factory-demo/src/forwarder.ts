@@ -1,5 +1,5 @@
 import { Actyx } from '@actyx/sdk'
-import { createMachineRunnerBT} from '@actyx/machine-runner'
+import { createMachineRunner, createMachineRunnerBT} from '@actyx/machine-runner'
 import { Events, manifest, Composition, warehouse_factory_protocol, subs_composition, getRandomInt, warehouse_protocol, subs_warehouse, print_event } from './protocol'
 import { checkComposedProjection, projectionAndInformation } from '@actyx/machine-check'
 // import * as net from "net";
@@ -11,7 +11,10 @@ function print_full_event(e: any) {
 }
 
 function send_message(e: any, client: dgram.Socket) {
+    console.log(JSON.stringify(e, null, 2))
     console.log("Forwarding message: ", e.payload)
+    // For easy parsing at Scala end
+    e.payload.type = e.payload.type.toLowerCase()
     client.send(JSON.stringify(e.payload));
 }
 
@@ -53,9 +56,10 @@ s0.react([Events.closingTime], s0, (_, e) => { send_message(e, client); return s
 s0.react([Events.pos], s0, (_, e) => { send_message(e, client); return s0.make() })
 s0.react([Events.car], s0, (_, e) => { send_message(e, client); return s0.make() })
 
+console.log(JSON.stringify(forwarder.createJSONForAnalysis(s0), null, 2))
 
 // Unfortunately we need this here right now..... Another reason to refactor? Projection of warehouse || factory over D
-const projectionInfoResult = projectionAndInformation(warehouse_factory_protocol, subs_composition, "Forwarder")
+const projectionInfoResult = projectionAndInformation(warehouse_protocol, subs_warehouse, "Forwarder")
 if (projectionInfoResult.type == 'ERROR') throw new Error('error getting projection')
 const projectionInfo = projectionInfoResult.data
 
@@ -66,7 +70,7 @@ console.log(projectionInfo.specialEventTypes)
 async function main() {
     const app = await Actyx.of(manifest)
     const tags = Composition.tagWithEntityId('warehouse-factory')
-    const machine = createMachineRunnerBT(app, tags, s0, undefined, projectionInfo.branches, projectionInfo.specialEventTypes)
+    const machine = createMachineRunner(app, tags, s0, undefined)//, projectionInfo.branches, projectionInfo.specialEventTypes)
 
     for await (const state of machine) {
       console.log("Forwarder. State is:", state.type)
