@@ -24,7 +24,7 @@ import { MessageType } from "@protobuf-ts/runtime";
 // "offset": 11
 // }
 
-// 
+//
 // https://github.com/timostamm/protobuf-ts/blob/main/MANUAL.md#the-protoc-plugin
 // npm install @protobuf-ts/plugin
 // To compile:
@@ -33,7 +33,7 @@ import { MessageType } from "@protobuf-ts/runtime";
 // --ts_opt long_type_string \
 // --proto_path protos \
 // protos/warehouse.proto
-// 
+//
 // for oneof remember to set strictNullChecks to true in tsconfig.json
 
 /**

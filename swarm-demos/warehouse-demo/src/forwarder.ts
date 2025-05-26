@@ -5,38 +5,35 @@ import { Msg } from './generated/warehouse'
 // import * as net from "net";
 import * as dgram from "dgram";
 
-function send_message_protobuf(e: any, client: dgram.Socket) {
+function send_message_protobuf(e: any, messageIDs: Set<string>, client: dgram.Socket) {
     //console.log(JSON.stringify(e, null, 2))
     const {type, ...ePayload} = e.payload
-    switch (type) {
-      case Events.partReq.type:
-        //var payload: PartReq = {...ePayload, meta: e.meta}
-        //console.log(JSON.stringify(payload, null, 2))
-        var msg: Msg = {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
-        //console.log(thing)
-        //console.log(Msg.toJson(thing))
-        //console.log(Msg.toJsonString(thing))
-        //console.log(Msg.toBinary(thing))
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-      case Events.partOK.type:
-        var msg: Msg = {kind: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-      case Events.pos.type:
-        var msg: Msg = {kind: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-      case Events.closingTime.type:
-        var msg: Msg = {kind: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-      default:
-        console.log("what")
+    if (!messageIDs.has(e.meta.eventId)) {
+      messageIDs.add(e.meta.eventId)
+      switch (type) {
+        case Events.partReq.type:
+          var msg: Msg = {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
+          console.log("Sending: ", msg)
+          client.send(Msg.toBinary(msg))
+          break
+        case Events.partOK.type:
+          var msg: Msg = {kind: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
+          console.log("Sending: ", msg)
+          client.send(Msg.toBinary(msg))
+          break
+        case Events.pos.type:
+          var msg: Msg = {kind: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
+          console.log("Sending: ", msg)
+          client.send(Msg.toBinary(msg))
+          break
+        case Events.closingTime.type:
+          var msg: Msg = {kind: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
+          console.log("Sending: ", msg)
+          client.send(Msg.toBinary(msg))
+          break
+        default:
+          console.log("what")
+      }
     }
 }
 
@@ -51,7 +48,6 @@ client.connect(PORT, HOST, () => {
     console.log(`Connected to ${HOST}:${PORT}`);
 });
 
-
 // Handle connection close
 client.on("close", () => {
     console.log("Connection closed");
@@ -62,15 +58,17 @@ client.on("error", (err) => {
     console.error("Socket error:", err.message);
 });
 
+const messageIDs: Set<string> = new Set()
+
 // Using the machine runner DSL an implmentation of door in warehouse w.r.t. subs_warehouse is:
 const forwarder = Composition.makeMachine('Forwarder')
 export const s0 = forwarder.designEmpty('s0')
     .finish()
 
-s0.react([Events.partReq], s0, (_, e) => { send_message_protobuf(e, client); return s0.make() })
-s0.react([Events.partOK], s0, (_, e) => { send_message_protobuf(e, client); return s0.make() })
-s0.react([Events.closingTime], s0, (_, e) => { send_message_protobuf(e, client); return s0.make() })
-s0.react([Events.pos], s0, (_, e) => { send_message_protobuf(e, client); return s0.make() })
+s0.react([Events.partReq], s0, (_, e) => { send_message_protobuf(e, messageIDs, client); return s0.make() })
+s0.react([Events.partOK], s0, (_, e) => { send_message_protobuf(e, messageIDs, client); return s0.make() })
+s0.react([Events.closingTime], s0, (_, e) => { send_message_protobuf(e, messageIDs, client); return s0.make() })
+s0.react([Events.pos], s0, (_, e) => { send_message_protobuf(e, messageIDs, client); return s0.make() })
 
 
 // Run the adapted machine

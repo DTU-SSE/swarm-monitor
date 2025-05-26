@@ -6664,3 +6664,34 @@ WARNING: empty definition using pc, found symbol in pc: `<none>`. (full report a
 2025.05.26 13:47:15 INFO  compiling core (2 scala sources)[0m
 2025.05.26 13:47:15 WARN  there was 1 deprecation warning; re-run with -deprecation for details[0m
 2025.05.26 13:47:15 INFO  time: compiled core in 0.8s[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 WARN  no build target for: /home/luccl/Git/swarm-monitor/join-actors/build.sbt[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:08 WARN  no build target for: /home/luccl/Git/swarm-monitor/join-actors/build.sbt[0m
+2025.05.26 13:54:08 INFO  skipping build import with status 'Installed'[0m
+2025.05.26 13:54:08 INFO  Disconnecting from Bloop session...[0m
+2025.05.26 13:54:08 INFO  Shut down connection with build server.[0m
+2025.05.26 13:54:08 INFO  Attempting to connect to the build server...[0m
+2025.05.26 13:54:08 INFO  Found a Bloop server running[0m
+2025.05.26 13:54:08 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/luccl/Git/swarm-monitor/.metals/bsp.trace.json or /home/luccl/.cache/metals/bsp.trace.json[0m
+2025.05.26 13:54:08 INFO  time: Connected to build server in 0.12s[0m
+2025.05.26 13:54:08 INFO  Connected to Build server: Bloop v2.0.10[0m
+2025.05.26 13:54:08 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:09 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:10 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2025.05.26 13:54:10 INFO  time: indexed workspace in 1.53s[0m
+2025.05.26 13:54:10 WARN  no build target for: /home/luccl/Git/swarm-monitor/join-actors/build.sbt[0m
+2025.05.26 13:54:10 INFO  compiling core (2 scala sources)[0m
+2025.05.26 13:54:10 WARN  there was 1 deprecation warning; re-run with -deprecation for details[0m
+2025.05.26 13:54:10 INFO  time: compiled core in 0.85s[0m
+2025.05.26 13:54:11 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 13:54:12 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/build.sbt. Using presentation compiler with project's scala-library version: 3.5.2[0m
+2025.05.26 14:01:12 INFO  compiling core (1 scala source)[0m
+2025.05.26 14:01:12 INFO  time: compiled core in 0.97s[0m
+2025.05.26 14:01:13 INFO  compiling core (1 scala source)[0m
+2025.05.26 14:01:13 INFO  time: compiled core in 0.92s[0m
