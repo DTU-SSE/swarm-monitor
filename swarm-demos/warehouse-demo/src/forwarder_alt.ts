@@ -60,7 +60,6 @@ async function main() {
     client.on("error", (err) => {
         console.error("Socket error:", err.message);
     });
-    console.log("heeeej")
 
     /* A machine uses subscribeMonotonic whose documentation (and some comment Actyx/blob/master/js/sdk/src/event-fns.ts) says:
         "Subscribe to a stream of events until this would go back in time.
