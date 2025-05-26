@@ -6661,3 +6661,6 @@ May 26, 2025 1:35:16 PM scala.meta.internal.metals.StdReporter $anonfun$create$1
 WARNING: empty definition using pc, found symbol in pc: `<none>`. (full report at: /home/luccl/Git/swarm-monitor/.metals/.reports/metals-full/2025-05-23/r_empty-definition_16-21-16-688.md)
 May 26, 2025 1:35:42 PM scala.meta.internal.metals.StdReporter $anonfun$create$1
 WARNING: empty definition using pc, found symbol in pc: `<none>`. (full report at: /home/luccl/Git/swarm-monitor/.metals/.reports/metals-full/2025-05-23/r_empty-definition_16-21-16-688.md)
+2025.05.26 13:47:15 INFO  compiling core (2 scala sources)[0m
+2025.05.26 13:47:15 WARN  there was 1 deprecation warning; re-run with -deprecation for details[0m
+2025.05.26 13:47:15 INFO  time: compiled core in 0.8s[0m
