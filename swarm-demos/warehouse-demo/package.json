@@ -10,6 +10,7 @@
     "start-transporter1": "tsc && node dist/transporter1.js",
     "start-invalid-event-emitter": "tsc && node dist/invalid_event_emitter.js",
     "start-forwarder": "tsc && node dist/forwarder.js",
+    "start-forwarder-alt": "tsc && node dist/forwarder_alt.js",
     "print-projs": "tsc && node dist/print_projs.js"
   },
   "keywords": [],

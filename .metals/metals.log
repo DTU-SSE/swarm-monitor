@@ -6695,3 +6695,7 @@ WARNING: empty definition using pc, found symbol in pc: `<none>`. (full report a
 2025.05.26 14:01:12 INFO  time: compiled core in 0.97s[0m
 2025.05.26 14:01:13 INFO  compiling core (1 scala source)[0m
 2025.05.26 14:01:13 INFO  time: compiled core in 0.92s[0m
+2025.05.26 14:13:10 INFO  Shutting down server[0m
+2025.05.26 14:13:10 INFO  shutting down Metals[0m
+2025.05.26 14:13:10 INFO  Shut down connection with build server.[0m
+2025.05.26 14:13:10 INFO  Exiting server[0m
