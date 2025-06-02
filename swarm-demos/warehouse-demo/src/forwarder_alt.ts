@@ -46,18 +46,18 @@ async function main() {
 
     // Create a socket and connect to the server
     //const client = new net.Socket();
-    const client = dgram.createSocket("udp4");
-    client.connect(PORT, HOST, () => {
+    const socket = dgram.createSocket("udp4");
+    socket.connect(PORT, HOST, () => {
         console.log(`Connected to ${HOST}:${PORT}`);
     });
 
     // Handle connection close
-    client.on("close", () => {
+    socket.on("close", () => {
         console.log("Connection closed");
     });
 
     // Handle errors
-    client.on("error", (err) => {
+    socket.on("error", (err) => {
         console.error("Socket error:", err.message);
     });
 
@@ -84,7 +84,7 @@ async function main() {
     };
 
     */
-    app.subscribe(eventSubscrptions, (e: ActyxEvent) => { send_message_protobuf(e, client)})
+    app.subscribe(eventSubscrptions, (e: ActyxEvent) => { send_message_protobuf(e, socket)})
 }
 
 main()
