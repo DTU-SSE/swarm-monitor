@@ -6851,3 +6851,23 @@ WARNING: empty definition using pc, found symbol in pc: java/net/DatagramPacket#
 2025.06.05 13:38:35 INFO  compiling core (1 scala source)[0m
 2025.06.05 13:38:38 INFO  time: compiled core in 2.92s[0m
 2025.06.05 13:38:46 WARN  Could not load snapshot text for /home/luccl/Git/swarm-monitor/join-actors/core/src/main/scala/examples/WarehouseMonitor.scala[0m
+2025.06.05 13:42:39 WARN  Could not load snapshot text for /home/luccl/Git/swarm-monitor/join-actors/core/src/main/scala/examples/WarehouseMonitor.scala[0m
+2025.06.05 13:42:40 INFO  compiling core (1 scala source)[0m
+2025.06.05 13:42:40 WARN  Could not load snapshot text for /home/luccl/Git/swarm-monitor/join-actors/core/src/main/scala/examples/WarehouseMonitor.scala[0m
+2025.06.05 13:42:42 INFO  time: compiled core in 2.9s[0m
+2025.06.05 13:42:42 INFO  Shutting down server[0m
+2025.06.05 13:42:42 INFO  shutting down Metals[0m
+2025.06.05 13:42:43 INFO  Shut down connection with build server.[0m
+2025.06.05 13:42:42 INFO  Exiting server[0m
+2025.06.05 16:04:34 INFO  Started: Metals version 1.5.3 in folders '/home/luccl/Git/swarm-monitor' for client Visual Studio Code 1.100.2.[0m
+2025.06.05 16:04:34 INFO  no build target found for /home/luccl/Git/swarm-monitor/join-actors/core/src/main/scala/examples/WarehouseMonitor.scala. Using presentation compiler with project's scala-library version: 3.3.6[0m
+2025.06.05 16:04:35 INFO  Attempting to connect to the build server...[0m
+2025.06.05 16:04:35 INFO  Found a Bloop server running[0m
+2025.06.05 16:04:35 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at /home/luccl/Git/swarm-monitor/.metals/bsp.trace.json or /home/luccl/.cache/metals/bsp.trace.json[0m
+2025.06.05 16:04:35 INFO  time: Connected to build server in 0.29s[0m
+2025.06.05 16:04:36 INFO  Connected to Build server: Bloop v2.0.10[0m
+2025.06.05 16:04:35 INFO  time: Imported build in 0.18s[0m
+Jun 05, 2025 4:04:38 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 2
+2025.06.05 16:04:42 WARN  Could not find java sources in /usr/lib/jvm/src.zip, /usr/lib/jvm/lib/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/src.zip, /usr/lib/jvm/java-21-openjdk-amd64/lib/src.zip. Java symbols will not be available.[0m
+2025.06.05 16:04:42 INFO  time: indexed workspace in 4.39s[0m

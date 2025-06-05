@@ -78,7 +78,7 @@ s0.react([Events.pos], s0, (_, e) => { send_message_protobuf(e, messageIDs, clie
 async function main() {
     const app = await Actyx.of(manifest)
     const tags = Composition.tagWithEntityId('warehouse')
-    const machine = createMachineRunnerTimeTravel(app, tags, s0, undefined)//, projectionInfo.branches, projectionInfo.specialEventTypes)
+    const machine = createMachineRunnerTimeTravel(app, tags, s0, undefined)
     for await (const state of machine) {
       console.log("Forwarder. State is:", state.type)
       if (state.payload !== undefined) {
