@@ -12,6 +12,7 @@ function send_message_protobuf(e: any, messageIDs: Set<string>, client: dgram.So
     if (true) {//(!messageIDs.has(e.meta.eventId)) {
       messageIDs.add(e.meta.eventId)
       console.log("Number of distinct messages sent: ", messageIDs.size)
+      console.log()
       count = count + 1
       switch (type) {
         case Events.partReq.type:
