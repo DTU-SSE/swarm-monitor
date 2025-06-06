@@ -8,6 +8,7 @@ import * as dgram from "dgram";
 function send_message_protobuf(e: any, client: dgram.Socket) {
     //console.log(JSON.stringify(e, null, 2))
     const {type, ...ePayload} = e.payload
+    console.log(e.meta)
     switch (type) {
     case Events.partReq.type:
         var msg: Msg = {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
