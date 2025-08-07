@@ -10,34 +10,31 @@ import { hideBin } from 'yargs/helpers';
     To run:
     npm run start-forwarder-alt -- --address=10.197.104.210 --port=9999
 */
-function send_message_protobuf(e: any, client: dgram.Socket) {
-    const {type, ...ePayload} = e.payload
-    console.log(e.meta)
-    switch (type) {
-    case Events.partReq.type:
-        var msg: Msg = {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-    case Events.partOK.type:
-        var msg: Msg = {kind: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-    case Events.pos.type:
-        var msg: Msg = {kind: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-    case Events.closingTime.type:
-        var msg: Msg = {kind: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
-        console.log("Sending: ", msg)
-        client.send(Msg.toBinary(msg))
-        break
-    default:
-        console.log("what")
-    }
+
+// Send a message to monitor
+function forward(e: any, socket: dgram.Socket) {
+    const msg = to_protobuf(e)
+    console.log("Sending: ", msg)
+    socket.send(Msg.toBinary(msg))
 }
+
+// Convert an event to a protobuf message
+function to_protobuf(e: any): Msg {
+    const {type, ...ePayload} = e.payload
+    switch (type) {
+        case Events.partReq.type:
+            return {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
+        case Events.partOK.type:
+            return {kind: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
+        case Events.pos.type:
+            return {kind: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
+        case Events.closingTime.type:
+            return {kind: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
+        default:
+            throw new Error(`Unknown event type: ${type}`);
+        }
+}
+
 
 // Run the adapted machine
 async function main() {
@@ -80,7 +77,7 @@ async function main() {
         console.error("Socket error:", err.message);
     });
 
-    app.subscribe(eventSubscrptions, (e: ActyxEvent) => { send_message_protobuf(e, socket)})
+    app.subscribe(eventSubscrptions, (e: ActyxEvent) => { forward(e, socket)})
 }
 
 main()
