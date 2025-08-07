@@ -1,10 +1,15 @@
 import { Actyx, ActyxEvent, EventSubscription } from '@actyx/sdk'
-import { createMachineRunner } from '@actyx/machine-runner'
 import { Events, manifest, Composition } from './protocol'
 import { Msg } from './generated/warehouse'
-// import * as net from "net";
 import * as dgram from "dgram";
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
+
+/*
+    To run:
+    npm run start-forwarder-alt -- --address=10.197.104.210 --port=9999
+*/
 function send_message_protobuf(e: any, client: dgram.Socket) {
     //console.log(JSON.stringify(e, null, 2))
     const {type, ...ePayload} = e.payload
@@ -40,10 +45,24 @@ async function main() {
     const app = await Actyx.of(manifest)
     const tags = Composition.tagWithEntityId('warehouse')
     const eventSubscrptions: EventSubscription = {query: tags}
+    const argv = await yargs(hideBin(process.argv))
+        .option('address', {
+            alias: 'a',
+            type: 'string',
+            description: 'Address to send to',
+            default: 'localhost',
+        })
+        .option('port', {
+            alias: 'p',
+            type: 'number',
+            description: 'Port to send to',
+            default: 9999,
+        })
+        .parseAsync();
 
     // Define server address and port
-    const HOST = "localhost";
-    const PORT = 9999;
+    const HOST = `${argv.address}`//"10.197.104.210"; //"localhost"//
+    const PORT = argv.port;
 
     // Create a socket and connect to the server
     //const client = new net.Socket();

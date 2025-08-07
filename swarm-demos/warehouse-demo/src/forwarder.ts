@@ -4,7 +4,7 @@ import { Events, manifest, Composition } from './protocol'
 import { Msg } from './generated/warehouse'
 // import * as net from "net";
 import * as dgram from "dgram";
-import { createMachineRunnerTimeTravel } from '@actyx/machine-runner';
+//import { createMachineRunnerTimeTravel } from '@actyx/machine-runner';
 var count = 0
 function send_message_protobuf(e: any, messageIDs: Set<string>, client: dgram.Socket) {
     //console.log(JSON.stringify(e, null, 2))
@@ -79,7 +79,8 @@ s0.react([Events.pos], s0, (_, e) => { send_message_protobuf(e, messageIDs, clie
 async function main() {
     const app = await Actyx.of(manifest)
     const tags = Composition.tagWithEntityId('warehouse')
-    const machine = createMachineRunnerTimeTravel(app, tags, s0, undefined)
+    //const machine = createMachineRunnerTimeTravel(app, tags, s0, undefined)
+    const machine = createMachineRunner(app, tags, s0, undefined)
     for await (const state of machine) {
       console.log("Forwarder. State is:", state.type)
       if (state.payload !== undefined) {
