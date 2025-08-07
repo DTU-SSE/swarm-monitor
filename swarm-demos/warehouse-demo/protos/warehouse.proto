@@ -36,6 +36,7 @@ message Msg {
     PartOK partOK = 2;
     Pos pos = 3;
     ClosingTime closingTime = 4;
+    Car car = 5;
   }
 }
 
@@ -74,3 +75,11 @@ message ClosingTime {
   string lbj = 2;
   Meta meta = 3;
 }
+
+message Car {
+  string partName = 1;
+  string modelName = 2;
+  string lbj = 3;
+  Meta meta = 4;
+}
+

@@ -68,6 +68,12 @@ export interface Msg {
          */
         closingTime: ClosingTime;
     } | {
+        oneofKind: "car";
+        /**
+         * @generated from protobuf field: warehouse_messages.Car car = 5;
+         */
+        car: Car;
+    } | {
         oneofKind: undefined;
     };
 }
@@ -180,6 +186,27 @@ export interface ClosingTime {
      */
     meta?: Meta;
 }
+/**
+ * @generated from protobuf message warehouse_messages.Car
+ */
+export interface Car {
+    /**
+     * @generated from protobuf field: string partName = 1;
+     */
+    partName: string;
+    /**
+     * @generated from protobuf field: string modelName = 2;
+     */
+    modelName: string;
+    /**
+     * @generated from protobuf field: string lbj = 3;
+     */
+    lbj: string;
+    /**
+     * @generated from protobuf field: warehouse_messages.Meta meta = 4;
+     */
+    meta?: Meta;
+}
 // @generated message type with reflection information, may provide speed optimized methods
 class Msg$Type extends MessageType<Msg> {
     constructor() {
@@ -187,7 +214,8 @@ class Msg$Type extends MessageType<Msg> {
             { no: 1, name: "partReq", kind: "message", oneof: "kind", T: () => PartReq },
             { no: 2, name: "partOK", kind: "message", oneof: "kind", T: () => PartOK },
             { no: 3, name: "pos", kind: "message", oneof: "kind", T: () => Pos },
-            { no: 4, name: "closingTime", kind: "message", oneof: "kind", T: () => ClosingTime }
+            { no: 4, name: "closingTime", kind: "message", oneof: "kind", T: () => ClosingTime },
+            { no: 5, name: "car", kind: "message", oneof: "kind", T: () => Car }
         ]);
     }
     create(value?: PartialMessage<Msg>): Msg {
@@ -226,6 +254,12 @@ class Msg$Type extends MessageType<Msg> {
                         closingTime: ClosingTime.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).closingTime)
                     };
                     break;
+                case /* warehouse_messages.Car car */ 5:
+                    message.kind = {
+                        oneofKind: "car",
+                        car: Car.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).car)
+                    };
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -250,6 +284,9 @@ class Msg$Type extends MessageType<Msg> {
         /* warehouse_messages.ClosingTime closingTime = 4; */
         if (message.kind.oneofKind === "closingTime")
             ClosingTime.internalBinaryWrite(message.kind.closingTime, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* warehouse_messages.Car car = 5; */
+        if (message.kind.oneofKind === "car")
+            Car.internalBinaryWrite(message.kind.car, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -619,3 +656,73 @@ class ClosingTime$Type extends MessageType<ClosingTime> {
  * @generated MessageType for protobuf message warehouse_messages.ClosingTime
  */
 export const ClosingTime = new ClosingTime$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Car$Type extends MessageType<Car> {
+    constructor() {
+        super("warehouse_messages.Car", [
+            { no: 1, name: "partName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "modelName", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "meta", kind: "message", T: () => Meta }
+        ]);
+    }
+    create(value?: PartialMessage<Car>): Car {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.partName = "";
+        message.modelName = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<Car>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Car): Car {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string partName */ 1:
+                    message.partName = reader.string();
+                    break;
+                case /* string modelName */ 2:
+                    message.modelName = reader.string();
+                    break;
+                case /* string lbj */ 3:
+                    message.lbj = reader.string();
+                    break;
+                case /* warehouse_messages.Meta meta */ 4:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Car, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string partName = 1; */
+        if (message.partName !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.partName);
+        /* string modelName = 2; */
+        if (message.modelName !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.modelName);
+        /* string lbj = 3; */
+        if (message.lbj !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.lbj);
+        /* warehouse_messages.Meta meta = 4; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message warehouse_messages.Car
+ */
+export const Car = new Car$Type();

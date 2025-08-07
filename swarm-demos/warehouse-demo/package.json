@@ -4,6 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-proto": "node generate-proto.js",
+    "regenerate-ts": "npm run generate-proto && npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/warehouse.proto",
     "start-door": "tsc && node dist/door.js",
     "start-forklift": "tsc && node dist/forklift.js",
     "start-transporter": "tsc && node dist/transporter.js",
