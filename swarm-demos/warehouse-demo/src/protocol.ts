@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { MachineEvent, SwarmProtocol } from '@actyx/machine-runner'
-import { SwarmProtocolType, Subscriptions, Result, DataResult, InterfacingSwarms, overapproxWWFSubscriptions, checkWWFSwarmProtocol} from '@actyx/machine-check'
+import { SwarmProtocolType, Subscriptions, Result, DataResult, overapproxWWFSubscriptions, checkWWFSwarmProtocol, InterfacingProtocols} from '@actyx/machine-check'
 import chalk from "chalk";
 
 export const manifest = {
@@ -13,14 +13,16 @@ type ClosingTimePayload = { timeOfDay: string }
 type PartReqPayload = {partName: string}
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}
+type CarPayload = {partName: string, modelName: string}
 
 export namespace Events {
   export const partReq = MachineEvent.design('partReq').withPayload<PartReqPayload>()
   export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()
   export const pos = MachineEvent.design('pos').withPayload<PosPayload>()
   export const closingTime = MachineEvent.design('closingTime').withPayload<ClosingTimePayload>()
+  export const car = MachineEvent.design('car').withPayload<CarPayload>()
 
-  export const allEvents = [partReq, partOK, pos, closingTime] as const
+  export const allEvents = [partReq, partOK, pos, closingTime, car] as const
 }
 
 export const Composition = SwarmProtocol.make('Composition', Events.allEvents)
@@ -34,7 +36,15 @@ export const Gwarehouse: SwarmProtocolType = {
     {source: '0', target: '3', label: {cmd: 'close', role: 'D', logType: [Events.closingTime.type]}},
   ]}
 
-export const warehouse_protocol: InterfacingSwarms = [{protocol: Gwarehouse, interface: null}]
+export const Gfactory: SwarmProtocolType = {
+  initial: '0',
+  transitions: [
+    {source: '0', target: '1', label: { cmd: 'request', role: 'T', logType: [Events.partReq.type]}},
+    {source: '1', target: '2', label: { cmd: 'deliver', role: 'T', logType: [Events.partOK.type]}},
+    {source: '2', target: '3', label: { cmd: 'build', role: 'R', logType: [Events.car.type] }},
+  ]}
+
+export const warehouse_protocol: InterfacingProtocols = [Gwarehouse]
 
 // Well-formed subscription for the warehouse protocol
 const result_subs_warehouse: DataResult<Subscriptions>

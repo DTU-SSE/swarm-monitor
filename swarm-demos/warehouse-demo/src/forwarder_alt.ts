@@ -42,7 +42,7 @@ async function main() {
     const eventSubscrptions: EventSubscription = {query: tags}
 
     // Define server address and port
-    const HOST = "localhost";
+    const HOST = "localhost"//"10.197.104.210";
     const PORT = 9999;
 
     // Create a socket and connect to the server

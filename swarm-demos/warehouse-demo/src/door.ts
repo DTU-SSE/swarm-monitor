@@ -1,5 +1,5 @@
 import { Actyx } from '@actyx/sdk'
-import { createMachineRunnerBT} from '@actyx/machine-runner'
+import { createMachineRunnerBT } from '@actyx/machine-runner'
 import { Events, manifest, Composition, warehouse_protocol, subs_warehouse, printState, getRandomInt } from './protocol'
 import * as readline from 'readline';
 import chalk from "chalk";
@@ -13,10 +13,11 @@ const rl = readline.createInterface({
 // Using the machine runner DSL an implmentation of door in warehouse w.r.t. subs_warehouse is:
 const door = Composition.makeMachine('Door')
 export const s0 = door.designEmpty('s0')
-    .command('close', [Events.closingTime], () => {
-        var dateString = new Date().toLocaleString();
-        return [Events.closingTime.make({timeOfDay: dateString})]})
-    .finish()
+  .command('close', [Events.closingTime], () => {
+    //var dateString = new Date().toLocaleString();
+    //return [Events.time.make({timeOfDay: new Date().toLocaleString() })]})
+    return [Events.closingTime.make({ timeOfDay: new Date().toString() })]
+  }).finish()
 export const s1 = door.designEmpty('s1').finish()
 export const s2 = door.designEmpty('s2').finish()
 
@@ -29,7 +30,7 @@ const checkProjResult = checkComposedProjection(warehouse_protocol, subs_warehou
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [doorAdapted, s0Adapted] = Composition.adaptMachine('Door', 'D', warehouse_protocol, subs_warehouse, 0, door.createJSONForAnalysis(s0), s0, true).data!
+const [doorAdapted, s0Adapted] = Composition.adaptMachine('D', warehouse_protocol, 0, subs_warehouse, [door, s0], true).data!
 
 // Run the adapted machine
 async function main() {
@@ -47,7 +48,7 @@ async function main() {
           console.log()
           stateAfterTimeOut?.cast().commands()?.close()
         }
-      }, getRandomInt(10000, 11000))
+      }, getRandomInt(3000, 8000))
     }
   }
   rl.close();
@@ -55,11 +56,3 @@ async function main() {
 }
 
 main()
-
-/* Msg(
-  PartReq(
-    PartReq(spoiler,0000000000000011/9iXni23OW5l15/D40762EhcMvFcxrm8Odh5sXCNCeDQ-0,
-      Some(Meta(false,
-        Vector(Composition, Composition:warehouse),1748250926971224,14,com.example.car-factory,0000000000000014/9iXni23OW5l15/D40762EhcMvFcxrm8Odh5sXCNCeDQ-0,9iXni23OW5l15/D40762EhcMvFcxrm8Odh5sXCNCeDQ-0,14,UnknownFieldSet(Map()))),
-        UnknownFieldSet(Map()))
-      ),UnknownFieldSet(Map())) */
