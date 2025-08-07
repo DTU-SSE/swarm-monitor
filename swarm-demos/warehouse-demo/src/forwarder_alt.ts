@@ -60,7 +60,7 @@ async function main() {
         .parseAsync();
 
     // Define server address and port
-    const HOST = `${argv.address}`//"10.197.104.210"; //"localhost"//
+    const HOST = `${argv.address}`
     const PORT = argv.port;
 
     // Create a socket and connect to the server
