@@ -11,7 +11,6 @@ import { hideBin } from 'yargs/helpers';
     npm run start-forwarder-alt -- --address=10.197.104.210 --port=9999
 */
 function send_message_protobuf(e: any, client: dgram.Socket) {
-    //console.log(JSON.stringify(e, null, 2))
     const {type, ...ePayload} = e.payload
     console.log(e.meta)
     switch (type) {
@@ -81,29 +80,6 @@ async function main() {
         console.error("Socket error:", err.message);
     });
 
-    /* A machine uses subscribeMonotonic whose documentation (and some comment Actyx/blob/master/js/sdk/src/event-fns.ts) says:
-        "Subscribe to a stream of events until this would go back in time.
-        Instead of going back in time, receive a TimeTravelMsg and terminate the stream.""
-
-      Instead for subscribe they say:
-        "* Subscribe to all events fitting the `query` after `lowerBound`.
-         *
-         * The subscription goes on forever, until manually cancelled."
-
-      subscribe: (query: EventSubscription, onEvent: (e: ActyxEvent) => Promise<void> | void, onError?: (err: unknown) => void) => CancelSubscription;
-
-    export declare type EventSubscription = {
-    **
-     * Starting point for the query. Everything up-to-and-including `lowerBound` will be omitted from the result.
-     * Defaults to empty map, which means no lower bound at all.
-     * Sources not listed in the `lowerBound` will be delivered in full.
-     *
-    lowerBound?: OffsetMap;
-    ** Statement to select specific events. Defaults to `allEvents`. *
-    query?: Where<unknown>;
-    };
-
-    */
     app.subscribe(eventSubscrptions, (e: ActyxEvent) => { send_message_protobuf(e, socket)})
 }
 
