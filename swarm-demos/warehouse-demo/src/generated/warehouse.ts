@@ -37,13 +37,13 @@ import { MessageType } from "@protobuf-ts/runtime";
 // for oneof remember to set strictNullChecks to true in tsconfig.json
 
 /**
- * @generated from protobuf message warehouse_messages.Msg
+ * @generated from protobuf message warehouse_messages.Event
  */
-export interface Msg {
+export interface Event {
     /**
-     * @generated from protobuf oneof: kind
+     * @generated from protobuf oneof: sealed_value
      */
-    kind: {
+    sealedValue: {
         oneofKind: "partReq";
         /**
          * @generated from protobuf field: warehouse_messages.PartReq partReq = 1;
@@ -208,56 +208,56 @@ export interface Car {
     meta?: Meta;
 }
 // @generated message type with reflection information, may provide speed optimized methods
-class Msg$Type extends MessageType<Msg> {
+class Event$Type extends MessageType<Event> {
     constructor() {
-        super("warehouse_messages.Msg", [
-            { no: 1, name: "partReq", kind: "message", oneof: "kind", T: () => PartReq },
-            { no: 2, name: "partOK", kind: "message", oneof: "kind", T: () => PartOK },
-            { no: 3, name: "pos", kind: "message", oneof: "kind", T: () => Pos },
-            { no: 4, name: "closingTime", kind: "message", oneof: "kind", T: () => ClosingTime },
-            { no: 5, name: "car", kind: "message", oneof: "kind", T: () => Car }
+        super("warehouse_messages.Event", [
+            { no: 1, name: "partReq", kind: "message", oneof: "sealedValue", T: () => PartReq },
+            { no: 2, name: "partOK", kind: "message", oneof: "sealedValue", T: () => PartOK },
+            { no: 3, name: "pos", kind: "message", oneof: "sealedValue", T: () => Pos },
+            { no: 4, name: "closingTime", kind: "message", oneof: "sealedValue", T: () => ClosingTime },
+            { no: 5, name: "car", kind: "message", oneof: "sealedValue", T: () => Car }
         ]);
     }
-    create(value?: PartialMessage<Msg>): Msg {
+    create(value?: PartialMessage<Event>): Event {
         const message = globalThis.Object.create((this.messagePrototype!));
-        message.kind = { oneofKind: undefined };
+        message.sealedValue = { oneofKind: undefined };
         if (value !== undefined)
-            reflectionMergePartial<Msg>(this, message, value);
+            reflectionMergePartial<Event>(this, message, value);
         return message;
     }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Msg): Msg {
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Event): Event {
         let message = target ?? this.create(), end = reader.pos + length;
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
                 case /* warehouse_messages.PartReq partReq */ 1:
-                    message.kind = {
+                    message.sealedValue = {
                         oneofKind: "partReq",
-                        partReq: PartReq.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).partReq)
+                        partReq: PartReq.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).partReq)
                     };
                     break;
                 case /* warehouse_messages.PartOK partOK */ 2:
-                    message.kind = {
+                    message.sealedValue = {
                         oneofKind: "partOK",
-                        partOK: PartOK.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).partOK)
+                        partOK: PartOK.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).partOK)
                     };
                     break;
                 case /* warehouse_messages.Pos pos */ 3:
-                    message.kind = {
+                    message.sealedValue = {
                         oneofKind: "pos",
-                        pos: Pos.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).pos)
+                        pos: Pos.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).pos)
                     };
                     break;
                 case /* warehouse_messages.ClosingTime closingTime */ 4:
-                    message.kind = {
+                    message.sealedValue = {
                         oneofKind: "closingTime",
-                        closingTime: ClosingTime.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).closingTime)
+                        closingTime: ClosingTime.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).closingTime)
                     };
                     break;
                 case /* warehouse_messages.Car car */ 5:
-                    message.kind = {
+                    message.sealedValue = {
                         oneofKind: "car",
-                        car: Car.internalBinaryRead(reader, reader.uint32(), options, (message.kind as any).car)
+                        car: Car.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).car)
                     };
                     break;
                 default:
@@ -271,22 +271,22 @@ class Msg$Type extends MessageType<Msg> {
         }
         return message;
     }
-    internalBinaryWrite(message: Msg, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+    internalBinaryWrite(message: Event, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
         /* warehouse_messages.PartReq partReq = 1; */
-        if (message.kind.oneofKind === "partReq")
-            PartReq.internalBinaryWrite(message.kind.partReq, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        if (message.sealedValue.oneofKind === "partReq")
+            PartReq.internalBinaryWrite(message.sealedValue.partReq, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
         /* warehouse_messages.PartOK partOK = 2; */
-        if (message.kind.oneofKind === "partOK")
-            PartOK.internalBinaryWrite(message.kind.partOK, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        if (message.sealedValue.oneofKind === "partOK")
+            PartOK.internalBinaryWrite(message.sealedValue.partOK, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
         /* warehouse_messages.Pos pos = 3; */
-        if (message.kind.oneofKind === "pos")
-            Pos.internalBinaryWrite(message.kind.pos, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        if (message.sealedValue.oneofKind === "pos")
+            Pos.internalBinaryWrite(message.sealedValue.pos, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
         /* warehouse_messages.ClosingTime closingTime = 4; */
-        if (message.kind.oneofKind === "closingTime")
-            ClosingTime.internalBinaryWrite(message.kind.closingTime, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        if (message.sealedValue.oneofKind === "closingTime")
+            ClosingTime.internalBinaryWrite(message.sealedValue.closingTime, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
         /* warehouse_messages.Car car = 5; */
-        if (message.kind.oneofKind === "car")
-            Car.internalBinaryWrite(message.kind.car, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        if (message.sealedValue.oneofKind === "car")
+            Car.internalBinaryWrite(message.sealedValue.car, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -294,9 +294,9 @@ class Msg$Type extends MessageType<Msg> {
     }
 }
 /**
- * @generated MessageType for protobuf message warehouse_messages.Msg
+ * @generated MessageType for protobuf message warehouse_messages.Event
  */
-export const Msg = new Msg$Type();
+export const Event = new Event$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Meta$Type extends MessageType<Meta> {
     constructor() {

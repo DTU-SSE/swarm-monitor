@@ -1,6 +1,6 @@
 import { Actyx, ActyxEvent, EventSubscription } from '@actyx/sdk'
 import { Events, manifest, Composition } from './protocol'
-import { Msg } from './generated/warehouse'
+import { Event } from './generated/warehouse'
 import * as dgram from "dgram";
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -15,21 +15,21 @@ import { hideBin } from 'yargs/helpers';
 function forward(e: any, socket: dgram.Socket) {
     const msg = to_protobuf(e)
     console.log("Sending: ", msg)
-    socket.send(Msg.toBinary(msg))
+    socket.send(Event.toBinary(msg))
 }
 
 // Convert an event to a protobuf message
-function to_protobuf(e: any): Msg {
+function to_protobuf(e: any): Event {
     const {type, ...ePayload} = e.payload
     switch (type) {
         case Events.partReq.type:
-            return {kind: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
+            return {sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
         case Events.partOK.type:
-            return {kind: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
+            return {sealedValue: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
         case Events.pos.type:
-            return {kind: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
+            return {sealedValue: {oneofKind: "pos", pos: {...ePayload, meta: e.meta}}}
         case Events.closingTime.type:
-            return {kind: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
+            return {sealedValue: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
         default:
             throw new Error(`Unknown event type: ${type}`);
         }

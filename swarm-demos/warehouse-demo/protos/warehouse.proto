@@ -30,8 +30,8 @@ npm install @protobuf-ts/plugin
 */
 
 
-message Msg {
-  oneof kind {
+message Event {
+  oneof sealed_value {
     PartReq partReq = 1;
     PartOK partOK = 2;
     Pos pos = 3;
