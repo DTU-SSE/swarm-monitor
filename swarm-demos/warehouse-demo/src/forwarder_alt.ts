@@ -1,20 +1,14 @@
 import { Actyx, ActyxEvent, EventSubscription } from '@actyx/sdk'
-import { createMachineRunner } from '@actyx/machine-runner'
 import { Events, manifest, Composition } from './protocol'
 import { Msg } from './generated/warehouse'
-// import * as net from "net";
 import * as dgram from "dgram";
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-/* interface Args {
-  address: string;
-  port: string;
-} */
 
 /*
+    To run:
     npm run start-forwarder-alt -- --address=10.197.104.210 --port=9999
-
 */
 function send_message_protobuf(e: any, client: dgram.Socket) {
     //console.log(JSON.stringify(e, null, 2))
