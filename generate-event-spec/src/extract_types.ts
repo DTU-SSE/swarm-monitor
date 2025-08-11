@@ -45,7 +45,8 @@ function traverse(node: Node, visitor: ASTVisitor) {
 type Variables = Map<string, string>;
 type Types = Map<string, string>; // Maps type names to their AST nodes
 type EventWithoutPayload = { name: string; type: 'withoutPayload' };
-type EventWithPayload = { name: string; type: 'withPayload'; payloadType: string };
+type PayloadType = { typeAsString: string; kind: 'typeReference' | 'typeLiteral' };
+type EventWithPayload = { name: string; type: 'withPayload'; payloadType: PayloadType };
 type Event = EventWithoutPayload | EventWithPayload;
 
 type ASTData = {
@@ -63,72 +64,78 @@ function basicVisit(node: Node, prepend: string = '') {
   });
 }
 
-function childrenHasKind(node: Node, kind: SyntaxKind): boolean {
-  return node.getChildrenOfKind(kind).length > 0;
-}
+class CollectingVisitor implements ASTVisitor {
+  data: ASTData = { variables: new Map(), types: new Map(), events: [], calls: [], propertyAccesses: [] };
 
-//function getEventTypeNamePayloadSpecified()
-
-function getEventTypeName(node: CallExpression): string | undefined {
-  const args = node.getArguments();
-  if (args && args.length > 0) {
-    return args[0]?.getText().replace(/['"]/g, '');
+  childWithKind(node: Node, kind: SyntaxKind): boolean {
+    return node.getChildrenOfKind(kind).length > 0;
   }
-}
 
-function machineEventDesign(node: CallExpression) {
-  if (childrenHasKind(node, SyntaxKind.PropertyAccessExpression)) {
-    const propertyAccess = node.getFirstDescendantByKind(SyntaxKind.PropertyAccessExpression);
-    if (propertyAccess) {
-      if(propertyAccess.getExpression().getText() === 'MachineEvent' && propertyAccess.getName() === 'design') {
-        const eventName = getEventTypeName(node);
-        console.log(`Event Type: ${eventName}`);
-      } else if (propertyAccess.getExpression().getText().startsWith('MachineEvent') && propertyAccess.getName() === 'withPayload') {
-        if (childrenHasKind(node, SyntaxKind.CallExpression)) {
-          const callExpr = node.getFirstDescendantByKind(SyntaxKind.CallExpression);
-          if (callExpr) {
-            const eventName = getEventTypeName(callExpr);
-            console.log(`Event Type: ${eventName}`);
-          }
-        }
-        if (childrenHasKind(node, SyntaxKind.TypeReference)) {
-          const typeReference = node.getFirstDescendantByKind(SyntaxKind.TypeReference);
-          if (typeReference) {
-            const payloadType = typeReference.getText();
-            console.log(`Payload Type: ${payloadType}`);
-            // Here you can store the event with payload type
-            // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
-          }
-        } else if (childrenHasKind(node, SyntaxKind.TypeLiteral)) {
-          const typeLiteral = node.getFirstDescendantByKind(SyntaxKind.TypeLiteral);
-          if (typeLiteral) {
-            const payloadType = typeLiteral.getText();
-            console.log(`Payload Type: ${payloadType}`);
-            // Here you can store the event with payload type
-            // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
-          }
-        }
+
+  getEventTypeNameFromArgs(node: CallExpression): string | undefined {
+    const args = node.getArguments();
+    if (args && args.length > 0) {
+      return args[0]?.getText().replace(/['"]/g, '');
+    }
+  }
+
+  handleEventWithPayload(node: CallExpression) {
+    console.log(`Handling event with payload in: ${node.getText()}`);
+    if (this.childWithKind(node, SyntaxKind.TypeReference)) {
+      const typeReference = node.getFirstChildByKind(SyntaxKind.TypeReference);
+      if (typeReference) {
+        const payloadType = typeReference.getText();
+        console.log(`Payload Type: ${payloadType}`);
+        // Here you can store the event with payload type
+        // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
+      }
+    } else if (this.childWithKind(node, SyntaxKind.TypeLiteral)) {
+      const typeLiteral = node.getFirstChildByKind(SyntaxKind.TypeLiteral);
+      if (typeLiteral) {
+        const payloadType = typeLiteral.getText();
+        console.log(`Payload Type: ${payloadType}`);
+        // Here you can store the event with payload type
+        // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
       }
     }
   }
 
-}
+  handleEventDesign(node: CallExpression) {
+    if (this.childWithKind(node, SyntaxKind.PropertyAccessExpression)) {
+      const propertyAccess = node.getFirstChildByKind(SyntaxKind.PropertyAccessExpression);
+      // Log object and property to console
+      if (propertyAccess) {
+        console.log(`Object: ${propertyAccess.getExpression().getText()}, Property: ${propertyAccess.getName()}`);
+      }
+      if (propertyAccess && propertyAccess.getExpression().getText().startsWith('MachineEvent')) {
+        // Event definitions of the form: MachineEvent.design(...)
+        if(propertyAccess.getName() === 'design') {
+          const eventName = this.getEventTypeNameFromArgs(node);
+          console.log(`Event Type: ${eventName}`);
+        // Event definitions of the form: MachineEvent.design(...).withPayload(...) and MachineEvent.design(...).withoutPayload(...)
+        } else {
+          if (this.childWithKind(propertyAccess, SyntaxKind.CallExpression)) {
+            const callExpr = propertyAccess.getFirstDescendantByKind(SyntaxKind.CallExpression);
+            if (callExpr) {
+              const eventName = this.getEventTypeNameFromArgs(callExpr);
+              console.log(`Event Type: ${eventName}`);
+            }
+          }
+          if (propertyAccess.getName() === 'withPayload') {
+            this.handleEventWithPayload(node);
+          }
+        }
+      }
+    }
 
-
-function visitCallAsInitializer(node: CallExpression) {
-  console.log(`CallExpression: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
-  basicVisit(node);
-  machineEventDesign(node);
-  /* for (const arg of node.getArguments()) {
-    console.log(`Argument: ${arg.getText()}`);
   }
-  node.forEachChild(child => {
-    console.log(`Child: ${child.getText()} of kind ${SyntaxKind[child.getKind()]}`);
-  }); */
-}
 
-class CollectingVisitor implements ASTVisitor {
-  data: ASTData = { variables: new Map(), types: new Map(), events: [], calls: [], propertyAccesses: [] };
+
+  visitCallAsInitializer(node: CallExpression) {
+    console.log(`CallExpression: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
+    basicVisit(node);
+    this.handleEventDesign(node);
+  }
 
   visitVariableDeclaration(node: VariableDeclaration) {
     if (node.getInitializer()?.getKind() === SyntaxKind.StringLiteral) {
@@ -141,13 +148,8 @@ class CollectingVisitor implements ASTVisitor {
         throw new Error(`Variable ${node.getName()} initializer is an identifier that does not have a value`);
       }
     } else if (node.getInitializer()?.getKind() === SyntaxKind.CallExpression && node.getInitializer()?.getText().startsWith('MachineEvent.design')) {
-      //var callExpr = node.getInitializer()?.asKind(SyntaxKind.CallExpression);
-      //console.log(callExpr?.getExpression().getText().startsWith('MachineEvent.design'))
-      //console.log(callExpr?.getExpression().getText())
-      //console.log(callExpr?.getText().startsWith('MachineEvent.design'))
-      //console.log(callExpr?.getText())
-      visitCallAsInitializer(node.getInitializer() as CallExpression);
-      //console.log(`Variable ${node.getName()} initializer is a CallExpression: ${node.getInitializer()?.getText()}`);
+      this.handleEventDesign(node.getInitializer() as CallExpression);
+      console.log()
     }
   }
 
