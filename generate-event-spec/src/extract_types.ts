@@ -123,7 +123,6 @@ class CollectingVisitor implements ASTVisitor {
         }
       }
     }
-
   }
 
   // Visit VariableDeclaration nodes to extract variable names and values
