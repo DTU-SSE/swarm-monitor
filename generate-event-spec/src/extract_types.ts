@@ -37,7 +37,7 @@ type PayloadType = { typeAsString: string; kind: 'typeReference' | 'typeLiteral'
 type EventWithPayload = { name: string; eventKind: 'withPayload'; payloadType: PayloadType };
 type Event = EventWithoutPayload | EventWithPayload;
 
-type ASTData = {
+export type ASTData = {
   variables: Variables;
   types: Types;
   events: Event[];

@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "gen-protobuf": "tsc && node dist/cli.js"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.5",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.2.0",
     "@types/yargs": "^17.0.33",
+    "jest": "^30.0.5",
+    "ts-jest": "^29.4.1",
     "typescript": "^5.9.2"
   },
   "dependencies": {
