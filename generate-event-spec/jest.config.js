@@ -9,5 +9,5 @@ export default {
       useESM: true
     }
   },
-  moduleFileExtensions: ["ts", "js", "json", "node"]
+  extensionsToTreatAsEsm: [".ts"],
 };
