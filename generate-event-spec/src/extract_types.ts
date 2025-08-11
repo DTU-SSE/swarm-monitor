@@ -44,9 +44,9 @@ function traverse(node: Node, visitor: ASTVisitor) {
 // Data structures to hold extracted info
 type Variables = Map<string, string>;
 type Types = Map<string, string>; // Maps type names to their AST nodes
-type EventWithoutPayload = { name: string; type: 'withoutPayload' };
+type EventWithoutPayload = { name: string; eventKind: 'withoutPayload' };
 type PayloadType = { typeAsString: string; kind: 'typeReference' | 'typeLiteral' };
-type EventWithPayload = { name: string; type: 'withPayload'; payloadType: PayloadType };
+type EventWithPayload = { name: string; eventKind: 'withPayload'; payloadType: PayloadType };
 type Event = EventWithoutPayload | EventWithPayload;
 
 type ASTData = {
@@ -60,7 +60,7 @@ type ASTData = {
 function basicVisit(node: Node, prepend: string = '') {
   console.log(`${prepend}Node: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
   node.forEachChild(child => {
-    basicVisit(child, prepend + '  *');
+    basicVisit(child, prepend + '  * ');
   });
 }
 
@@ -72,35 +72,43 @@ class CollectingVisitor implements ASTVisitor {
   }
 
 
-  getEventTypeNameFromArgs(node: CallExpression): string | undefined {
+  getEventTypeNameFromArgs(node: CallExpression): string {
     const args = node.getArguments();
     if (args && args.length > 0) {
-      return args[0]?.getText().replace(/['"]/g, '');
+      if (args[0]?.getKind() === SyntaxKind.StringLiteral) {
+        return args[0]?.getText().replace(/['"]/g, '');
+      } else if (args[0]?.getKind() === SyntaxKind.Identifier) {
+        if (this.data.variables.has(args[0]?.getText())) {
+          return this.data.variables.get(args[0]?.getText().replace(/['"]/g, ''))!;
+        }
+      }
     }
+    throw new Error(`Event type name not found in arguments of call expression: ${node.getText()}`);
   }
 
-  handleEventWithPayload(node: CallExpression) {
+  handleEventWithPayload(node: CallExpression): PayloadType {
     console.log(`Handling event with payload in: ${node.getText()}`);
     if (this.childWithKind(node, SyntaxKind.TypeReference)) {
       const typeReference = node.getFirstChildByKind(SyntaxKind.TypeReference);
       if (typeReference) {
         const payloadType = typeReference.getText();
         console.log(`Payload Type: ${payloadType}`);
-        // Here you can store the event with payload type
-        // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
+        return { typeAsString: payloadType, kind: 'typeReference' };
       }
     } else if (this.childWithKind(node, SyntaxKind.TypeLiteral)) {
       const typeLiteral = node.getFirstChildByKind(SyntaxKind.TypeLiteral);
       if (typeLiteral) {
         const payloadType = typeLiteral.getText();
         console.log(`Payload Type: ${payloadType}`);
-        // Here you can store the event with payload type
-        // e.g., this.data.events.push({ name: eventName, type: 'withPayload', payloadType });
+        return { typeAsString: payloadType, kind: 'typeLiteral' };
       }
     }
+    throw new Error(`Payload type not found in expression: ${node.getText()}`);
   }
 
-  handleEventDesign(node: CallExpression) {
+
+  // Extract event definitions from calls to MachineEvent.design(...)
+  handleMachineEventDesign(node: CallExpression) {
     if (this.childWithKind(node, SyntaxKind.PropertyAccessExpression)) {
       const propertyAccess = node.getFirstChildByKind(SyntaxKind.PropertyAccessExpression);
       // Log object and property to console
@@ -112,29 +120,28 @@ class CollectingVisitor implements ASTVisitor {
         if(propertyAccess.getName() === 'design') {
           const eventName = this.getEventTypeNameFromArgs(node);
           console.log(`Event Type: ${eventName}`);
+
+          this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
+
         // Event definitions of the form: MachineEvent.design(...).withPayload(...) and MachineEvent.design(...).withoutPayload(...)
         } else {
           if (this.childWithKind(propertyAccess, SyntaxKind.CallExpression)) {
-            const callExpr = propertyAccess.getFirstDescendantByKind(SyntaxKind.CallExpression);
+            const callExpr = propertyAccess.getFirstChildByKind(SyntaxKind.CallExpression);
             if (callExpr) {
               const eventName = this.getEventTypeNameFromArgs(callExpr);
               console.log(`Event Type: ${eventName}`);
+              if (propertyAccess.getName() === 'withPayload') {
+                this.data.events.push({ name: eventName, eventKind: 'withPayload', payloadType: this.handleEventWithPayload(node) });
+              } else if (propertyAccess.getName() === 'withoutPayload') {
+                this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
+              }
+
             }
-          }
-          if (propertyAccess.getName() === 'withPayload') {
-            this.handleEventWithPayload(node);
           }
         }
       }
     }
 
-  }
-
-
-  visitCallAsInitializer(node: CallExpression) {
-    console.log(`CallExpression: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
-    basicVisit(node);
-    this.handleEventDesign(node);
   }
 
   visitVariableDeclaration(node: VariableDeclaration) {
@@ -148,7 +155,8 @@ class CollectingVisitor implements ASTVisitor {
         throw new Error(`Variable ${node.getName()} initializer is an identifier that does not have a value`);
       }
     } else if (node.getInitializer()?.getKind() === SyntaxKind.CallExpression && node.getInitializer()?.getText().startsWith('MachineEvent.design')) {
-      this.handleEventDesign(node.getInitializer() as CallExpression);
+      this.handleMachineEventDesign(node.getInitializer() as CallExpression);
+      //basicVisit(node);
       console.log()
     }
   }
@@ -199,12 +207,7 @@ async function main() {
 
   console.log(visitor.data.variables)
   console.log(visitor.data.types);
-  for (const call of visitor.data.calls) {
-    console.log(`Function: ${call.functionName}, Args: ${call.args.join(', ')}`);
-  }
-  for (const access of visitor.data.propertyAccesses) {
-    console.log(`Property Access: ${access.object}.${access.property}`);
-  }
+  console.log(visitor.data.events);
 
 }
 
