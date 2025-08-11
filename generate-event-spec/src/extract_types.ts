@@ -1,4 +1,4 @@
-import { Project, SourceFile, Node, SyntaxKind, ts, VariableDeclaration, CallExpression, PropertyAccessExpression, TypeAliasDeclaration } from "ts-morph";
+import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -13,7 +13,7 @@ import fs from 'fs';
 interface ASTVisitor {
   visitVariableDeclaration?(node: VariableDeclaration): void;
   visitTypeAliasDeclaration?(node: TypeAliasDeclaration): void;
-  // fallback for unhandled nodes
+  // Fallback for unhandled nodes
   visitNode?(node: Node): void;
 }
 
@@ -77,7 +77,6 @@ class CollectingVisitor implements ASTVisitor {
   }
 
   handleEventWithPayload(node: CallExpression): PayloadType {
-    console.log(`Handling event with payload in: ${node.getText()}`);
     if (this.childWithKind(node, SyntaxKind.TypeReference)) {
       const typeReference = node.getFirstChildByKind(SyntaxKind.TypeReference);
       if (typeReference) {
@@ -102,10 +101,6 @@ class CollectingVisitor implements ASTVisitor {
   handleMachineEventDesign(node: CallExpression) {
     if (this.childWithKind(node, SyntaxKind.PropertyAccessExpression)) {
       const propertyAccess = node.getFirstChildByKind(SyntaxKind.PropertyAccessExpression);
-      // Log object and property to console
-      if (propertyAccess) {
-        console.log(`Object: ${propertyAccess.getExpression().getText()}, Property: ${propertyAccess.getName()}`);
-      }
       if (propertyAccess && propertyAccess.getExpression().getText().startsWith('MachineEvent')) {
         // Event definitions of the form: MachineEvent.design(...)
         if(propertyAccess.getName() === 'design') {
@@ -147,7 +142,6 @@ class CollectingVisitor implements ASTVisitor {
     } else if (node.getInitializer()?.getKind() === SyntaxKind.CallExpression && node.getInitializer()?.getText().startsWith('MachineEvent.design')) {
       this.handleMachineEventDesign(node.getInitializer() as CallExpression);
       //basicVisit(node);
-      console.log()
     }
   }
 
