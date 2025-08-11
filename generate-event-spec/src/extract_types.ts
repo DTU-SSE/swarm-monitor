@@ -13,8 +13,6 @@ import fs from 'fs';
 interface ASTVisitor {
   visitVariableDeclaration?(node: VariableDeclaration): void;
   visitTypeAliasDeclaration?(node: TypeAliasDeclaration): void;
-  visitCallExpression?(node: CallExpression): void;
-  visitPropertyAccessExpression?(node: PropertyAccessExpression): void;
   // fallback for unhandled nodes
   visitNode?(node: Node): void;
 }
@@ -28,12 +26,6 @@ function traverse(node: Node, visitor: ASTVisitor) {
     case SyntaxKind.TypeAliasDeclaration:
       visitor.visitTypeAliasDeclaration?.(node as TypeAliasDeclaration);
       break;
-    /* case SyntaxKind.CallExpression:
-      visitor.visitCallExpression?.(node as CallExpression);
-      break;
-    case SyntaxKind.PropertyAccessExpression:
-      visitor.visitPropertyAccessExpression?.(node as PropertyAccessExpression);
-      break; */
     default:
       visitor.visitNode?.(node);
   }
@@ -53,8 +45,6 @@ type ASTData = {
   variables: Variables;
   types: Types;
   events: Event[];
-  calls: { functionName: string; args: string[] }[];
-  propertyAccesses: { object: string; property: string }[];
 }
 
 function basicVisit(node: Node, prepend: string = '') {
@@ -65,7 +55,7 @@ function basicVisit(node: Node, prepend: string = '') {
 }
 
 class CollectingVisitor implements ASTVisitor {
-  data: ASTData = { variables: new Map(), types: new Map(), events: [], calls: [], propertyAccesses: [] };
+  data: ASTData = { variables: new Map(), types: new Map(), events: [] };
 
   childWithKind(node: Node, kind: SyntaxKind): boolean {
     return node.getChildrenOfKind(kind).length > 0;
@@ -92,14 +82,12 @@ class CollectingVisitor implements ASTVisitor {
       const typeReference = node.getFirstChildByKind(SyntaxKind.TypeReference);
       if (typeReference) {
         const payloadType = typeReference.getText();
-        console.log(`Payload Type: ${payloadType}`);
         return { typeAsString: payloadType, kind: 'typeReference' };
       }
     } else if (this.childWithKind(node, SyntaxKind.TypeLiteral)) {
       const typeLiteral = node.getFirstChildByKind(SyntaxKind.TypeLiteral);
       if (typeLiteral) {
         const payloadType = typeLiteral.getText();
-        console.log(`Payload Type: ${payloadType}`);
         return { typeAsString: payloadType, kind: 'typeLiteral' };
       }
     }
@@ -108,6 +96,9 @@ class CollectingVisitor implements ASTVisitor {
 
 
   // Extract event definitions from calls to MachineEvent.design(...)
+  // Use basicVisit to see layout of ast, but thing is:
+  // Either we have calls to MachineEvent.design(...) in which case the call is a property access expression with 'design' as the property name,
+  // or the call is a property access with 'withPayload' or 'withoutPayload' as the property name, in this case the call to MachineEvent.design(...) is the first child of the property access expression.
   handleMachineEventDesign(node: CallExpression) {
     if (this.childWithKind(node, SyntaxKind.PropertyAccessExpression)) {
       const propertyAccess = node.getFirstChildByKind(SyntaxKind.PropertyAccessExpression);
@@ -119,8 +110,6 @@ class CollectingVisitor implements ASTVisitor {
         // Event definitions of the form: MachineEvent.design(...)
         if(propertyAccess.getName() === 'design') {
           const eventName = this.getEventTypeNameFromArgs(node);
-          console.log(`Event Type: ${eventName}`);
-
           this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
 
         // Event definitions of the form: MachineEvent.design(...).withPayload(...) and MachineEvent.design(...).withoutPayload(...)
@@ -129,13 +118,11 @@ class CollectingVisitor implements ASTVisitor {
             const callExpr = propertyAccess.getFirstChildByKind(SyntaxKind.CallExpression);
             if (callExpr) {
               const eventName = this.getEventTypeNameFromArgs(callExpr);
-              console.log(`Event Type: ${eventName}`);
               if (propertyAccess.getName() === 'withPayload') {
                 this.data.events.push({ name: eventName, eventKind: 'withPayload', payloadType: this.handleEventWithPayload(node) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
               }
-
             }
           }
         }
@@ -144,6 +131,9 @@ class CollectingVisitor implements ASTVisitor {
 
   }
 
+  // Visit VariableDeclaration nodes to extract variable names and values
+  // We do this to get all variables that may be used somewhere in event definitions
+  // and to get the event definitoins themselves.
   visitVariableDeclaration(node: VariableDeclaration) {
     if (node.getInitializer()?.getKind() === SyntaxKind.StringLiteral) {
       this.data.variables.set(node.getName(), node.getInitializer()?.getText().slice(1, -1) || '');
@@ -170,19 +160,6 @@ class CollectingVisitor implements ASTVisitor {
     }
 
   }
-
-  /* visitCallExpression(node: CallExpression) {
-    const functionName = node.getExpression().getText();
-    const args = node.getArguments().map(arg => arg.getText());
-    this.data.calls.push({ functionName, args });
-  }
-
-  visitPropertyAccessExpression(node: PropertyAccessExpression) {
-    this.data.propertyAccesses.push({
-      object: node.getExpression().getText(),
-      property: node.getName(),
-    });
-  } */
 }
 
 async function main() {
