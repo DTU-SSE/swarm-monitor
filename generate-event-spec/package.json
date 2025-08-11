@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "gen-protobuf": "tsc && node dist/extract_types.js"
+    "gen-protobuf": "tsc && node dist/cli.js"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",

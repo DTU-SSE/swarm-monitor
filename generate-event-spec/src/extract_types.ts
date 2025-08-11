@@ -1,9 +1,5 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
 
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
-import fs from 'fs';
-
 /*
     To run:
     npm run gen-protobuf -- --swarm-events=protocol.ts
@@ -155,34 +151,12 @@ class CollectingVisitor implements ASTVisitor {
   }
 }
 
-async function main() {
-  const argv = await yargs(hideBin(process.argv))
-    .option('swarm-events', {
-      alias: 'e',
-      type: 'string',
-      description: 'File path to the definition of the swarm events',
-      default: 'protocol.ts',
-    })
-    .parseAsync();
-    if (!fs.existsSync(argv.swarmEvents)) {
-      throw new Error(`File not found: ${argv.swarmEvents}`);
-    }
-
+export function extractTypesFromFile(filePath: string): ASTData {
   const project = new Project();
-
-  const sourceFile = project.addSourceFileAtPath(argv.swarmEvents);
-  //const stringVs = getStringVariables(sourceFile)
+  const sourceFile = project.addSourceFileAtPath(filePath);
   const visitor = new CollectingVisitor();
-  traverse(sourceFile, visitor);
+  traverse(sourceFile, visitor)
 
-  console.log(visitor.data.variables)
-  console.log(visitor.data.types);
-  console.log(visitor.data.events);
-
+  return visitor.data;
 }
-
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-})
 
