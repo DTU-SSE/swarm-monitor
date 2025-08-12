@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
-    "gen-protobuf": "tsc && node dist/src/cli.js"
+    "gen-protobuf": "tsc && node dist/cli.js"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
@@ -20,6 +20,8 @@
     "ts-morph": "^26.0.0",
     "yargs": "^18.0.0"
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["tests", "node_modules"]
+  "files": [
+    "dist/",
+    "README.md"
+  ]
 }
