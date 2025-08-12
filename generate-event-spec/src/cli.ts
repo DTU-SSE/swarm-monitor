@@ -18,8 +18,7 @@ async function main() {
     }
 
   const data = extractTypesFromFile(argv.swarmEvents);
-
-  console.log(`${astDataToString(data)}`);
+  console.log(astDataToString(data));
 }
 
 main().catch(err => {

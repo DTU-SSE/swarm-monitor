@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+
+interface MachineEventIF {
+  design(name: string): MachineEventIF;
+  withPayload<T>(): any;
+  withoutPayload(): any;
+}
 // Mock implementation
-const MachineEvent = {
+const MachineEvent: MachineEventIF = {
   design(name: string) {
     return this;
   },
@@ -12,16 +18,19 @@ const MachineEvent = {
   },
 };
 
-type ClosingTypeNested = { number: number }
+type Lars = number[]
+type Laquo = boolean | string
+type Boing = Laquo
+type Haha = string
+type ClosingTypeNested = { number: number[], other: Boing}
 type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }
-type PartReqPayload = {partName: string}
+type PartReqPayload = {partName: Haha}
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}
 type CarPayload = {partName: string, modelName: string}
 const var1 = 'pos'
 const posName = var1
 const partReqName = 'partReq'
-
 export namespace Events {
   export const partReq = MachineEvent.design(partReqName).withPayload<PartReqPayload>()
   export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()

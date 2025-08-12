@@ -1,5 +1,5 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, TypeReferenceNode, PropertySignature } from "ts-morph";
-import type { ASTData, PayloadType } from "./types.js";
+import type { ASTData } from "./types.js";
 import { typeNodeToTypeInfo } from "./typenode_to_typeinfo.js";
 /*
     To run:
@@ -64,24 +64,6 @@ class CollectingVisitor implements ASTVisitor {
     throw new Error(`Event type name not found in arguments of call expression: ${node.getText()}`);
   }
 
-  handleEventWithPayload(node: CallExpression): PayloadType {
-    if (this.childWithKind(node, SyntaxKind.TypeReference)) {
-      const typeReference = node.getFirstChildByKind(SyntaxKind.TypeReference);
-      if (typeReference) {
-        const payloadType = typeReference.getText();
-        return { typeAsString: payloadType, kind: 'typeReference' };
-      }
-    } else if (this.childWithKind(node, SyntaxKind.TypeLiteral)) {
-      const typeLiteral = node.getFirstChildByKind(SyntaxKind.TypeLiteral);
-      if (typeLiteral) {
-        const payloadType = typeLiteral.getText();
-        return { typeAsString: payloadType, kind: 'typeLiteral' };
-      }
-    }
-    throw new Error(`Payload type not found in expression: ${node.getText()}`);
-  }
-
-
   // Extract event definitions from calls to MachineEvent.design(...)
   // Use basicVisit to see layout of ast, but thing is:
   // Either we have calls to MachineEvent.design(...) in which case the call is a property access expression with 'design' as the property name,
@@ -132,7 +114,6 @@ class CollectingVisitor implements ASTVisitor {
       }
     } else if (node.getInitializer()?.getKind() === SyntaxKind.CallExpression && node.getInitializer()?.getText().startsWith('MachineEvent.design')) {
       this.handleMachineEventDesign(node.getInitializer() as CallExpression);
-      //basicVisit(node);
     }
   }
 
@@ -143,7 +124,6 @@ class CollectingVisitor implements ASTVisitor {
     } else {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
-    console.log()
   }
 }
 
