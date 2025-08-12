@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+
+// Ignore the fact that these modules can not be found etc.
 import { MachineEvent, SwarmProtocol } from '@actyx/machine-runner'
+
 import { SwarmProtocolType, Subscriptions, Result, DataResult, overapproxWWFSubscriptions, checkWWFSwarmProtocol, InterfacingProtocols} from '@actyx/machine-check'
 import chalk from "chalk";
 
@@ -17,6 +20,7 @@ type CarPayload = {partName: string, modelName: string}
 const var1 = 'pos'
 const posName = var1
 const partReqName = 'partReq'
+
 export namespace Events {
   export const partReq = MachineEvent.design(partReqName).withPayload<PartReqPayload>()
   export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()

@@ -28,7 +28,7 @@ describe("test warehouse demo with extra events", () => {
     { name: 'noPayload1', eventKind: 'withoutPayload' }
   ];
 
-  const data = extractTypesFromFile("protocol.ts");
+  const data = extractTypesFromFile("tests/protocol.ts");
   it("extracts variables correctly", () => {
     expect(data.variables).toEqual(variables);
   });
