@@ -26,16 +26,18 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
                 asString: unionType.getText(),
                 members: unionType.getTypeNodes().map(t => typeNodeToTypeInfo(t))
             };
+        // TypeLiteralNodes are used to represent object types
         case SyntaxKind.TypeLiteral:
-            const objectType = typeNode as TypeLiteralNode;
-            const properties = new Map<string, TypeInfo>();
-            objectType.getMembers().forEach(member => {
-                if (SyntaxKind.PropertySignature === member.getKind()) {
-                    const prop = member as PropertySignature;
-                    properties.set(prop.getName(), typeNodeToTypeInfo(prop.getTypeNode()!));
-                }
-            });
-            return { type: 'object', asString: objectType.getText(), properties };
+            const typeLiteral = typeNode as TypeLiteralNode;
+            const pairs: [string, TypeInfo][] = typeLiteral.getMembers()
+                .filter(member => member.getKind() === SyntaxKind.PropertySignature) // Can be either PropertySignature | MethodSignature | ConstructSignatureDeclaration | CallSignatureDeclaration | IndexSignatureDeclaration | GetAccessorDeclaration | SetAccessorDeclaration;
+                .map(member => member as PropertySignature) // Here we only consider PropertySignature, is this enough?
+                .map(prop => {
+                    const fieldType = typeNodeToTypeInfo(prop.getTypeNode()!);
+                    return [prop.getName(), fieldType]
+                });
+            const properties = new Map<string, TypeInfo>(pairs);
+            return { type: 'object', asString: typeLiteral.getText(), properties };
         default:
             throw new Error(`Unsupported TypeNode kind: ${SyntaxKind[typeNode.getKind()]}`);
     }

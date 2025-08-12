@@ -2,6 +2,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
 import { extractTypesFromFile } from './extract_types.js';
+import { astDataToString } from './types.js';
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
@@ -18,10 +19,7 @@ async function main() {
 
   const data = extractTypesFromFile(argv.swarmEvents);
 
-  console.log(data.variables)
-  console.log(data.types);
-  console.log(data.events);
-
+  console.log(`${astDataToString(data)}`);
 }
 
 main().catch(err => {
