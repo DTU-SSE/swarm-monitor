@@ -8,7 +8,11 @@ export const manifest = {
   displayName: 'Car Factory',
   version: '1.0.0',
 }
-type ClosingTypeNested = { number: number }
+type Lars = number[]
+type Laquo = boolean | string
+type Boing = Laquo
+type Haha = string
+type ClosingTypeNested = { number: number[], other: Laquo}
 type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }
 type PartReqPayload = {partName: string}
 type PosPayload = {position: string, partName: string}

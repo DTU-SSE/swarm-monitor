@@ -1,4 +1,5 @@
-import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
+import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, TypeReferenceNode, PropertySignature } from "ts-morph";
+import type { ASTData, PayloadType } from "./types.js";
 
 /*
     To run:
@@ -29,20 +30,6 @@ function traverse(node: Node, visitor: ASTVisitor) {
   node.forEachChild(child => traverse(child, visitor));
 }
 
-// Data structures to hold extracted info
-type Variables = Map<string, string>;
-type Types = Map<string, string>; // Maps type names to their AST nodes
-type EventWithoutPayload = { name: string; eventKind: 'withoutPayload' };
-type PayloadType = { typeAsString: string; kind: 'typeReference' | 'typeLiteral' };
-type EventWithPayload = { name: string; eventKind: 'withPayload'; payloadType: PayloadType };
-type Event = EventWithoutPayload | EventWithPayload;
-
-export type ASTData = {
-  variables: Variables;
-  types: Types;
-  events: Event[];
-}
-
 function basicVisit(node: Node, prepend: string = '') {
   console.log(`${prepend}Node: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
   node.forEachChild(child => {
@@ -55,6 +42,11 @@ class CollectingVisitor implements ASTVisitor {
 
   childWithKind(node: Node, kind: SyntaxKind): boolean {
     return node.getChildrenOfKind(kind).length > 0;
+  }
+
+  // Find child that is a TypeNode or undefined
+  childTypeNode(node: Node): Node | undefined {
+    return node.getChildren().find(child => Node.isTyped(child));
   }
 
 
@@ -110,6 +102,14 @@ class CollectingVisitor implements ASTVisitor {
             if (callExpr) {
               const eventName = this.getEventTypeNameFromArgs(callExpr);
               if (propertyAccess.getName() === 'withPayload') {
+                console.log(`Child that is typed: ${this.childTypeNode(node)?.getText()}`);
+                console.log(`Is call with type arguments: ${Node.isExpressionWithTypeArguments(node)}`);
+                console.log(`Is call with type arguments: ${Node.isExpressionWithTypeArguments(callExpr)}`);
+                console.log(`Is call with type arguments: ${Node.isExpressionWithTypeArguments(propertyAccess)}`);
+                console.log(`TypeArgs outer call node : ${node.getTypeArguments().map(t => t.getText()).join(', ')}`);
+                console.log(`TypeArgs call child of property: ${callExpr.getTypeArguments().map(t => t.getText()).join(', ')}`);
+                //console.log(`TypeArgs: ${propertyAccess.getTypeArguments().map(t => t.getText()).join(', ')}`);
+                basicVisit(node, '  * '); // For debugging, can be removed later
                 this.data.events.push({ name: eventName, eventKind: 'withPayload', payloadType: this.handleEventWithPayload(node) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
@@ -139,15 +139,55 @@ class CollectingVisitor implements ASTVisitor {
       //basicVisit(node);
     }
   }
+  // Function typenode to ...
 
   visitTypeAliasDeclaration(node: TypeAliasDeclaration) {
     const typeNode = node.getTypeNode();
     if (typeNode) {
+      console.log(`Found type alias: ${node.getName()} with type node: ${typeNode.getText()} :D`);
+      if (typeNode.getKind() === SyntaxKind.TypeLiteral) {
+        const hting = (typeNode as TypeLiteralNode).getMembers();
+        hting.forEach(m => {
+          // Type literal member: ${Object.keys(m)}
+          console.log(` Kind: ${m.getKindName()} thing: ${(m as PropertySignature).getType().getText()}`);
+          //console.log(`thing: ${(m as PropertySignature).getType()}, ${(m as PropertySignature).getTypeNode()}`);
+          console.log()
+        })
+        console.log(`Type alias ${node.getName()} is a type literal with members: ${hting.map(m => m.getText()).join(', ')}`);
+        console.log(`Type alias ${node.getName()} is a type literal`);
+      } else if (typeNode.getKind() === SyntaxKind.TypeReference) {
+        console.log(`Type alias ${node.getName()} is a type reference`);
+        const jfsl = (typeNode as TypeReferenceNode).getTypeName();
+        console.log(`Type reference name: ${jfsl.getText()}`);
+        //console.log(`Type reference: ${jfsl}`);
+      } else if (typeNode.getKind() === SyntaxKind.ArrayType) {
+        console.log(`Type alias ${node.getName()} is an array type`);
+        // Handle array types specifically if needed
+        //const elementType = typeNode.getFirstChildByKind(SyntaxKind.TypeReference);
+        const elementType = (typeNode as ArrayTypeNode).getElementTypeNode();
+        if (elementType) {
+          console.log(`Array type element: ${elementType.getText()}`);
+          //this.data.types.set(node.getName(), `Array<${elementType.getText()}>`);
+          //return;
+        }
+      } else if (typeNode.getKind() === SyntaxKind.UnionType) {
+        console.log(`Type alias ${node.getName()} is a union type`);
+        const choices = (typeNode as UnionTypeNode).getTypeNodes().map(t => t.getText());
+        console.log(`Union type choices: ${choices.join(', ')}`);
+      } else if (typeNode.getKind() === SyntaxKind.StringKeyword) {
+        console.log(`Type alias ${node.getName()} is a string type`);
+      } else if (typeNode.getKind() === SyntaxKind.NumberKeyword) {
+        console.log(`Type alias ${node.getName()} is a number type`);
+      } else if (typeNode.getKind() === SyntaxKind.BooleanKeyword) {
+        console.log(`Type alias ${node.getName()} is a boolean type`);
+      } else {
+        console.log(`Type alias ${node.getName()} is of unknown kind: ${SyntaxKind[typeNode.getKind()]}`);
+      }
       this.data.types.set(node.getName(), typeNode.getText());
     } else {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
-
+    console.log()
   }
 }
 
