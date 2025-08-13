@@ -10,10 +10,6 @@ async function removeFile(path: string): Promise<void> {
     } catch (error) {
         throw error
     }
-
-    /* return new Promise<void>((resolve, reject) => {
-        unlink(filePath, (err) => err ? reject(err) : resolve());
-    }); */
 }
 
 // Writes a .proto file from given file that should contain a json object generated with root.toJSON.
