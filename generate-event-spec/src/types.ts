@@ -1,5 +1,5 @@
 // Data structures to hold extracted info
-type Variables = Map<string, string>;
+type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
 
 export type TypeInfo = StringType | NumberType | BooleanType | ReferenceType | ArrayType | UnionType | ObjectType;
 
