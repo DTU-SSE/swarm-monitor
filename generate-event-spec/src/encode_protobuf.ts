@@ -1,7 +1,4 @@
-import * as protobuf from 'protobufjs'
-import { writeFileSync, unlink } from 'fs';
-import { spawnSync } from 'child_process';
-import { randomUUID } from 'crypto';
+import protobuf from 'protobufjs'
 import type { EventSpec, Event } from './types.js';
 import type { Root } from 'protobufjs';
 

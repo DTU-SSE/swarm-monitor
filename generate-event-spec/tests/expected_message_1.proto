@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package test.namespace;
+
+message TestMessage {
+
+    int32 field1 = 1;
+    string field2 = 2;
+}

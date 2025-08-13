@@ -1,10 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
 import { extractTypesFromFile } from "../src/extract_types.js";
 import { eventSpecToString } from "../src/types.js";
-import * as fs from "fs" // Is actually fine, it runs
+import { readFileSync } from "fs" // Is actually fine, it runs
 
 describe("test warehouse demo with extra events", () => {
-  const expected: string = fs.readFileSync('tests/expected_ASTData_1.json','utf8');
+  const expected: string = readFileSync('tests/expected_ASTData_1.json', 'utf8');
   const data = extractTypesFromFile("tests/protocol.ts");
   it("compare outputs", () =>
     expect(eventSpecToString(data, null, 2)).toEqual(expected)
