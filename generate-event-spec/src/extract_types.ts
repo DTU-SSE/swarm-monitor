@@ -1,5 +1,5 @@
-import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, TypeReferenceNode, PropertySignature } from "ts-morph";
-import type { ASTData } from "./types.js";
+import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
+import type { EventSpec } from "./types.js";
 import { typeNodeToTypeInfo } from "./typenode_to_typeinfo.js";
 /*
     To run:
@@ -38,7 +38,7 @@ function basicVisit(node: Node, prepend: string = '') {
 }
 
 class CollectingVisitor implements ASTVisitor {
-  data: ASTData = { variables: new Map(), types: new Map(), events: [] };
+  data: EventSpec = { variables: new Map(), types: new Map(), events: [] };
 
   childWithKind(node: Node, kind: SyntaxKind): boolean {
     return node.getChildrenOfKind(kind).length > 0;
@@ -127,7 +127,7 @@ class CollectingVisitor implements ASTVisitor {
   }
 }
 
-export function extractTypesFromFile(filePath: string): ASTData {
+export function extractTypesFromFile(filePath: string): EventSpec {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
   const visitor = new CollectingVisitor();

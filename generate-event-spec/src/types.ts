@@ -16,16 +16,16 @@ type EventWithoutPayload = { name: string; eventKind: 'withoutPayload' };
 type EventWithPayload = { name: string; eventKind: 'withPayload'; payloadType: TypeInfo };
 type Event = EventWithoutPayload | EventWithPayload;
 
-export type ASTData = {
+export type EventSpec = {
   variables: Variables;
   types: Types;
   events: Event[];
 }
 
-// Pretty print Event and TypeInfo
+// Pretty print TypeInfo, Event and EventSpec
 type Serializable = string | number | boolean | null | { [key: string]: Serializable } | Serializable[]
 
-function serializeTypeInfoTo(typeInfo: TypeInfo): Serializable {
+function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
   switch (typeInfo.type) {
     case 'string':
     case 'number':
@@ -33,31 +33,31 @@ function serializeTypeInfoTo(typeInfo: TypeInfo): Serializable {
     case 'reference':
       return typeInfo
     case 'array':
-      return { type: typeInfo.type, asString: typeInfo.asString, elementType: serializeTypeInfoTo(typeInfo.elementType) }
+      return { type: typeInfo.type, asString: typeInfo.asString, elementType: serializeTypeInfo(typeInfo.elementType) }
     case 'union':
-      return { type: typeInfo.type, asString: typeInfo.asString, members: typeInfo.members.map(m => serializeTypeInfoTo(m)) }
+      return { type: typeInfo.type, asString: typeInfo.asString, members: typeInfo.members.map(m => serializeTypeInfo(m)) }
     case 'object':
-      return { type: typeInfo.type, asString: typeInfo.asString, members: Array.from(typeInfo.properties.entries()).map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfoTo(typeInfo)]) }
+      return { type: typeInfo.type, asString: typeInfo.asString, members: Array.from(typeInfo.properties.entries()).map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfo(typeInfo)]) }
   }
 }
 
 function serializeEvent(event: Event): Serializable {
   switch (event.eventKind) {
     case 'withPayload':
-      return { name: event.name, eventKind: event.eventKind, payloadType: serializeTypeInfoTo(event.payloadType) }
+      return { name: event.name, eventKind: event.eventKind, payloadType: serializeTypeInfo(event.payloadType) }
     case 'withoutPayload':
       return event
   }
 }
 
-export function serializeASTData(astData: ASTData): Serializable {
+export function serializeEventSpec(eventSpec: EventSpec): Serializable {
   return {
-    variables: Array.from(astData.variables.entries()),
-    types: Array.from(astData.types.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfoTo(typeInfo)]),
-    events: astData.events.map(e => serializeEvent(e))
+    variables: Array.from(eventSpec.variables.entries()),
+    types: Array.from(eventSpec.types.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
+    events: eventSpec.events.map(e => serializeEvent(e))
   }
 }
 
-export function astDataToString(astData: ASTData, replacer?: (number | string)[] | null, space?: string | number): string {
-  return JSON.stringify(serializeASTData(astData), replacer, space)
+export function eventSpecToString(eventSpec: EventSpec, replacer?: (number | string)[] | null, space?: string | number): string {
+  return JSON.stringify(serializeEventSpec(eventSpec), replacer, space)
 }
