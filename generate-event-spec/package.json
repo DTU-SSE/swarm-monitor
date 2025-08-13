@@ -17,6 +17,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "protobufjs": "^7.5.3",
     "ts-morph": "^26.0.0",
     "yargs": "^18.0.0"
   },

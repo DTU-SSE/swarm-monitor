@@ -14,7 +14,7 @@ type ObjectType = { type: 'object', asString: string, properties: Map<string, Ty
 type Types = Map<string, TypeInfo>;
 type EventWithoutPayload = { eventTypeName: string; eventKind: 'withoutPayload' };
 type EventWithPayload = { eventTypeName: string; eventKind: 'withPayload'; payloadType: TypeInfo };
-type Event = EventWithoutPayload | EventWithPayload;
+export type Event = EventWithoutPayload | EventWithPayload;
 
 export type EventSpec = {
   variables: Variables;
