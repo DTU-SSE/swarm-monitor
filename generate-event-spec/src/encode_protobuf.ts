@@ -2,9 +2,9 @@ import protobuf from 'protobufjs'
 import type { EventSpec, Event } from './types.js';
 import type { Root } from 'protobufjs';
 
-type FieldTriple = { fieldName: string, fieldNumber: number, fieldType: FieldType, rule?: "repeated" }
+type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: FieldType, rule?: "repeated" }
 
-type FieldType = "bool" | "string" | "int32" | "uint32" | "uint64"
+type FieldType = "bool" | "string" | "int32" | "uint32" | "uint64" | "Meta"
 
 export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
@@ -13,15 +13,15 @@ export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTr
     const meta = encodeMeta()
     namespace.add(meta)
 
-    /*
-    const extra = [{type: 'Meta', fieldName: 'meta'}]
-    if (branchTracking) { extra.push({type: 'string', fieldName: 'lbj'}) }
+    // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
+    const extra: FieldTriple[] = [{fieldName: 'meta', fieldType: 'Meta'}]
+    if (branchTracking) { extra.push({fieldName: 'lbj', fieldType: 'string'}) }
 
     for (const event of eventSpec.events) {
         namespace.add(encodeEventToProtoBuf(event, extra))
     }
 
-    namespace.add(topLevelEvent(eventSpec.events)) */
+    namespace.add(topLevelEvent(eventSpec.events))
 
     return root
 }
@@ -31,7 +31,7 @@ function topLevelEvent(events: Event[]): protobuf.Type {
     throw Error('Not implemented')
 }
 
-function encodeEventToProtoBuf(event: Event, extra: {type: string, fieldName: string}[]=[]): protobuf.Type {
+function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.Type {
 
     throw Error('Not implemented')
 }
@@ -39,21 +39,20 @@ function encodeEventToProtoBuf(event: Event, extra: {type: string, fieldName: st
 /*
     Always has the shape:
     message Meta {
-        bool isLocalEvent = 1;
+        bool is_local_event = 1;
         repeated string tags = 2;
-        uint64 timestampMicros = 3;
+        uint64 timestamp_micros = 3;
         uint32 lamport = 4;
-        string appId = 5;
-        string eventId = 6;
+        string app_id = 5;
+        string event_id = 6;
         string stream = 7;
         uint32 offset = 8;
     }
 */
-
 function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
     const msgType = new protobuf.Type(msgTypeName)
-    for (const field of fields) {
-        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber, field.fieldType, field.rule))
+    for (const [index, field] of fields.entries()) {
+        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, field.fieldType, field.rule))
     }
 
     return msgType
