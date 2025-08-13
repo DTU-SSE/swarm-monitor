@@ -58,6 +58,6 @@ export function serializeASTData(astData: ASTData): Serializable {
   }
 }
 
-export function astDataToString(astData: ASTData): string {
-  return JSON.stringify(serializeASTData(astData), null, 2)
+export function astDataToString(astData: ASTData, replacer?: (number | string)[] | null, space?: string | number): string {
+  return JSON.stringify(serializeASTData(astData), replacer, space)
 }
