@@ -194,7 +194,7 @@
   ],
   "events": [
     {
-      "name": "partReq",
+      "eventTypeName": "partReq",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "reference",
@@ -202,7 +202,7 @@
       }
     },
     {
-      "name": "partOK",
+      "eventTypeName": "partOK",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "reference",
@@ -210,7 +210,7 @@
       }
     },
     {
-      "name": "pos",
+      "eventTypeName": "pos",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "reference",
@@ -218,7 +218,7 @@
       }
     },
     {
-      "name": "closingTime",
+      "eventTypeName": "closingTime",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "reference",
@@ -226,7 +226,7 @@
       }
     },
     {
-      "name": "car",
+      "eventTypeName": "car",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "reference",
@@ -234,7 +234,7 @@
       }
     },
     {
-      "name": "thing",
+      "eventTypeName": "thing",
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
@@ -251,11 +251,11 @@
       }
     },
     {
-      "name": "noPayload",
+      "eventTypeName": "noPayload",
       "eventKind": "withoutPayload"
     },
     {
-      "name": "noPayload1",
+      "eventTypeName": "noPayload1",
       "eventKind": "withoutPayload"
     }
   ]

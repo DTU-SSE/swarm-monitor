@@ -74,23 +74,23 @@ class CollectingVisitor implements ASTVisitor {
       if (propertyAccess && propertyAccess.getExpression().getText().startsWith('MachineEvent')) {
         // Event definitions of the form: MachineEvent.design(...)
         if (propertyAccess.getName() === 'design') {
-          const eventName = this.getEventTypeNameFromArgs(node);
-          this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
+          const eventTypeName = this.getEventTypeNameFromArgs(node);
+          this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
 
           // Event definitions of the form: MachineEvent.design(...).withPayload(...) and MachineEvent.design(...).withoutPayload(...)
         } else {
           if (this.childWithKind(propertyAccess, SyntaxKind.CallExpression)) {
             const callExpr = propertyAccess.getFirstChildByKind(SyntaxKind.CallExpression);
             if (callExpr) {
-              const eventName = this.getEventTypeNameFromArgs(callExpr);
+              const eventTypeName = this.getEventTypeNameFromArgs(callExpr);
               if (propertyAccess.getName() === 'withPayload') {
                 const typeArgs = node.getTypeArguments();
                 if (typeArgs.length === 0) {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
-                this.data.events.push({ name: eventName, eventKind: 'withPayload', payloadType: typeNodeToTypeInfo(node.getTypeArguments()[0]!) });
+                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToTypeInfo(node.getTypeArguments()[0]!) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
-                this.data.events.push({ name: eventName, eventKind: 'withoutPayload' });
+                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
               }
             }
           }

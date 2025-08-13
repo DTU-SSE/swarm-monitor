@@ -12,8 +12,8 @@ type UnionType = { type: 'union', asString: string, members: TypeInfo[] };
 type ObjectType = { type: 'object', asString: string, properties: Map<string, TypeInfo> };
 
 type Types = Map<string, TypeInfo>;
-type EventWithoutPayload = { name: string; eventKind: 'withoutPayload' };
-type EventWithPayload = { name: string; eventKind: 'withPayload'; payloadType: TypeInfo };
+type EventWithoutPayload = { eventTypeName: string; eventKind: 'withoutPayload' };
+type EventWithPayload = { eventTypeName: string; eventKind: 'withPayload'; payloadType: TypeInfo };
 type Event = EventWithoutPayload | EventWithPayload;
 
 export type EventSpec = {
@@ -44,7 +44,7 @@ function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
 function serializeEvent(event: Event): Serializable {
   switch (event.eventKind) {
     case 'withPayload':
-      return { name: event.name, eventKind: event.eventKind, payloadType: serializeTypeInfo(event.payloadType) }
+      return { eventTypeName: event.eventTypeName, eventKind: event.eventKind, payloadType: serializeTypeInfo(event.payloadType) }
     case 'withoutPayload':
       return event
   }
