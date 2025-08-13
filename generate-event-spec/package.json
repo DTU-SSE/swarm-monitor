@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "gen-protobuf": "tsc && node dist/cli.js",
-    "codegen": "tsc && node dist/protobuf_codegen.js"
+    "codegen": "tsc && node dist/protobuf_codegen.js",
+    "encode": "tsc && node dist/encode_protobuf.js"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",

@@ -2,7 +2,9 @@ import protobuf from 'protobufjs'
 import type { EventSpec, Event } from './types.js';
 import type { Root } from 'protobufjs';
 
-type FieldTriple = { fieldName: string, fieldNumber: number, fieldType: string, rule?: (string|{ [k: string]: any }) }
+type FieldTriple = { fieldName: string, fieldNumber: number, fieldType: FieldType, rule?: "repeated" }
+
+type FieldType = "bool" | "string" | "int32" | "uint32" | "uint64"
 
 export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
@@ -57,16 +59,18 @@ function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
     return msgType
 }
 
-function encodeMeta(): protobuf.Type {
+export function encodeMeta(): protobuf.Type {
     const msgTypeName = "Meta"
     const fields: FieldTriple[] = [
-        {fieldName: "isLocalEvent", fieldNumber: 1, fieldType: "bool"}
+        {fieldName: "isLocalEvent", fieldNumber: 1, fieldType: "bool"},
+        {fieldName: "tags", fieldNumber: 2, fieldType: "string", rule: "repeated"},
+        {fieldName: "timestampMicros", fieldNumber: 3, fieldType: "uint64"},
+        {fieldName: "lamport", fieldNumber: 4, fieldType: "uint32"},
+        {fieldName: "appId", fieldNumber: 5, fieldType: "string"},
+        {fieldName: "eventId", fieldNumber: 6, fieldType: "string"},
+        {fieldName: "stream", fieldNumber: 7, fieldType: "string"},
+        {fieldName: "offset", fieldNumber: 8, fieldType: "uint32"}
     ]
 
-    const message = new protobuf.Type("Meta")
-        .add(new protobuf.Field("id", 1, "int32"))
-
-    message.add(new protobuf.Field("name", 2, "string"))
-        .add(new protobuf.Field("timestamp", 3, "int64"));
-    throw Error('Not implemented')
+    return genMsgType(msgTypeName, fields)
 }
