@@ -27,11 +27,12 @@ async function protoFromJsonFile(inputPath: string, outputPath: string): Promise
   });
 }
 
-export async function generateProtoBufMsgDefs(root: protobuf.Root, outputPath="output.proto"): Promise<void> {
-    const tempJsonPath = `proto-${randomUUID()}.json`;
-    writeFileSync(tempJsonPath, JSON.stringify(root.toJSON()));
+export async function generateProtoBufMsgDefs(root: protobuf.Root, outputFile="output.proto", outputDir="./", ): Promise<void> {
+    const outputDir_ = outputDir.endsWith('/') ? outputDir : `${outputDir}/`
+    const tempJsonPath = `${outputDir_}proto-${randomUUID()}.json`;
+    writeFileSync(tempJsonPath, JSON.stringify(root.toJSON())); // .replaceAll("proto2", "proto3") consider?
     try {
-        await protoFromJsonFile(tempJsonPath, outputPath);
+        await protoFromJsonFile(tempJsonPath, `${outputDir_}${outputFile}`);
     } catch(error) {
         throw error
     } finally {

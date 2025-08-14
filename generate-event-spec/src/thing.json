@@ -1,0 +1,202 @@
+    {
+      "nested": {
+        "test": {
+          "nested": {
+            "Meta": {
+              "edition": "proto2",
+              "fields": {
+                "is_local_event": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "tags": {
+                  "rule": "repeated",
+                  "type": "string",
+                  "id": 2
+                },
+                "timestamp_micros": {
+                  "type": "uint64",
+                  "id": 3
+                },
+                "lamport": {
+                  "type": "uint32",
+                  "id": 4
+                },
+                "app_id": {
+                  "type": "string",
+                  "id": 5
+                },
+                "event_id": {
+                  "type": "string",
+                  "id": 6
+                },
+                "stream": {
+                  "type": "string",
+                  "id": 7
+                },
+                "offset": {
+                  "type": "uint32",
+                  "id": 8
+                }
+              }
+            },
+            "partReq": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "partOK": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "pos": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "closingTime": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "car": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "thing": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "noPayload": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "noPayload1": {
+              "edition": "proto2",
+              "fields": {
+                "a": {
+                  "type": "bool",
+                  "id": 1
+                },
+                "meta": {
+                  "type": "Meta",
+                  "id": 2
+                }
+              }
+            },
+            "Event": {
+              "edition": "proto2",
+              "oneofs": {
+                "sealed_value": {
+                  "oneof": [
+                    "partReq",
+                    "partOK",
+                    "pos",
+                    "closingTime",
+                    "car",
+                    "thing",
+                    "noPayload",
+                    "noPayload1"
+                  ]
+                }
+              },
+              "fields": {
+                "part_req": {
+                  "type": "partReq",
+                  "id": 0
+                },
+                "part_ok": {
+                  "type": "partOK",
+                  "id": 1
+                },
+                "pos": {
+                  "type": "pos",
+                  "id": 2
+                },
+                "closing_time": {
+                  "type": "closingTime",
+                  "id": 3
+                },
+                "car": {
+                  "type": "car",
+                  "id": 4
+                },
+                "thing": {
+                  "type": "thing",
+                  "id": 5
+                },
+                "no_payload": {
+                  "type": "noPayload",
+                  "id": 6
+                },
+                "no_payload_1": {
+                  "type": "noPayload1",
+                  "id": 7
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+

@@ -1,22 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
-interface MachineEventIF {
-  design(name: string): MachineEventIF;
-  withPayload<T>(): any;
-  withoutPayload(): any;
-}
-// Mock implementation
-const MachineEvent: MachineEventIF = {
-  design(name: string) {
-    return this;
-  },
-  withPayload<T>() {
-    return this;
-  },
-  withoutPayload() {
-    return this;
-  },
-};
+import { MachineEvent } from "./dummy_interface.js"
 
 type Lars = number[]
 type Laquo = boolean | string

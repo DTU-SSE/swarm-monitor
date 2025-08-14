@@ -22,7 +22,9 @@ export const PROTOBUF_FIELD_TYPES = {
 
 export const PROTOBUF_NAMES = {
     REPEATED: "repeated",
-    TOP_LEVEL_EVENT_NAME: "Event"
+    TOP_LEVEL_EVENT_NAME: "Event",
+    LAST_UP: "lbj",
+    SEALED_VALUE: "sealed_value"
 } as const;
 
 export const META_NAMES = {

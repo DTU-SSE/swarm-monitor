@@ -3,19 +3,20 @@ import type { EventSpec, Event } from './types.js';
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES } from './constants.js'
 import type { ProtobufFieldType } from './constants.js'
+import snakeCase from 'lodash.snakecase'
 
 type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
 
-export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTracking=false): Root {
+export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
-    const namespace = root.define(name)
+    const namespace = root.define(packageName)
 
     const meta = encodeMeta()
     namespace.add(meta)
 
     // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
-    const extra: FieldTriple[] = [{fieldName: 'meta', fieldType: 'Meta'}]
-    if (branchTracking) { extra.push({fieldName: 'lbj', fieldType: 'string'}) }
+    const extra: FieldTriple[] = [{fieldName: META_NAMES.META_NAME_FIELD, fieldType: PROTOBUF_FIELD_TYPES.META}]
+    if (branchTracking) { extra.push({fieldName: PROTOBUF_NAMES.LAST_UP, fieldType: PROTOBUF_FIELD_TYPES.STRING}) }
 
     for (const event of eventSpec.events) {
         namespace.add(encodeEventToProtoBuf(event, extra))
@@ -26,15 +27,43 @@ export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTr
     return root
 }
 
+// Generate the overall message type that includes the different event types as variants
 function topLevelEvent(events: Event[]): protobuf.Type {
     const sealedValue = new protobuf.Type(PROTOBUF_NAMES.TOP_LEVEL_EVENT_NAME)
+    for (const [index, event] of events.entries()) {
+        sealedValue.add(new protobuf.Field(snakeCase(event.eventTypeName), index, event.eventTypeName))
+    }
 
-    throw Error('Not implemented')
+    sealedValue.add(new protobuf.OneOf(PROTOBUF_NAMES.SEALED_VALUE, events.map(e => snakeCase(e.eventTypeName))));
+    return sealedValue
 }
 
 function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.Type {
+    const msgType = new protobuf.Type(event.eventTypeName)
+    msgType.add(new protobuf.Field("a", 1, PROTOBUF_FIELD_TYPES.BOOL))
+    addFields(msgType, extra, 1)
+    return msgType
+}
 
-    throw Error('Not implemented')
+function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
+    const msgType = new protobuf.Type(msgTypeName)
+
+    //fields.map((field, index) => field.fieldNumber ? genField(field) : genField(field, index))
+    for (const [index, field] of fields.entries()) {
+        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, field.fieldType, field.rule))
+    }
+
+    return msgType
+}
+
+function addFields(msgType: protobuf.Type, fields: FieldTriple[], offset=0) {
+    for (const [index, field] of fields.entries()) {
+        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? offset + index + 1, field.fieldType, field.rule))
+    }
+}
+
+function genField(field: FieldTriple, fieldNumber=0): protobuf.Field {
+    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, field.fieldType, field.rule)
 }
 
 /*
@@ -50,21 +79,6 @@ function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.
         uint32 offset = 8;
     }
 */
-function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
-    const msgType = new protobuf.Type(msgTypeName)
-
-    //fields.map((field, index) => field.fieldNumber ? genField(field) : genField(field, index))
-    for (const [index, field] of fields.entries()) {
-        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, field.fieldType, field.rule))
-    }
-
-    return msgType
-}
-
-function genField(field: FieldTriple, fieldNumber=0): protobuf.Field {
-    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, field.fieldType, field.rule)
-}
-
 export function encodeMeta(): protobuf.Type {
     const msgTypeName = PROTOBUF_FIELD_TYPES.META
     const fields: FieldTriple[] = [

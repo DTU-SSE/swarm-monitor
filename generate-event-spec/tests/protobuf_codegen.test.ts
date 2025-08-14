@@ -1,8 +1,11 @@
 import { describe, it, expect } from "@jest/globals";
 import { generateProtoBufMsgDefs } from "../src/protobuf_codegen.js";
-import { encodeMeta } from "../src/encode_protobuf.js";
+import { encodeMeta, eventSpecToProtoBuf } from "../src/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
+import { extractTypesFromFile } from "../src/extract_types.js";
+
+const OUTDIR = "tests"
 
 // We test encodeMeta() by generating a whole package out of it.
 // Also testing codegen while doing that.
@@ -23,21 +26,28 @@ describe("test dummy messages", () => {
             .add(new protobuf.Field("field2", 2, "string"));
 
         root.define("test.namespace").add(msg);
-        const outputPath = "tests/output_1.proto"
-        await generateProtoBufMsgDefs(root, outputPath)
-        const generated = readFileSync(outputPath, 'utf8')
+        const outputFile = "output_1.proto"
+        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
+        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(outputPath)
+        unlinkSync(`${OUTDIR}/${outputFile}`)
     })
 
     it("generated meta.proto should be equal to expected meta information message format", async () => {
         const expected: string = readFileSync('tests/expected_meta_w_package.proto', 'utf8');
         const root = generateMetaWithNamespace()
-        const outputPath = "tests/output_meta.proto"
-        await generateProtoBufMsgDefs(root, outputPath)
-        const generated = readFileSync(outputPath, 'utf8')
+        const outputFile = "output_meta.proto"
+        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
+        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(outputPath)
+        unlinkSync(`${OUTDIR}/${outputFile}`)
     })
+    it("generate .proto from tests/protocol.ts", async () => {
+        const eventSpec = extractTypesFromFile("tests/warehouse-demo-events.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec)
+        const outputFile = "output_2.proto"
+        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
+    })
+
 
 });
