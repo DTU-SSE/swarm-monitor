@@ -6,6 +6,8 @@ type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: FieldTy
 
 type FieldType = "bool" | "string" | "int32" | "uint32" | "uint64" | "Meta"
 
+const TOP_LEVEL_EVENT_NAME = "Event"
+
 export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
     const namespace = root.define(name)
@@ -27,6 +29,7 @@ export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTr
 }
 
 function topLevelEvent(events: Event[]): protobuf.Type {
+    const sealedValue = new protobuf.Type(TOP_LEVEL_EVENT_NAME)
 
     throw Error('Not implemented')
 }
@@ -51,11 +54,17 @@ function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.
 */
 function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
     const msgType = new protobuf.Type(msgTypeName)
+
+    //fields.map((field, index) => field.fieldNumber ? genField(field) : genField(field, index))
     for (const [index, field] of fields.entries()) {
         msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, field.fieldType, field.rule))
     }
 
     return msgType
+}
+
+function genField(field: FieldTriple, fieldNumber=0): protobuf.Field {
+    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, field.fieldType, field.rule)
 }
 
 export function encodeMeta(): protobuf.Type {
