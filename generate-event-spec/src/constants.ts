@@ -11,9 +11,32 @@ export const TYPEINFO_TNAMES = {
 
 // Names for various field types and similar things (e.g. field cardinality things like 'repeated') for Protocol Buffers messages.
 // Therefore we have e.g. both BOOLEAN and BOOL
-export const PROTOBUF_TNAMES = {
+export const PROTOBUF_FIELD_TYPES = {
     BOOL: "bool",
-}
+    STRING: "string",
+    INT32: "int32",
+    UINT32: "uint32",
+    UINT64: "uint64",
+    META: "Meta"
+} as const;
 
+export const PROTOBUF_NAMES = {
+    REPEATED: "repeated",
+    TOP_LEVEL_EVENT_NAME: "Event"
+} as const;
 
-export type TypeInfo_TNames = typeof TYPEINFO_TNAMES[keyof typeof TYPEINFO_TNAMES];
+export const META_NAMES = {
+    META_NAME_FIELD: "meta",
+    IS_LOCAL_EVENT: "is_local_event",
+    TAGS: "tags",
+    TIMESTAMP_MICROS: "timestamp_micros",
+    LAMPORT: "lamport",
+    APP_ID: "app_id",
+    EVENT_ID: "event_id",
+    STREAM: "stream",
+    OFFSET: "offset"
+} as const;
+
+export type TypeInfoTName = typeof TYPEINFO_TNAMES[keyof typeof TYPEINFO_TNAMES];
+export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES];
+export type MetaNames = typeof META_NAMES[keyof typeof META_NAMES];

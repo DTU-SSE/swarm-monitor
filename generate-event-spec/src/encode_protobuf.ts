@@ -1,12 +1,10 @@
 import protobuf from 'protobufjs'
 import type { EventSpec, Event } from './types.js';
 import type { Root } from 'protobufjs';
+import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES } from './constants.js'
+import type { ProtobufFieldType } from './constants.js'
 
-type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: FieldType, rule?: "repeated" }
-
-type FieldType = "bool" | "string" | "int32" | "uint32" | "uint64" | "Meta"
-
-const TOP_LEVEL_EVENT_NAME = "Event"
+type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
 
 export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
@@ -29,7 +27,7 @@ export function eventSpecToProtoBuf(name: string, eventSpec: EventSpec, branchTr
 }
 
 function topLevelEvent(events: Event[]): protobuf.Type {
-    const sealedValue = new protobuf.Type(TOP_LEVEL_EVENT_NAME)
+    const sealedValue = new protobuf.Type(PROTOBUF_NAMES.TOP_LEVEL_EVENT_NAME)
 
     throw Error('Not implemented')
 }
@@ -68,16 +66,16 @@ function genField(field: FieldTriple, fieldNumber=0): protobuf.Field {
 }
 
 export function encodeMeta(): protobuf.Type {
-    const msgTypeName = "Meta"
+    const msgTypeName = PROTOBUF_FIELD_TYPES.META
     const fields: FieldTriple[] = [
-        {fieldName: "isLocalEvent", fieldNumber: 1, fieldType: "bool"},
-        {fieldName: "tags", fieldNumber: 2, fieldType: "string", rule: "repeated"},
-        {fieldName: "timestampMicros", fieldNumber: 3, fieldType: "uint64"},
-        {fieldName: "lamport", fieldNumber: 4, fieldType: "uint32"},
-        {fieldName: "appId", fieldNumber: 5, fieldType: "string"},
-        {fieldName: "eventId", fieldNumber: 6, fieldType: "string"},
-        {fieldName: "stream", fieldNumber: 7, fieldType: "string"},
-        {fieldName: "offset", fieldNumber: 8, fieldType: "uint32"}
+        { fieldName: META_NAMES.IS_LOCAL_EVENT, fieldNumber: 1, fieldType: PROTOBUF_FIELD_TYPES.BOOL },
+        { fieldName: META_NAMES.TAGS, fieldNumber: 2, fieldType: PROTOBUF_FIELD_TYPES.STRING, rule: PROTOBUF_NAMES.REPEATED },
+        { fieldName: META_NAMES.TIMESTAMP_MICROS, fieldNumber: 3, fieldType: PROTOBUF_FIELD_TYPES.UINT64 },
+        { fieldName: META_NAMES.LAMPORT, fieldNumber: 4, fieldType: PROTOBUF_FIELD_TYPES.UINT32 },
+        { fieldName: META_NAMES.APP_ID, fieldNumber: 5, fieldType: PROTOBUF_FIELD_TYPES.STRING },
+        { fieldName: META_NAMES.EVENT_ID, fieldNumber: 6, fieldType: PROTOBUF_FIELD_TYPES.STRING },
+        { fieldName: META_NAMES.STREAM, fieldNumber: 7, fieldType: PROTOBUF_FIELD_TYPES.STRING },
+        { fieldName: META_NAMES.OFFSET, fieldNumber: 8, fieldType: PROTOBUF_FIELD_TYPES.UINT32 }
     ]
 
     return genMsgType(msgTypeName, fields)
