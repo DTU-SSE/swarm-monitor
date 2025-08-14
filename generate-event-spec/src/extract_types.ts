@@ -1,6 +1,6 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
 import type { EventSpec } from "./types.js";
-import { typeNodeToTypeInfo } from "./typenode_to_typeinfo.js";
+import { typeNodeToPayloadType, typeNodeToTypeInfo } from "./typenode_to_typeinfo.js";
 /*
     To run:
     npm run gen-protobuf -- --swarm-events=protocol.ts
@@ -69,6 +69,7 @@ class CollectingVisitor implements ASTVisitor {
   // Either we have calls to MachineEvent.design(...) in which case the call is a property access expression with 'design' as the property name,
   // or the call is a property access with 'withPayload' or 'withoutPayload' as the property name, in this case the call to MachineEvent.design(...) is the first child of the property access expression.
   handleMachineEventDesign(node: CallExpression) {
+    //basicVisit(node)
     if (this.childWithKind(node, SyntaxKind.PropertyAccessExpression)) {
       const propertyAccess = node.getFirstChildByKind(SyntaxKind.PropertyAccessExpression);
       if (propertyAccess && propertyAccess.getExpression().getText().startsWith('MachineEvent')) {
@@ -88,7 +89,7 @@ class CollectingVisitor implements ASTVisitor {
                 if (typeArgs.length === 0) {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
-                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToTypeInfo(node.getTypeArguments()[0]!) });
+                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.data.types) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
               }
@@ -125,6 +126,12 @@ class CollectingVisitor implements ASTVisitor {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
   }
+
+  // Returns a cleaned copy"
+  //  type definitions not used in messages are removed,
+  //  string variables are replaced by their values,
+  //  fresh names are given to literal types
+
 }
 
 export function extractTypesFromFile(filePath: string): EventSpec {

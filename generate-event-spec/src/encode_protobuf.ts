@@ -1,11 +1,60 @@
 import protobuf from 'protobufjs'
-import type { EventSpec, Event } from './types.js';
+import type { EventSpec, Event, FieldTriple, MessageType, TypeInfo } from './types.js';
 import type { Root } from 'protobufjs';
-import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES } from './constants.js'
-import type { ProtobufFieldType } from './constants.js'
+import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TNAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
 
-type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
+// Find better solution...
+class FreshNameGenerator {
+    static counter: number
+
+    static freshName(): string {
+        return `fresh_${FreshNameGenerator.counter++}`
+    }
+}
+
+// Returns a cleaned copy -- type definitions not used in messages are removed, string variables are replaced by their values, and fresh names are given to literal types
+function eventSpecToMessageType(): MessageType[] {
+
+
+    throw Error
+}
+
+/* function eventToMessageType(event: Event, extra: FieldTriple[]=[], eventSpec: EventSpec): MessageType {
+
+    if (event.eventKind === "withoutPayload") {
+        return { messageName: event.eventTypeName, fields: extra }
+    }
+
+    return { messageName: event.eventTypeName, fields: payloadTypeToFields(event.payloadType).concat(extra) }
+    throw Error
+}
+
+function payloadTypeToFields(typeInfo: TypeInfo, eventSpec: EventSpec) {
+    switch (typeInfo.type) {
+        case TYPEINFO_TNAMES.OBJECT: //
+            return Array.from(typeInfo.properties.entries()).map(([fieldName, typeInfo], index) => typeInfoToField(fieldName, typeInfo, index))
+        case TYPEINFO_TNAMES.REFERENCE:
+            const objectType = resolveTypeReference(typeInfo.asString)
+            return Array.from(typeInfo.properties.entries()).map(([fieldName, typeInfo], index) => typeInfoToField(fieldName, typeInfo, index))
+        default:
+            throw Error("Not implemented")
+
+    }
+} */
+
+// I think we should narrow earlier because payload types are all of the form '{ [key: string]: SerializableValue; }'
+// Can be unions of such...
+// Maybe we should narrow when we typeNodeToTypeInfo, another function specifically for payload type...
+/* function typeInfoToField(fieldName: string, typeInfo: TypeInfo, fieldNumber=1): FieldTriple {
+    switch (typeInfo.type) {
+        case TYPEINFO_TNAMES.OBJECT: //
+            return
+
+    }
+
+    throw Error
+} */
 
 export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking=false): Root {
     const root = new protobuf.Root()
@@ -19,6 +68,7 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     if (branchTracking) { extra.push({fieldName: PROTOBUF_NAMES.LAST_UP, fieldType: PROTOBUF_FIELD_TYPES.STRING}) }
 
     for (const event of eventSpec.events) {
+
         namespace.add(encodeEventToProtoBuf(event, extra))
     }
 
@@ -40,8 +90,11 @@ function topLevelEvent(events: Event[]): protobuf.Type {
 
 function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.Type {
     const msgType = new protobuf.Type(event.eventTypeName)
+    //console.log(event)
+
     msgType.add(new protobuf.Field("a", 1, PROTOBUF_FIELD_TYPES.BOOL))
     addFields(msgType, extra, 1)
+    msgType.add(new protobuf.Type("aaaa"))
     return msgType
 }
 
@@ -94,3 +147,13 @@ export function encodeMeta(): protobuf.Type {
 
     return genMsgType(msgTypeName, fields)
 }
+
+/*
+Type 'number' does not satisfy the constraint 'SerializableObject'.
+  Type 'number' is not assignable to type '{ [key: string]: SerializableValue; }'.
+
+
+  Type 'number[]' does not satisfy the constraint 'SerializableObject'.
+  Type 'number[]' is not assignable to type '{ [key: string]: SerializableValue; }'.
+    Index signature for type 'string' is missing in type 'number[]'.ts(2344)
+*/

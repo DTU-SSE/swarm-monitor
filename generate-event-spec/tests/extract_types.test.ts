@@ -4,10 +4,15 @@ import { eventSpecToString } from "../src/types.js";
 import { readFileSync } from "fs" // Is actually fine, it runs
 
 describe("test warehouse demo with extra events", () => {
-  const expected: string = readFileSync('tests/expected_ASTData_1.json', 'utf8');
-  const data = extractTypesFromFile("tests/protocol.ts");
-  it("compare outputs", () =>
-    expect(eventSpecToString(data, null, 2)).toEqual(expected)
+  const expected_1: string = readFileSync('tests/expected_event_spec_1.json', 'utf8');
+  const json_1 = extractTypesFromFile("tests/protocol.ts");
+  it("compare outputs protocol.ts", () =>
+    expect(eventSpecToString(json_1, null, 2)).toEqual(expected_1)
+  );
+  const expected_2: string = readFileSync('tests/expected_event_spec_2.json', 'utf8');
+  const json_2 = extractTypesFromFile("tests/protocol_2.ts");
+  it("compare outputs protocol_2.ts", () =>
+    expect(eventSpecToString(json_2, null, 2)).toEqual(expected_2)
   );
   /* it("extracts variables correctly", () => {
     expect(data.variables).toEqual(variables);

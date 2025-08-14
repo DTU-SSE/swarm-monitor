@@ -1,4 +1,5 @@
-import { TYPEINFO_TNAMES } from "./constants.js";
+import { TYPEINFO_TNAMES, PROTOBUF_NAMES } from "./constants.js";
+import type { ProtobufFieldType } from './constants.js'
 
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
@@ -11,11 +12,22 @@ type StringType = { type: typeof TYPEINFO_TNAMES.STRING, asString: string };
 type ReferenceType = { type: typeof TYPEINFO_TNAMES.REFERENCE, asString: string };
 type ArrayType = { type: typeof TYPEINFO_TNAMES.ARRAY, asString: string, elementType: TypeInfo };
 type UnionType = { type: typeof TYPEINFO_TNAMES.UNION, asString: string, members: TypeInfo[] };
-type ObjectType = { type: typeof TYPEINFO_TNAMES.OBJECT, asString: string, properties: Map<string, TypeInfo> };
+type ObjectType = { type: typeof TYPEINFO_TNAMES.OBJECT, asString: string, properties: [string, TypeInfo][] };
 
-type Types = Map<string, TypeInfo>;
+export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
+
+
+/* const t3: TypeInfo = { type: TYPEINFO_TNAMES.BOOLEAN, asString: "" }
+const t1: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [] }
+const t2: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
+
+const t4: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
+const t6: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t2, t3] }
+const t7: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t2, t6] } */
+
+export type Types = Map<string, TypeInfo>;
 type EventWithoutPayload = { eventTypeName: string; eventKind: 'withoutPayload' };
-type EventWithPayload = { eventTypeName: string; eventKind: 'withPayload'; payloadType: TypeInfo };
+type EventWithPayload = { eventTypeName: string; eventKind: 'withPayload'; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
 export type EventSpec = {
@@ -25,9 +37,10 @@ export type EventSpec = {
 }
 
 // Pretty print TypeInfo, Event and EventSpec
-type Serializable = string | number | boolean | null | { [key: string]: Serializable } | Serializable[]
+type Serializable = string | number | boolean | null | SerializableObject | Serializable[]
+export type SerializableObject = { [key: string]: Serializable }
 
-function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
+export function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
   switch (typeInfo.type) {
     case 'string':
     case 'number':
@@ -39,7 +52,7 @@ function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
     case 'union':
       return { type: typeInfo.type, asString: typeInfo.asString, members: typeInfo.members.map(m => serializeTypeInfo(m)) }
     case 'object':
-      return { type: typeInfo.type, asString: typeInfo.asString, members: Array.from(typeInfo.properties.entries()).map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfo(typeInfo)]) }
+      return { type: typeInfo.type, asString: typeInfo.asString, properties: typeInfo.properties.map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfo(typeInfo)]) }
   }
 }
 
@@ -63,3 +76,6 @@ export function serializeEventSpec(eventSpec: EventSpec): Serializable {
 export function eventSpecToString(eventSpec: EventSpec, replacer?: (number | string)[] | null, space?: string | number): string {
   return JSON.stringify(serializeEventSpec(eventSpec), replacer, space)
 }
+
+export type MessageType = { messageName: string, fields: FieldTriple[] }
+export type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
