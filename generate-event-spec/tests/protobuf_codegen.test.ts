@@ -45,7 +45,7 @@ describe("test dummy messages", () => {
     it("generate .proto from tests/protocol.ts", async () => {
         const eventSpec = extractTypesFromFile("tests/warehouse-demo-events.ts");
         const root = eventSpecToProtoBuf("test", eventSpec)
-        const outputFile = "output_2.proto"
+        const outputFile = "output_3.proto"
         await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
     })
 

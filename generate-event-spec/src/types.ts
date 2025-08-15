@@ -1,5 +1,4 @@
-import { TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_NAMES } from "./constants.js";
-import type { ProtobufFieldType } from './constants.js'
+import { TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from "./constants.js";
 
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
@@ -15,16 +14,6 @@ export type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, m
 export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
 
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
-
-/* const t3: TypeInfo = { type: TYPEINFO_TYPES.BOOLEAN, asString: "" }
-const t8: TypeInfo = { type: TYPEINFO_TYPES.NUMBER, asString: "" }
-const t9: TypeInfo = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t3, t8] }
-const t1: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [] }
-const t2: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [["1", t1], ["2", t9]] }
-
-const t4: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
-const t6: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t3] }
-const t7: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t6] } */
 
 // Maps type aliases to the types they denote.
 export type TypeVariables = Map<string, TypeInfo>;
@@ -79,9 +68,22 @@ export function eventSpecToString(eventSpec: EventSpec, replacer?: (number | str
   return JSON.stringify(serializeEventSpec(eventSpec), replacer, space)
 }
 
+// Types derived from constants
+export type TypeInfoTName = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES];
+export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES] | { userDefined: string };
+export type MetaNames = typeof META_NAMES[keyof typeof META_NAMES];
+
+// For encoding to protobuf
 export type MessageType = { messageName: string, fields: FieldTriple[] }
 export type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
 
+export const isUserDefined = (fieldType: ProtobufFieldType): fieldType is { userDefined: string } => {
+  return typeof fieldType === "object" && "userDefined" in fieldType && typeof fieldType.userDefined === "string"
+}
+export const getFieldType = (fieldTriple: FieldTriple): string => {
+  if (isUserDefined(fieldTriple.fieldType)) { return fieldTriple.fieldType.userDefined }
+  else { return fieldTriple.fieldType }
+}
 
 // https://dev.to/martinpersson/a-guide-to-using-the-option-type-in-typescript-ki2
 export type Some<T> = { tag: "Some", value: T}

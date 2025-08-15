@@ -1,9 +1,8 @@
 import protobuf from 'protobufjs'
-import { type EventSpec, type Event, type FieldTriple, type MessageType, type TypeInfo, type TypeVariables, type PayloadType, type ArrayType, type Option, some, none, isNone, isSome } from './types.js';
+import { type EventSpec, type Event, type FieldTriple, type MessageType, type TypeInfo, type TypeVariables, type PayloadType, type ArrayType, type Option, some, none, isNone, isSome, type ProtobufFieldType, getFieldType } from './types.js';
 import type { Root } from 'protobufjs';
-import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_FIELD_TYPE_VALUES } from './constants.js'
+import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
-import type { ProtobufFieldType } from './constants.js'
 
 export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
     const root = new protobuf.Root()
@@ -42,16 +41,16 @@ function topLevelEvent(events: Event[]): protobuf.Type {
 }
 function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
 
-    throw Error
+    return []
 }
 
-function payloadTypeToFieldTriple(payloadType: PayloadType): FieldTriple[] {
+function payloadTypeToFieldTriples(payloadType: PayloadType): FieldTriple[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-
+            return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index))
     }
 
-    throw Error
+    throw Error("Not implemented")
 }
 
 
@@ -84,7 +83,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
         case TYPEINFO_TYPES.ARRAY: // Right now only arrays of bools, numbers strings or typealias are allowed as element types of arrays.
             const elementProtoBufType = resolveSimpleType(typeInfo.elementType)
             if (isSome(elementProtoBufType)) {
-                return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: elementProtoBufType.value }
+                return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: elementProtoBufType.value, rule: PROTOBUF_NAMES.REPEATED }
             }
             break
     }
@@ -94,12 +93,9 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
 
 function encodeEventToProtoBuf(event: Event, extra: FieldTriple[] = []): protobuf.Type[] {
     const msgType = new protobuf.Type(event.eventTypeName)
-    if (event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD) {
-
-    }
-    msgType.add(new protobuf.Field("a", 1, PROTOBUF_FIELD_TYPES.BOOL))
-    addFields(msgType, extra, 1)
-    msgType.add(new protobuf.Type("aaaa"))
+    const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFieldTriples(event.payloadType) : []
+    addFields(msgType, fields)
+    addFields(msgType, extra, fields.length)
     return [msgType]
 }
 
@@ -108,7 +104,7 @@ function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
 
     //fields.map((field, index) => field.fieldNumber ? genField(field) : genField(field, index))
     for (const [index, field] of fields.entries()) {
-        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, field.fieldType, field.rule))
+        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, getFieldType(field), field.rule))
     }
 
     return msgType
@@ -116,12 +112,12 @@ function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
 
 function addFields(msgType: protobuf.Type, fields: FieldTriple[], offset = 0) {
     for (const [index, field] of fields.entries()) {
-        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? offset + index + 1, field.fieldType, field.rule))
+        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? offset + index + 1, getFieldType(field), field.rule))
     }
 }
 
 function genField(field: FieldTriple, fieldNumber = 0): protobuf.Field {
-    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, field.fieldType, field.rule)
+    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, getFieldType(field), field.rule)
 }
 
 function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobuf.Type[]) {
@@ -158,13 +154,3 @@ export function encodeMeta(): protobuf.Type {
 
     return genMsgType(msgTypeName, fields)
 }
-
-/*
-Type 'number' does not satisfy the constraint 'SerializableObject'.
-  Type 'number' is not assignable to type '{ [key: string]: SerializableValue; }'.
-
-
-  Type 'number[]' does not satisfy the constraint 'SerializableObject'.
-  Type 'number[]' is not assignable to type '{ [key: string]: SerializableValue; }'.
-    Index signature for type 'string' is missing in type 'number[]'.ts(2344)
-*/
