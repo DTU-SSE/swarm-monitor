@@ -31,6 +31,7 @@ function traverse(node: Node, visitor: ASTVisitor) {
   node.forEachChild(child => traverse(child, visitor));
 }
 
+// Nice for debugging
 function basicVisit(node: Node, prepend: string = '') {
   console.log(`${prepend}Node: ${node.getText()} of kind ${SyntaxKind[node.getKind()]}`);
   node.forEachChild(child => {
@@ -39,7 +40,7 @@ function basicVisit(node: Node, prepend: string = '') {
 }
 
 class CollectingVisitor implements ASTVisitor {
-  data: EventSpec = { variables: new Map(), types: new Map(), events: [] };
+  data: EventSpec = { variables: new Map(), typeVariables: new Map(), events: [] };
 
   childWithKind(node: Node, kind: SyntaxKind): boolean {
     return node.getChildrenOfKind(kind).length > 0;
@@ -90,7 +91,7 @@ class CollectingVisitor implements ASTVisitor {
                 if (typeArgs.length === 0) {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
-                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.data.types) });
+                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.data.typeVariables) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
               }
@@ -122,28 +123,19 @@ class CollectingVisitor implements ASTVisitor {
   visitTypeAliasDeclaration(node: TypeAliasDeclaration) {
     const typeNode = node.getTypeNode();
     if (typeNode) {
-      this.data.types.set(node.getName(), typeNodeToTypeInfo(typeNode));
+      this.data.typeVariables.set(node.getName(), typeNodeToTypeInfo(typeNode));
     } else {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
   }
 
-  replaceVariables(eventSpec: EventSpec): EventSpec {
-
-    throw Error
-  }
-
-  // btw: we should also be able to handle type a = number; type b = a; type c = b; .... ?
-  //
   // Returns a cleaned copy"
   //  type definitions not used in messages are removed,
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
   //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
   clean(eventSpec: EventSpec): EventSpec {
-    //var e = this.replaceVariables(eventSpec)
-
     const namesInUse = usedNames(eventSpec)
-    return {...eventSpec, types: new Map(Array.from(eventSpec.types.entries()).filter(([name, _]) => namesInUse.has(name)))}
+    return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
   }
 
 }

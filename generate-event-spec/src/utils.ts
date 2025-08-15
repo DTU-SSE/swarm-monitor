@@ -1,4 +1,4 @@
-import type { TypeInfo, PayloadType, Types, Event, EventSpec } from "./types.js";
+import type { TypeInfo, PayloadType, TypeVariables, Event, EventSpec } from "./types.js";
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
 import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
 
@@ -47,41 +47,44 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 
 // type a = b
 // type b = a
-
+// that situation is not allowed anyway, so i do not think collecting visited necessary here.
 // Ok?
-export function resolveTypeReference(typeVar: string, typeEnv: Types): TypeInfo {
-    const typeInfo = typeEnv.get(typeVar)
-    if (typeInfo) {
-        return typeInfo.type === TYPEINFO_TYPES.REFERENCE ? resolveTypeReference(typeVar, typeEnv) : typeInfo
+function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInfo {
+    function inner(typeVar: string, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
+        const typeInfo = typeVars.get(typeVar)
+        if (typeInfo) {
+            return typeInfo.type === TYPEINFO_TYPES.REFERENCE && !visited.has(typeInfo.asString) ? inner(typeVar, typeVars, visited.add(typeInfo.asString)) : typeInfo
+        }
+
+        throw Error(`Type ${typeVar} not known`)
     }
 
-    throw Error(`Type ${typeVar} not known`)
-
+    return inner(typeVar, typeVars, new Set())
 }
 
 // Type predicates. Returns a boolean. If true ensures that 'typeInfo' is typed as PayloadType.
-function isPayloadType(typeInfo: TypeInfo, typeEnv: Types): typeInfo is PayloadType {
+function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is PayloadType {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.OBJECT:
             return true
         case TYPEINFO_TYPES.UNION:
-            return typeInfo.members.every(m => isPayloadType(m, typeEnv))
+            return typeInfo.members.every(m => isPayloadType(m, typeVars))
         case TYPEINFO_TYPES.REFERENCE:
-            const t = resolveTypeReference(typeInfo.asString, typeEnv)
-            return isPayloadType(t, typeEnv)
+            const t = resolveTypeReference(typeInfo.asString, typeVars)
+            return isPayloadType(t, typeVars)
         default:
             return false
     }
 }
 
 // Function to convert a TypeNode to PayloadType
-export function typeNodeToPayloadType(typeNode: TypeNode, typeEnv: Types): PayloadType {
+export function typeNodeToPayloadType(typeNode: TypeNode, typeVars: TypeVariables): PayloadType {
     var typeInfo = typeNodeToTypeInfo(typeNode)
     // First level expanded by design...
     if (typeInfo.type === TYPEINFO_TYPES.REFERENCE) {
-        typeInfo = resolveTypeReference(typeInfo.asString, typeEnv)
+        typeInfo = resolveTypeReference(typeInfo.asString, typeVars)
     }
-    if (isPayloadType(typeInfo, typeEnv)) {
+    if (isPayloadType(typeInfo, typeVars)) {
         return typeInfo
     }
 
@@ -89,28 +92,39 @@ export function typeNodeToPayloadType(typeNode: TypeNode, typeEnv: Types): Paylo
 
 }
 
-function namesInTypeInfo(typeInfo: TypeInfo, types: Types): string[] {
-    switch (typeInfo.type) {
-      case "string":
-      case "number":
-      case "boolean":
-      case "object":
-      case "reference":
-      case "array":
-      case "union":
-      throw Error
+
+function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] {
+    function inner(typeInfo: TypeInfo, typeVars: TypeVariables, visited: Set<string>): string[] {
+        const names: string[] = []
+        switch (typeInfo.type) {
+        case TYPEINFO_TYPES.OBJECT:
+            return names.concat(typeInfo.properties.flatMap(([_, typeInfo]) => inner(typeInfo, typeVars, visited)))
+        case TYPEINFO_TYPES.REFERENCE:
+            if (!visited.has(typeInfo.asString)) {
+                names.push(typeInfo.asString)
+                return names.concat(inner(resolveTypeReference(typeInfo.asString, typeVars), typeVars, visited.add(typeInfo.asString)))
+            }
+            break;
+        case "array":
+            return names.concat(inner(typeInfo.elementType, typeVars, visited))
+        case "union":
+            return names.concat(typeInfo.members.flatMap(typeInfo => inner(typeInfo, typeVars, visited)))
+        default:
+            break
+        }
+        return names
     }
+
+    return inner(typeInfo, typeVars, new Set())
 }
 
-function usedNamesEvent(event: Event, types: Types): string[] {
+function usedNamesEvent(event: Event, typeVars: TypeVariables): string[] {
     if (event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD) {
-      return namesInTypeInfo(event.payloadType, types)
+        return namesInTypeInfo(event.payloadType, typeVars)
     }
     return []
   }
 
 export function usedNames(eventSpec: EventSpec): Set<string> {
-    const events = eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.types))
-
-    throw Error
+    return new Set(eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.typeVariables)))
   }

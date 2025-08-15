@@ -26,14 +26,15 @@ const t4: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [[
 const t6: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t3] }
 const t7: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t6] } */
 
-export type Types = Map<string, TypeInfo>;
+// Maps type aliases to the types they denote.
+export type TypeVariables = Map<string, TypeInfo>;
 type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITHOUT_PAYLOAD };
 type EventWithPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITH_PAYLOAD; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
 export type EventSpec = {
   variables: Variables;
-  types: Types;
+  typeVariables: TypeVariables;
   events: Event[];
 }
 
@@ -69,7 +70,7 @@ function serializeEvent(event: Event): Serializable {
 export function serializeEventSpec(eventSpec: EventSpec): Serializable {
   return {
     variables: Array.from(eventSpec.variables.entries()),
-    types: Array.from(eventSpec.types.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
+    types: Array.from(eventSpec.typeVariables.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
     events: eventSpec.events.map(e => serializeEvent(e))
   }
 }

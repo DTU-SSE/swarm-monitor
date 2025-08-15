@@ -11,10 +11,12 @@
   "devDependencies": {
     "@jest/globals": "^30.0.5",
     "@types/jest": "^30.0.0",
+    "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.snakecase": "^4.1.9",
     "@types/node": "^24.2.1",
     "@types/yargs": "^17.0.33",
     "jest": "^30.0.5",
+    "lodash.isequal": "^4.5.0",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
