@@ -1,8 +1,11 @@
-import type { TypeInfo, PayloadType, Types, SerializableObject } from "./types.js";
+import type { TypeInfo, PayloadType, Types, Event, EventSpec } from "./types.js";
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
-import { TYPEINFO_TYPES } from "./constants.js";
+import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
+
+// Rename to utils.
 
 // Function to convert a TypeNode to TypeInfo
+// Right now you can not do things like const a = "a"; type ClosingTimePayload = { timeOfDay: "typeof a" }; type PartIDPayload = {partName: "b"}
 export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
     switch (typeNode.getKind()) {
         case SyntaxKind.StringKeyword:
@@ -48,7 +51,7 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 // type b = a
 
 // Ok?
-function resolveTypeReference(typeVar: string, typeEnv: Types): TypeInfo {
+export function resolveTypeReference(typeVar: string, typeEnv: Types): TypeInfo {
     const typeInfo = typeEnv.get(typeVar)
     if (typeInfo) {
         return typeInfo.type === TYPEINFO_TYPES.REFERENCE ? resolveTypeReference(typeVar, typeEnv) : typeInfo
@@ -87,3 +90,29 @@ export function typeNodeToPayloadType(typeNode: TypeNode, typeEnv: Types): Paylo
     throw new Error(`Unsupported TypeNode kind: ${SyntaxKind[typeNode.getKind()]}`);
 
 }
+
+function namesInTypeInfo(typeInfo: TypeInfo, types: Types): string[] {
+    switch (typeInfo.type) {
+      case "string":
+      case "number":
+      case "boolean":
+      case "object":
+      case "reference":
+      case "array":
+      case "union":
+      throw Error
+    }
+}
+
+function usedNamesEvent(event: Event, types: Types): string[] {
+    if (event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD) {
+      return namesInTypeInfo(event.payloadType, types)
+    }
+    return []
+  }
+
+export function usedNames(eventSpec: EventSpec): Set<string> {
+    const events = eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.types))
+
+    throw Error
+  }

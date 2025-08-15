@@ -1,6 +1,8 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
-import type { EventSpec } from "./types.js";
-import { typeNodeToPayloadType, typeNodeToTypeInfo } from "./typenode_to_typeinfo.js";
+import type { EventSpec, Types, Event, PayloadType, TypeInfo } from "./types.js";
+import { typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./typenode_to_typeinfo.js";
+import { TYPEINFO_NAMES } from "./constants.js"
+
 /*
     To run:
     npm run gen-protobuf -- --swarm-events=protocol.ts
@@ -55,7 +57,7 @@ class CollectingVisitor implements ASTVisitor {
     if (args && args.length > 0) {
       if (args[0]?.getKind() === SyntaxKind.StringLiteral) {
         return args[0]?.getText().replace(/['"]/g, '');
-      } else if (args[0]?.getKind() === SyntaxKind.Identifier) {
+      } else if (args[0]?.getKind() === SyntaxKind.Identifier) { // const a = "a"; const b = a; const eventTypeName = b; ??? What happens
         if (this.data.variables.has(args[0]?.getText())) {
           return this.data.variables.get(args[0]?.getText().replace(/['"]/g, ''))!;
         }
@@ -132,20 +134,17 @@ class CollectingVisitor implements ASTVisitor {
     throw Error
   }
 
-  usedNames(eventSpec: EventSpec): Set<string> {
-
-    throw Error
-  }
-  // btw: we should also be able to ahndle type a = number; type b = a; type c = b; ....
+  // btw: we should also be able to handle type a = number; type b = a; type c = b; .... ?
   //
   // Returns a cleaned copy"
   //  type definitions not used in messages are removed,
-  //  variables are replaced by their values if they have a primitive type
+  //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
   //  fresh names are given to literal types -- nope these are inserted as is or they have an alias and become their own messages.
   clean(eventSpec: EventSpec): EventSpec {
-    var e = this.replaceVariables(eventSpec)
-    const namesInUse = this.usedNames(e)
-    return {...e, types: new Map(Array.from(e.types.entries()).filter(([name, _]) => namesInUse.has(name)))}
+    //var e = this.replaceVariables(eventSpec)
+
+    const namesInUse = usedNames(eventSpec)
+    return {...eventSpec, types: new Map(Array.from(eventSpec.types.entries()).filter(([name, _]) => namesInUse.has(name)))}
   }
 
 }

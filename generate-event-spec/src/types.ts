@@ -16,14 +16,15 @@ type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, proper
 
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
 
+/* const t3: TypeInfo = { type: TYPEINFO_TYPES.BOOLEAN, asString: "" }
+const t8: TypeInfo = { type: TYPEINFO_TYPES.NUMBER, asString: "" }
+const t9: TypeInfo = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t3, t8] }
+const t1: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [] }
+const t2: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [["1", t1], ["2", t9]] }
 
-/* const t3: TypeInfo = { type: TYPEINFO_TNAMES.BOOLEAN, asString: "" }
-const t1: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [] }
-const t2: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
-
-const t4: TypeInfo = { type: TYPEINFO_TNAMES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
-const t6: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t2, t3] }
-const t7: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t2, t6] } */
+const t4: TypeInfo = { type: TYPEINFO_TYPES.OBJECT, asString: "", properties: [["1", t1], ["2", t1]] }
+const t6: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t3] }
+const t7: PayloadType = { type: TYPEINFO_TYPES.UNION, asString: "", members: [t2, t6] } */
 
 export type Types = Map<string, TypeInfo>;
 type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITHOUT_PAYLOAD };
