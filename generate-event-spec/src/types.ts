@@ -6,13 +6,13 @@ type Variables = Map<string, string>; // Variables and the values they are initi
 
 export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType;
 
-type BooleanType = { type: typeof TYPEINFO_TYPES.BOOLEAN, asString: string };
-type NumberType = { type: typeof TYPEINFO_TYPES.NUMBER, asString: string };
-type StringType = { type: typeof TYPEINFO_TYPES.STRING, asString: string };
-type ReferenceType = { type: typeof TYPEINFO_TYPES.REFERENCE, asString: string };
-type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, elementType: TypeInfo };
-type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
-type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
+export type BooleanType = { type: typeof TYPEINFO_TYPES.BOOLEAN, asString: string };
+export type NumberType = { type: typeof TYPEINFO_TYPES.NUMBER, asString: string };
+export type StringType = { type: typeof TYPEINFO_TYPES.STRING, asString: string };
+export type ReferenceType = { type: typeof TYPEINFO_TYPES.REFERENCE, asString: string };
+export type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, elementType: TypeInfo };
+export type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
+export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
 
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
 
@@ -81,3 +81,28 @@ export function eventSpecToString(eventSpec: EventSpec, replacer?: (number | str
 
 export type MessageType = { messageName: string, fields: FieldTriple[] }
 export type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
+
+
+// https://dev.to/martinpersson/a-guide-to-using-the-option-type-in-typescript-ki2
+export type Some<T> = { tag: "Some", value: T}
+export type None = { tag: "None" }
+export type Option<T> = Some<T> | None
+
+export const some = <T>(value: T): Option<T> => ({
+  tag: "Some",
+  value
+});
+
+export const none: Option<never> = { tag: "None" }
+
+export const isNone = <T>(optionValue: Option<T>): boolean => {
+  return optionValue.tag === "None"
+}
+
+export const isSome = <T>(optionValue: Option<T>): optionValue is Some<T> => {
+  return optionValue.tag === "Some"
+}
+
+export const getValue = <T>(optionValue: Some<T>): T => {
+  return optionValue.value
+}

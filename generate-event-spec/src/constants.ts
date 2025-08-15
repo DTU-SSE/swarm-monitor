@@ -22,6 +22,7 @@ export const PROTOBUF_FIELD_TYPES = {
     INT32: "int32",
     UINT32: "uint32",
     UINT64: "uint64",
+    DOUBLE: "double",
     META: "Meta"
 } as const;
 
@@ -44,6 +45,27 @@ export const META_NAMES = {
     OFFSET: "offset"
 } as const;
 
+
+/* export const TYPEINFO_TO_PROTOBUF_TYPES: { [K in keyof typeof TYPEINFO_TYPES]: typeof PROTOBUF_FIELD_TYPES[K] } = {
+    BOOLEAN: PROTOBUF_FIELD_TYPES.BOOL,
+    NUMBER: PROTOBUF_FIELD_TYPES.DOUBLE,
+    STRING: PROTOBUF_FIELD_TYPES.STRING,
+    REFERENCE: PROTOBUF_FIELD_TYPES.DOUBLE,
+    ARRAY: PROTOBUF_FIELD_TYPES.DOUBLE,
+    UNION: PROTOBUF_FIELD_TYPES.DOUBLE,
+    OBJECT: PROTOBUF_FIELD_TYPES.DOUBLE,
+} */
+
+export const TYPEINFO_TO_PROTOBUF_TYPES = new Map<string, string>([
+  [TYPEINFO_TYPES.BOOLEAN, PROTOBUF_FIELD_TYPES.BOOL],
+  [TYPEINFO_TYPES.NUMBER, PROTOBUF_FIELD_TYPES.DOUBLE],
+  [TYPEINFO_TYPES.STRING, PROTOBUF_FIELD_TYPES.STRING],
+  [TYPEINFO_TYPES.NUMBER, PROTOBUF_FIELD_TYPES.DOUBLE],
+]);
+
+
 export type TypeInfoTName = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES];
-export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES];
+export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES] | { userDefined: string };
 export type MetaNames = typeof META_NAMES[keyof typeof META_NAMES];
+
+export const PROTOBUF_FIELD_TYPE_VALUES = Object.values(PROTOBUF_FIELD_TYPES) as readonly ProtobufFieldType[];

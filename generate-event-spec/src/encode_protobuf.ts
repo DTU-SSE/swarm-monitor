@@ -1,79 +1,32 @@
 import protobuf from 'protobufjs'
-import type { EventSpec, Event, FieldTriple, MessageType, TypeInfo } from './types.js';
+import { type EventSpec, type Event, type FieldTriple, type MessageType, type TypeInfo, type TypeVariables, type PayloadType, type ArrayType, type Option, some, none, isNone, isSome } from './types.js';
 import type { Root } from 'protobufjs';
-import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES } from './constants.js'
+import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_FIELD_TYPE_VALUES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
+import type { ProtobufFieldType } from './constants.js'
 
-// Find better solution...
-class FreshNameGenerator {
-    static counter: number
-
-    static freshName(): string {
-        return `fresh_${FreshNameGenerator.counter++}`
-    }
-}
-
-// Returns a cleaned copy -- type definitions not used in messages are removed, string variables are replaced by their values, and fresh names are given to literal types
-function eventSpecToMessageType(): MessageType[] {
-
-
-    throw Error
-}
-
-/* function eventToMessageType(event: Event, extra: FieldTriple[]=[], eventSpec: EventSpec): MessageType {
-
-    if (event.eventKind === "withoutPayload") {
-        return { messageName: event.eventTypeName, fields: extra }
-    }
-
-    return { messageName: event.eventTypeName, fields: payloadTypeToFields(event.payloadType).concat(extra) }
-    throw Error
-}
-
-function payloadTypeToFields(typeInfo: TypeInfo, eventSpec: EventSpec) {
-    switch (typeInfo.type) {
-        case TYPEINFO_TNAMES.OBJECT: //
-            return Array.from(typeInfo.properties.entries()).map(([fieldName, typeInfo], index) => typeInfoToField(fieldName, typeInfo, index))
-        case TYPEINFO_TNAMES.REFERENCE:
-            const objectType = resolveTypeReference(typeInfo.asString)
-            return Array.from(typeInfo.properties.entries()).map(([fieldName, typeInfo], index) => typeInfoToField(fieldName, typeInfo, index))
-        default:
-            throw Error("Not implemented")
-
-    }
-} */
-
-// I think we should narrow earlier because payload types are all of the form '{ [key: string]: SerializableValue; }'
-// Can be unions of such...
-// Maybe we should narrow when we typeNodeToTypeInfo, another function specifically for payload type...
-/* function typeInfoToField(fieldName: string, typeInfo: TypeInfo, fieldNumber=1): FieldTriple {
-    switch (typeInfo.type) {
-        case TYPEINFO_TNAMES.OBJECT: //
-            return
-
-    }
-
-    throw Error
-} */
-
-export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking=false): Root {
+export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
     const root = new protobuf.Root()
     const namespace = root.define(packageName)
 
     const meta = encodeMeta()
     namespace.add(meta)
 
+    addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.typeVariables))
+
+
     // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
-    const extra: FieldTriple[] = [{fieldName: META_NAMES.META_NAME_FIELD, fieldType: PROTOBUF_FIELD_TYPES.META}]
-    if (branchTracking) { extra.push({fieldName: PROTOBUF_NAMES.LAST_UP, fieldType: PROTOBUF_FIELD_TYPES.STRING}) }
+    const extra: FieldTriple[] = [{ fieldName: META_NAMES.META_NAME_FIELD, fieldType: PROTOBUF_FIELD_TYPES.META }]
+    if (branchTracking) { extra.push({ fieldName: PROTOBUF_NAMES.LAST_UP, fieldType: PROTOBUF_FIELD_TYPES.STRING }) }
 
     for (const event of eventSpec.events) {
-
-        namespace.add(encodeEventToProtoBuf(event, extra))
+        const msgTypes = encodeEventToProtoBuf(event, extra)
+        for (const msgType of msgTypes) {
+            namespace.add(msgType)
+        }
     }
 
     namespace.add(topLevelEvent(eventSpec.events))
-
     return root
 }
 
@@ -87,15 +40,67 @@ function topLevelEvent(events: Event[]): protobuf.Type {
     sealedValue.add(new protobuf.OneOf(PROTOBUF_NAMES.SEALED_VALUE, events.map(e => snakeCase(e.eventTypeName))));
     return sealedValue
 }
+function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
 
-function encodeEventToProtoBuf(event: Event, extra: FieldTriple[]=[]): protobuf.Type {
+    throw Error
+}
+
+function payloadTypeToFieldTriple(payloadType: PayloadType): FieldTriple[] {
+    switch (payloadType.type) {
+        case TYPEINFO_TYPES.OBJECT:
+
+    }
+
+    throw Error
+}
+
+
+function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
+    switch (typeInfo.type) {
+        case TYPEINFO_TYPES.BOOLEAN:
+            return some(PROTOBUF_FIELD_TYPES.BOOL)
+        case TYPEINFO_TYPES.NUMBER:
+            return some(PROTOBUF_FIELD_TYPES.DOUBLE)
+        case TYPEINFO_TYPES.STRING:
+            return some(PROTOBUF_FIELD_TYPES.STRING)
+        case TYPEINFO_TYPES.REFERENCE:
+            return some({ userDefined: typeInfo.asString })
+        default:
+            return none
+    }
+}
+
+function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): FieldTriple {
+    switch (typeInfo.type) {
+        case TYPEINFO_TYPES.BOOLEAN:
+        case TYPEINFO_TYPES.NUMBER:
+        case TYPEINFO_TYPES.STRING:
+        case TYPEINFO_TYPES.REFERENCE:
+            const protoBufType = resolveSimpleType(typeInfo)
+            if (isSome(protoBufType)) {
+                return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: protoBufType.value }
+            }
+            break
+        case TYPEINFO_TYPES.ARRAY: // Right now only arrays of bools, numbers strings or typealias are allowed as element types of arrays.
+            const elementProtoBufType = resolveSimpleType(typeInfo.elementType)
+            if (isSome(elementProtoBufType)) {
+                return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: elementProtoBufType.value }
+            }
+            break
+    }
+
+    throw Error("Not implemented")
+}
+
+function encodeEventToProtoBuf(event: Event, extra: FieldTriple[] = []): protobuf.Type[] {
     const msgType = new protobuf.Type(event.eventTypeName)
-    //console.log(event)
+    if (event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD) {
 
+    }
     msgType.add(new protobuf.Field("a", 1, PROTOBUF_FIELD_TYPES.BOOL))
     addFields(msgType, extra, 1)
     msgType.add(new protobuf.Type("aaaa"))
-    return msgType
+    return [msgType]
 }
 
 function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
@@ -109,14 +114,20 @@ function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
     return msgType
 }
 
-function addFields(msgType: protobuf.Type, fields: FieldTriple[], offset=0) {
+function addFields(msgType: protobuf.Type, fields: FieldTriple[], offset = 0) {
     for (const [index, field] of fields.entries()) {
         msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? offset + index + 1, field.fieldType, field.rule))
     }
 }
 
-function genField(field: FieldTriple, fieldNumber=0): protobuf.Field {
+function genField(field: FieldTriple, fieldNumber = 0): protobuf.Field {
     return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, field.fieldType, field.rule)
+}
+
+function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobuf.Type[]) {
+    for (const msgType of msgTypes) {
+        namespace.add(msgType)
+    }
 }
 
 /*
