@@ -2,8 +2,6 @@ import type { TypeInfo, PayloadType, Types, Event, EventSpec } from "./types.js"
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
 import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
 
-// Rename to utils.
-
 // Function to convert a TypeNode to TypeInfo
 // Right now you can not do things like const a = "a"; type ClosingTimePayload = { timeOfDay: "typeof a" }; type PartIDPayload = {partName: "b"}
 export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {

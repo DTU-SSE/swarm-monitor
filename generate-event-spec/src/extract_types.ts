@@ -1,7 +1,6 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
-import type { EventSpec, Types, Event, PayloadType, TypeInfo } from "./types.js";
-import { typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./typenode_to_typeinfo.js";
-import { TYPEINFO_NAMES } from "./constants.js"
+import type { EventSpec } from "./types.js";
+import { typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 
 /*
     To run:
@@ -139,7 +138,7 @@ class CollectingVisitor implements ASTVisitor {
   // Returns a cleaned copy"
   //  type definitions not used in messages are removed,
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
-  //  fresh names are given to literal types -- nope these are inserted as is or they have an alias and become their own messages.
+  //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
   clean(eventSpec: EventSpec): EventSpec {
     //var e = this.replaceVariables(eventSpec)
 
