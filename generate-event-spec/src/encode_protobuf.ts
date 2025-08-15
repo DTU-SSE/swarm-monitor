@@ -1,7 +1,7 @@
 import protobuf from 'protobufjs'
 import type { EventSpec, Event, FieldTriple, MessageType, TypeInfo } from './types.js';
 import type { Root } from 'protobufjs';
-import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TNAMES } from './constants.js'
+import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
 
 // Find better solution...

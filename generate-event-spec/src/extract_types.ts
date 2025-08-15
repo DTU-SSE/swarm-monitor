@@ -127,10 +127,26 @@ class CollectingVisitor implements ASTVisitor {
     }
   }
 
+  replaceVariables(eventSpec: EventSpec): EventSpec {
+
+    throw Error
+  }
+
+  usedNames(eventSpec: EventSpec): Set<string> {
+
+    throw Error
+  }
+  // btw: we should also be able to ahndle type a = number; type b = a; type c = b; ....
+  //
   // Returns a cleaned copy"
   //  type definitions not used in messages are removed,
-  //  string variables are replaced by their values,
-  //  fresh names are given to literal types
+  //  variables are replaced by their values if they have a primitive type
+  //  fresh names are given to literal types -- nope these are inserted as is or they have an alias and become their own messages.
+  clean(eventSpec: EventSpec): EventSpec {
+    var e = this.replaceVariables(eventSpec)
+    const namesInUse = this.usedNames(e)
+    return {...e, types: new Map(Array.from(e.types.entries()).filter(([name, _]) => namesInUse.has(name)))}
+  }
 
 }
 

@@ -1,6 +1,6 @@
 import type { TypeInfo, PayloadType, Types, SerializableObject } from "./types.js";
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
-import { TYPEINFO_TNAMES } from "./constants.js";
+import { TYPEINFO_TYPES } from "./constants.js";
 
 // Function to convert a TypeNode to TypeInfo
 export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
@@ -51,7 +51,7 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 function resolveTypeReference(typeVar: string, typeEnv: Types): TypeInfo {
     const typeInfo = typeEnv.get(typeVar)
     if (typeInfo) {
-        return typeInfo.type === TYPEINFO_TNAMES.REFERENCE ? resolveTypeReference(typeVar, typeEnv) : typeInfo
+        return typeInfo.type === TYPEINFO_TYPES.REFERENCE ? resolveTypeReference(typeVar, typeEnv) : typeInfo
     }
 
     throw Error(`Type ${typeVar} not known`)
@@ -61,11 +61,11 @@ function resolveTypeReference(typeVar: string, typeEnv: Types): TypeInfo {
 // Type predicates. Returns a boolean. If true ensures that 'typeInfo' is typed as PayloadType.
 function isPayloadType(typeInfo: TypeInfo, typeEnv: Types): typeInfo is PayloadType {
     switch (typeInfo.type) {
-        case TYPEINFO_TNAMES.OBJECT:
+        case TYPEINFO_TYPES.OBJECT:
             return true
-        case TYPEINFO_TNAMES.UNION:
+        case TYPEINFO_TYPES.UNION:
             return typeInfo.members.every(m => isPayloadType(m, typeEnv))
-        case TYPEINFO_TNAMES.REFERENCE:
+        case TYPEINFO_TYPES.REFERENCE:
             const t = resolveTypeReference(typeInfo.asString, typeEnv)
             return isPayloadType(t, typeEnv)
         default:
@@ -77,7 +77,7 @@ function isPayloadType(typeInfo: TypeInfo, typeEnv: Types): typeInfo is PayloadT
 export function typeNodeToPayloadType(typeNode: TypeNode, typeEnv: Types): PayloadType {
     var typeInfo = typeNodeToTypeInfo(typeNode)
     // First level expanded by design...
-    if (typeInfo.type === TYPEINFO_TNAMES.REFERENCE) {
+    if (typeInfo.type === TYPEINFO_TYPES.REFERENCE) {
         typeInfo = resolveTypeReference(typeInfo.asString, typeEnv)
     }
     if (isPayloadType(typeInfo, typeEnv)) {

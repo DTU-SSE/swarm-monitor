@@ -1,4 +1,4 @@
-import { TYPEINFO_TNAMES, PROTOBUF_NAMES } from "./constants.js";
+import { TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_NAMES } from "./constants.js";
 import type { ProtobufFieldType } from './constants.js'
 
 // Data structures to hold extracted info
@@ -6,13 +6,13 @@ type Variables = Map<string, string>; // Variables and the values they are initi
 
 export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType;
 
-type BooleanType = { type: typeof TYPEINFO_TNAMES.BOOLEAN, asString: string };
-type NumberType = { type: typeof TYPEINFO_TNAMES.NUMBER, asString: string };
-type StringType = { type: typeof TYPEINFO_TNAMES.STRING, asString: string };
-type ReferenceType = { type: typeof TYPEINFO_TNAMES.REFERENCE, asString: string };
-type ArrayType = { type: typeof TYPEINFO_TNAMES.ARRAY, asString: string, elementType: TypeInfo };
-type UnionType = { type: typeof TYPEINFO_TNAMES.UNION, asString: string, members: TypeInfo[] };
-type ObjectType = { type: typeof TYPEINFO_TNAMES.OBJECT, asString: string, properties: [string, TypeInfo][] };
+type BooleanType = { type: typeof TYPEINFO_TYPES.BOOLEAN, asString: string };
+type NumberType = { type: typeof TYPEINFO_TYPES.NUMBER, asString: string };
+type StringType = { type: typeof TYPEINFO_TYPES.STRING, asString: string };
+type ReferenceType = { type: typeof TYPEINFO_TYPES.REFERENCE, asString: string };
+type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, elementType: TypeInfo };
+type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
+type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
 
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
 
@@ -26,8 +26,8 @@ const t6: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t
 const t7: PayloadType = { type: TYPEINFO_TNAMES.UNION, asString: "", members: [t2, t6] } */
 
 export type Types = Map<string, TypeInfo>;
-type EventWithoutPayload = { eventTypeName: string; eventKind: 'withoutPayload' };
-type EventWithPayload = { eventTypeName: string; eventKind: 'withPayload'; payloadType: PayloadType };
+type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITHOUT_PAYLOAD };
+type EventWithPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITH_PAYLOAD; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
 export type EventSpec = {

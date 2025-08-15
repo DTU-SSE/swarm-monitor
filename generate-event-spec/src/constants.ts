@@ -1,5 +1,5 @@
 // Names for various types and similar. Used for TypeInfo representing TypeScript types.
-export const TYPEINFO_TNAMES = {
+export const TYPEINFO_TYPES = {
     BOOLEAN: "boolean",
     NUMBER: "number",
     STRING: "string",
@@ -7,6 +7,11 @@ export const TYPEINFO_TNAMES = {
     ARRAY: "array",
     UNION: "union",
     OBJECT: "object"
+} as const;
+
+export const TYPEINFO_NAMES = {
+    WITHOUT_PAYLOAD: "withoutPayload",
+    WITH_PAYLOAD: "withPayload"
 } as const;
 
 // Names for various field types and similar things (e.g. field cardinality things like 'repeated') for Protocol Buffers messages.
@@ -39,6 +44,6 @@ export const META_NAMES = {
     OFFSET: "offset"
 } as const;
 
-export type TypeInfoTName = typeof TYPEINFO_TNAMES[keyof typeof TYPEINFO_TNAMES];
+export type TypeInfoTName = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES];
 export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES];
 export type MetaNames = typeof META_NAMES[keyof typeof META_NAMES];
