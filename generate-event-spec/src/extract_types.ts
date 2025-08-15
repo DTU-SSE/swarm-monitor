@@ -40,7 +40,7 @@ function basicVisit(node: Node, prepend: string = '') {
 }
 
 class CollectingVisitor implements ASTVisitor {
-  data: EventSpec = { variables: new Map(), typeVariables: new Map(), events: [] };
+  eventSpec: EventSpec = { variables: new Map(), typeVariables: new Map(), events: [] };
 
   childWithKind(node: Node, kind: SyntaxKind): boolean {
     return node.getChildrenOfKind(kind).length > 0;
@@ -58,8 +58,8 @@ class CollectingVisitor implements ASTVisitor {
       if (args[0]?.getKind() === SyntaxKind.StringLiteral) {
         return args[0]?.getText().replace(/['"]/g, '');
       } else if (args[0]?.getKind() === SyntaxKind.Identifier) { // const a = "a"; const b = a; const eventTypeName = b; ??? What happens
-        if (this.data.variables.has(args[0]?.getText())) {
-          return this.data.variables.get(args[0]?.getText().replace(/['"]/g, ''))!;
+        if (this.eventSpec.variables.has(args[0]?.getText())) {
+          return this.eventSpec.variables.get(args[0]?.getText().replace(/['"]/g, ''))!;
         }
       }
     }
@@ -78,7 +78,7 @@ class CollectingVisitor implements ASTVisitor {
         // Event definitions of the form: MachineEvent.design(...)
         if (propertyAccess.getName() === 'design') {
           const eventTypeName = this.getEventTypeNameFromArgs(node);
-          this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
+          this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
 
           // Event definitions of the form: MachineEvent.design(...).withPayload(...) and MachineEvent.design(...).withoutPayload(...)
         } else {
@@ -91,9 +91,9 @@ class CollectingVisitor implements ASTVisitor {
                 if (typeArgs.length === 0) {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
-                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.data.typeVariables) });
+                this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.eventSpec.typeVariables) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
-                this.data.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
+                this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
               }
             }
           }
@@ -107,11 +107,11 @@ class CollectingVisitor implements ASTVisitor {
   // and to get the event definitoins themselves.
   visitVariableDeclaration(node: VariableDeclaration) {
     if (node.getInitializer()?.getKind() === SyntaxKind.StringLiteral) {
-      this.data.variables.set(node.getName(), node.getInitializer()?.getText().slice(1, -1) || '');
+      this.eventSpec.variables.set(node.getName(), node.getInitializer()?.getText().slice(1, -1) || '');
     } else if (node.getInitializer()?.getKind() === SyntaxKind.Identifier) {
-      const value = this.data.variables.get(node.getInitializer()?.getText() || '')
+      const value = this.eventSpec.variables.get(node.getInitializer()?.getText() || '')
       if (value) {
-        this.data.variables.set(node.getName(), value);
+        this.eventSpec.variables.set(node.getName(), value);
       } else {
         throw new Error(`Variable ${node.getName()} initializer is an identifier that does not have a value`);
       }
@@ -123,7 +123,7 @@ class CollectingVisitor implements ASTVisitor {
   visitTypeAliasDeclaration(node: TypeAliasDeclaration) {
     const typeNode = node.getTypeNode();
     if (typeNode) {
-      this.data.typeVariables.set(node.getName(), typeNodeToTypeInfo(typeNode));
+      this.eventSpec.typeVariables.set(node.getName(), typeNodeToTypeInfo(typeNode));
     } else {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
@@ -133,9 +133,9 @@ class CollectingVisitor implements ASTVisitor {
   //  type definitions not used in messages are removed,
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
   //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
-  clean(eventSpec: EventSpec): EventSpec {
-    const namesInUse = usedNames(eventSpec)
-    return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
+  cleanEventSpec(): EventSpec {
+    const namesInUse = usedNames(this.eventSpec)
+    return {...this.eventSpec, typeVariables: new Map(Array.from(this.eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
   }
 
 }
@@ -146,6 +146,14 @@ export function extractTypesFromFile(filePath: string): EventSpec {
   const visitor = new CollectingVisitor();
   traverse(sourceFile, visitor)
 
-  return visitor.data;
+  return visitor.eventSpec;
 }
 
+export function extractTypesFromFileCleaned(filePath: string): EventSpec {
+  const project = new Project();
+  const sourceFile = project.addSourceFileAtPath(filePath);
+  const visitor = new CollectingVisitor();
+  traverse(sourceFile, visitor)
+
+  return visitor.cleanEventSpec();
+}
