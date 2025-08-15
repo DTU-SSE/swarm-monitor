@@ -42,11 +42,15 @@ describe("test dummy messages", () => {
         expect(generated).toEqual(expected)
         unlinkSync(`${OUTDIR}/${outputFile}`)
     })
-    it("generate .proto from tests/protocol.ts", async () => {
+    it("generate .proto from tests/warehouse-demo-events.ts", async () => {
+        const expected: string = readFileSync('tests/expected_output_3_lbj.proto', 'utf8');
         const eventSpec = extractTypesFromFile("tests/warehouse-demo-events.ts");
-        const root = eventSpecToProtoBuf("test", eventSpec)
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = "output_3.proto"
         await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
+        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(`${OUTDIR}/${outputFile}`)
     })
 
 

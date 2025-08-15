@@ -18,12 +18,14 @@ message partID {
 
     string part_name = 0;
     Meta meta = 2;
+    string lbj = 3;
 }
 
 message part {
 
     string part_name = 0;
     Meta meta = 2;
+    string lbj = 3;
 }
 
 message pos {
@@ -31,12 +33,14 @@ message pos {
     string position = 0;
     string part_name = 1;
     Meta meta = 3;
+    string lbj = 4;
 }
 
 message time {
 
     string time_of_day = 0;
     Meta meta = 2;
+    string lbj = 3;
 }
 
 message car {
@@ -44,6 +48,7 @@ message car {
     string part_name = 0;
     string model_name = 1;
     Meta meta = 3;
+    string lbj = 4;
 }
 
 message Event {

@@ -8,11 +8,12 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     const root = new protobuf.Root()
     const namespace = root.define(packageName)
 
+    // Add meta as a message type
     const meta = encodeMeta()
     namespace.add(meta)
 
+    // Encode the type definitions referred to by payload types
     addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.typeVariables))
-
 
     // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
     const extra: FieldTriple[] = [{ fieldName: META_NAMES.META_NAME_FIELD, fieldType: PROTOBUF_FIELD_TYPES.META }]
@@ -48,9 +49,9 @@ function payloadTypeToFieldTriples(payloadType: PayloadType): FieldTriple[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
             return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index))
+        case TYPEINFO_TYPES.UNION:
+            throw Error("Not implemented")
     }
-
-    throw Error("Not implemented")
 }
 
 
