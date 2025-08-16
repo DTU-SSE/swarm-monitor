@@ -52,6 +52,16 @@ describe("test dummy messages", () => {
         expect(generated).toEqual(expected)
         unlinkSync(`${OUTDIR}/${outputFile}`)
     })
+    it("generate .proto with nested messages", async () => {
+        const expected: string = readFileSync('tests/expected_output_protocol_5.proto', 'utf8');
+        const eventSpec = extractTypesFromFile("tests/protocol_5.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
+        const outputFile = "output_5.proto"
+        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
+        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(`${OUTDIR}/${outputFile}`)
+    })
 
 
 });

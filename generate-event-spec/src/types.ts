@@ -27,6 +27,11 @@ export type EventSpec = {
   events: Event[];
 }
 
+// basic here refers to boolean, number and string. typeInfo is BOOLEAN or ...??
+export const isPrimitiveType = (typeInfo: TypeInfo): boolean => {
+  return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING
+}
+
 // Pretty print TypeInfo, Event and EventSpec
 type Serializable = string | number | boolean | null | SerializableObject | Serializable[]
 export type SerializableObject = { [key: string]: Serializable }

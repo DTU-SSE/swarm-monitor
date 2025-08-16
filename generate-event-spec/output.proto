@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package testPackage;
+
+message Meta {
+
+    bool is_local_event = 1;
+    repeated string tags = 2;
+    uint64 timestamp_micros = 3;
+    uint32 lamport = 4;
+    string app_id = 5;
+    string event_id = 6;
+    string stream = 7;
+    uint32 offset = 8;
+}
+
+message partID {
+
+    string part_name = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message part {
+
+    string part_name = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message pos {
+
+    string position = 1;
+    string part_name = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message time {
+
+    string time_of_day = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message car {
+
+    string part_name = 1;
+    string model_name = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message Event {
+
+    oneof sealed_value {
+
+        partID part_id = 1;
+        part part = 2;
+        pos pos = 3;
+        time time = 4;
+        car car = 5;
+    }
+}

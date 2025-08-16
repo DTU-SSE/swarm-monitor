@@ -1,6 +1,6 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
 import type { EventSpec } from "./types.js";
-import { typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
+import { replacePrimitiveTypeAliases, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 
 /*
     To run:
@@ -134,8 +134,10 @@ class CollectingVisitor implements ASTVisitor {
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
   //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
   cleanEventSpec(): EventSpec {
-    const namesInUse = usedNames(this.eventSpec)
-    return {...this.eventSpec, typeVariables: new Map(Array.from(this.eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
+    //const eventSpec = replacePrimitiveTypeAliases(this.eventSpec)
+    const eventSpec = this.eventSpec
+    const namesInUse = usedNames(eventSpec)
+    return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
   }
 
 }

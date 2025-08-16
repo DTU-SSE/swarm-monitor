@@ -1,4 +1,4 @@
-import type { TypeInfo, PayloadType, TypeVariables, Event, EventSpec } from "./types.js";
+import { type TypeInfo, type PayloadType, type TypeVariables, type Event, type EventSpec, isPrimitiveType } from "./types.js";
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
 import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
 
@@ -97,20 +97,20 @@ function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] 
     function inner(typeInfo: TypeInfo, typeVars: TypeVariables, visited: Set<string>): string[] {
         const names: string[] = []
         switch (typeInfo.type) {
-        case TYPEINFO_TYPES.OBJECT:
-            return names.concat(typeInfo.properties.flatMap(([_, typeInfo]) => inner(typeInfo, typeVars, visited)))
-        case TYPEINFO_TYPES.REFERENCE:
-            if (!visited.has(typeInfo.asString)) {
-                names.push(typeInfo.asString)
-                return names.concat(inner(resolveTypeReference(typeInfo.asString, typeVars), typeVars, visited.add(typeInfo.asString)))
-            }
-            break;
-        case "array":
-            return names.concat(inner(typeInfo.elementType, typeVars, visited))
-        case "union":
-            return names.concat(typeInfo.members.flatMap(typeInfo => inner(typeInfo, typeVars, visited)))
-        default:
-            break
+            case TYPEINFO_TYPES.OBJECT:
+                return names.concat(typeInfo.properties.flatMap(([_, typeInfo]) => inner(typeInfo, typeVars, visited)))
+            case TYPEINFO_TYPES.REFERENCE:
+                if (!visited.has(typeInfo.asString)) {
+                    names.push(typeInfo.asString)
+                    return names.concat(inner(resolveTypeReference(typeInfo.asString, typeVars), typeVars, visited.add(typeInfo.asString)))
+                }
+                break;
+            case "array":
+                return names.concat(inner(typeInfo.elementType, typeVars, visited))
+            case "union":
+                return names.concat(typeInfo.members.flatMap(typeInfo => inner(typeInfo, typeVars, visited)))
+            default:
+                break
         }
         return names
     }
@@ -123,8 +123,65 @@ function usedNamesEvent(event: Event, typeVars: TypeVariables): string[] {
         return namesInTypeInfo(event.payloadType, typeVars)
     }
     return []
-  }
+}
 
 export function usedNames(eventSpec: EventSpec): Set<string> {
     return new Set(eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.typeVariables)))
-  }
+}
+
+// not sure this recurses deep enough. type A = string; type B = number; type C = A | B
+// Do this to object properties, element types of arrays and members of union...
+/* export function replacePrimitiveTypeAliases(eventSpec: EventSpec): EventSpec {
+    const newTypeVariables = new Map()
+    for (const [typeVar, theType] of eventSpec.typeVariables.entries()) {
+        const resolvedType = resolveTypeReference(typeVar, eventSpec.typeVariables)
+        if (isPrimitiveType(resolvedType)) {
+            newTypeVariables.set(typeVar, resolvedType)
+        } else {
+            newTypeVariables.set(typeVar, theType)
+        }
+    }
+
+
+    return { ...eventSpec, typeVariables: newTypeVariables }
+} */
+// This should be done to type variables as well ....?
+// If some field or union member array element has a type alias for a primitive type as type, replace by that type
+function makeSimple(typeInfo: TypeInfo, typeVars: TypeVariables): TypeInfo {
+    switch(typeInfo.type) {
+        case TYPEINFO_TYPES.BOOLEAN:
+        case TYPEINFO_TYPES.NUMBER:
+        case TYPEINFO_TYPES.STRING:
+            return typeInfo
+        case TYPEINFO_TYPES.REFERENCE:
+            const resolvedType = resolveTypeReference(typeInfo.asString, typeVars)
+            if (isPrimitiveType(resolvedType)) {
+                return resolvedType
+            }
+            break
+    }
+
+    throw Error
+}
+
+// If some field or union member array element has a type alias for a primitive type as type, replace by that type
+function makeSimplePayload(payloadType: PayloadType, typeVars: TypeVariables): PayloadType {
+    switch(payloadType.type) {
+        case TYPEINFO_TYPES.OBJECT:
+            return {... payloadType, properties:  payloadType.properties.map(([fieldName, field]) => [fieldName, makeSimple(field, typeVars)]) }
+        case TYPEINFO_TYPES.UNION:
+            // as PayloadType sketchy but what??
+            return {... payloadType, members: payloadType.members.map(field => makeSimplePayload(field as PayloadType, typeVars)) }
+    }
+}
+
+export function replacePrimitiveTypeAliases(eventSpec: EventSpec): EventSpec {
+    const mapper = (event: Event): Event => {
+        return event.eventKind === TYPEINFO_NAMES.WITHOUT_PAYLOAD
+            ? event
+            : { ...event, payloadType: makeSimplePayload(event.payloadType, eventSpec.typeVariables) }
+    }
+
+
+    return { ...eventSpec, events: eventSpec.events.map(mapper) }
+}

@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package test;
+
+message Meta {
+
+    bool is_local_event = 1;
+    repeated string tags = 2;
+    uint64 timestamp_micros = 3;
+    uint32 lamport = 4;
+    string app_id = 5;
+    string event_id = 6;
+    string stream = 7;
+    uint32 offset = 8;
+}
+
+message partReq {
+
+    string part_name = 1;
+    Meta meta = 3;
+    string lbj = 4;
+
+    message aNestedField {
+
+        string a = 1;
+        string b = 2;
+
+        message c {
+
+            repeated bool number = 1;
+            double other = 2;
+        }
+    }
+}
+
+message partOK {
+
+    string part_name = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message pos {
+
+    string position = 1;
+    string part_name = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message closingTime {
+
+    string time_of_day = 1;
+    Meta meta = 3;
+    string lbj = 4;
+
+    message nested {
+
+        repeated double number = 1;
+        double other = 2;
+    }
+}
+
+message car {
+
+    string part_name = 1;
+    string model_name = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message thing {
+
+    string name = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message noPayload {
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message noPayload1 {
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Event {
+
+    oneof sealed_value {
+
+        partReq part_req = 1;
+        partOK part_ok = 2;
+        pos pos = 3;
+        closingTime closing_time = 4;
+        car car = 5;
+        thing thing = 6;
+        noPayload no_payload = 7;
+        noPayload1 no_payload_1 = 8;
+    }
+}

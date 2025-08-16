@@ -48,7 +48,7 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     return []
 }
 
-function payloadTypeToFieldTriples(payloadType: PayloadType): protobuf.ReflectionObject[] {
+function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
             return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index + 1)) // Field numbers start at 1
@@ -93,12 +93,12 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             }
             break
         case TYPEINFO_TYPES.UNION:
-            throw Error("Not implemented")
+            throw Error("Not implemented") // sealed oneof
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
-            throw Error
-            //const encodedObject =
-
+            const encodedObject = payloadTypeToFields(typeInfo)
+            addFields(msgType, encodedObject)
+            return msgType
     }
 
     throw Error("Not implemented")
@@ -106,7 +106,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
 
 function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type[] {
     const msgType = new protobuf.Type(event.eventTypeName)
-    const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFieldTriples(event.payloadType) : []
+    const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFields(event.payloadType) : []
     //addFields(msgType, fields)
     addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index + 1))))
     return [msgType]
