@@ -36,7 +36,7 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
 function topLevelEvent(events: Event[]): protobuf.Type {
     const sealedValue = new protobuf.Type(PROTOBUF_NAMES.TOP_LEVEL_EVENT_NAME)
     for (const [index, event] of events.entries()) {
-        sealedValue.add(new protobuf.Field(snakeCase(event.eventTypeName), index, event.eventTypeName))
+        sealedValue.add(new protobuf.Field(snakeCase(event.eventTypeName), index + 1, event.eventTypeName)) // Field numbers start at 1
     }
 
     sealedValue.add(new protobuf.OneOf(PROTOBUF_NAMES.SEALED_VALUE, events.map(e => snakeCase(e.eventTypeName))));
@@ -51,7 +51,7 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
 function payloadTypeToFieldTriples(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-            return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index))
+            return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index + 1)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
             throw Error("Not implemented")
     }
@@ -92,6 +92,13 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
 
             }
             break
+        case TYPEINFO_TYPES.UNION:
+            throw Error("Not implemented")
+        case TYPEINFO_TYPES.OBJECT:
+            const msgType = new protobuf.Type(fieldName)
+            throw Error
+            //const encodedObject =
+
     }
 
     throw Error("Not implemented")
