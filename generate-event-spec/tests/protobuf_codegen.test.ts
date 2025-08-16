@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { generateProtoBufMsgDefs } from "../src/protobuf_codegen.js";
-import { encodeMeta, eventSpecToProtoBuf } from "../src/encode_protobuf.js";
+import { metaMsgType, eventSpecToProtoBuf } from "../src/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
 import { extractTypesFromFile } from "../src/extract_types.js";
@@ -12,7 +12,7 @@ const OUTDIR = "tests"
 function generateMetaWithNamespace(): protobuf.Root {
     const root = new protobuf.Root()
     const namespace = root.define("Meta")
-    const meta = encodeMeta()
+    const meta = metaMsgType()
     namespace.add(meta)
     return root
 }

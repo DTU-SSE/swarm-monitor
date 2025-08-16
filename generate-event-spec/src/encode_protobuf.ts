@@ -11,17 +11,16 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     const namespace = root.define(packageName)
 
     // Add meta as a message type
-    const meta = encodeMeta()
+    const meta = metaMsgType()
     namespace.add(meta)
 
     // Encode the type definitions referred to by payload types
     addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.typeVariables))
 
     // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
-    //const extra: FieldTriple[] = [{ fieldName: META_NAMES.META_NAME_FIELD, fieldType: PROTOBUF_FIELD_TYPES.META }]
-    //if (branchTracking) { extra.push({ fieldName: PROTOBUF_NAMES.LAST_UP, fieldType: PROTOBUF_FIELD_TYPES.STRING }) }
     const extra: FieldGenerator[] = [metaField]
     if (branchTracking) { extra.push(lastUpField) }
+
     for (const event of eventSpec.events) {
         const msgTypes = encodeEventToProtoBuf(event, extra)
         for (const msgType of msgTypes) {
@@ -74,7 +73,7 @@ function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
     }
 }
 
-function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject {// FieldTriple {
+function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
         case TYPEINFO_TYPES.NUMBER:
@@ -82,15 +81,15 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
         case TYPEINFO_TYPES.REFERENCE:
             const protoBufType = resolveSimpleType(typeInfo)
             if (isSome(protoBufType)) {
-                return new protobuf.Field(fieldName, fieldNumber, getFieldType_(protoBufType.value))
-                //return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: protoBufType.value }
+                return generateField(fieldName, fieldNumber, protoBufType.value)
             }
             break
-        case TYPEINFO_TYPES.ARRAY: // Right now only arrays of bools, numbers strings or typealias are allowed as element types of arrays.
+        // Right now only arrays of bools, numbers, strings or typealias are allowed as element types of arrays.
+        case TYPEINFO_TYPES.ARRAY:
             const elementProtoBufType = resolveSimpleType(typeInfo.elementType)
             if (isSome(elementProtoBufType)) {
-                return new protobuf.Field(fieldName, fieldNumber, getFieldType_(elementProtoBufType.value), PROTOBUF_NAMES.REPEATED)
-                //return { fieldName: fieldName, fieldNumber: fieldNumber, fieldType: elementProtoBufType.value, rule: PROTOBUF_NAMES.REPEATED }
+                return generateField(fieldName, fieldNumber, elementProtoBufType.value, PROTOBUF_NAMES.REPEATED)
+
             }
             break
     }
@@ -101,20 +100,17 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
 function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type[] {
     const msgType = new protobuf.Type(event.eventTypeName)
     const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFieldTriples(event.payloadType) : []
-    addFields(msgType, fields)
-    addFields(msgType, extra.map((generateField, index) => generateField(fields.length + index + 1)))
+    //addFields(msgType, fields)
+    addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index + 1))))
     return [msgType]
 }
 
 function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
     const msgType = new protobuf.Type(msgTypeName)
 
-    //fields.map((field, index) => field.fieldNumber ? genField(field) : genField(field, index))
     for (const [index, field] of fields.entries()) {
         msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, getFieldType(field), field.rule))
     }
-
-    //msgType.add( new protobuf.Type("LALA").add(new protobuf.Field("a", 1, "bool")))
 
     return msgType
 }
@@ -122,12 +118,11 @@ function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
 function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) {
     for (const field of fields) {
         msgType.add(field)
-        //msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? offset + index + 1, getFieldType(field), field.rule))
     }
 }
 
-function genField(field: FieldTriple, fieldNumber = 0): protobuf.Field {
-    return new protobuf.Field(field.fieldName, field.fieldNumber ?? fieldNumber, getFieldType(field), field.rule)
+function generateField(fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string|{ [k: string]: any })): protobuf.Field {
+    return new protobuf.Field(fieldName, fieldNumber, getFieldType_(fieldType), rule)
 }
 
 function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobuf.Type[]) {
@@ -149,32 +144,16 @@ function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobu
         uint32 offset = 8;
     }
 */
-export function encodeMeta(): protobuf.Type {
-    const msgTypeName = PROTOBUF_FIELD_TYPES.META
-    const fields: FieldTriple[] = [
-        { fieldName: META_NAMES.IS_LOCAL_EVENT, fieldNumber: 1, fieldType: PROTOBUF_FIELD_TYPES.BOOL },
-        { fieldName: META_NAMES.TAGS, fieldNumber: 2, fieldType: PROTOBUF_FIELD_TYPES.STRING, rule: PROTOBUF_NAMES.REPEATED },
-        { fieldName: META_NAMES.TIMESTAMP_MICROS, fieldNumber: 3, fieldType: PROTOBUF_FIELD_TYPES.UINT64 },
-        { fieldName: META_NAMES.LAMPORT, fieldNumber: 4, fieldType: PROTOBUF_FIELD_TYPES.UINT32 },
-        { fieldName: META_NAMES.APP_ID, fieldNumber: 5, fieldType: PROTOBUF_FIELD_TYPES.STRING },
-        { fieldName: META_NAMES.EVENT_ID, fieldNumber: 6, fieldType: PROTOBUF_FIELD_TYPES.STRING },
-        { fieldName: META_NAMES.STREAM, fieldNumber: 7, fieldType: PROTOBUF_FIELD_TYPES.STRING },
-        { fieldName: META_NAMES.OFFSET, fieldNumber: 8, fieldType: PROTOBUF_FIELD_TYPES.UINT32 }
-    ]
-
-    return genMsgType(msgTypeName, fields)
-}
-
 export const metaMsgType = (): protobuf.Type => {
     const msgType = new protobuf.Type(PROTOBUF_FIELD_TYPES.META)
-    msgType.add(new protobuf.Field(META_NAMES.IS_LOCAL_EVENT, 1, PROTOBUF_FIELD_TYPES.BOOL))
-    msgType.add(new protobuf.Field(META_NAMES.TAGS, 2, PROTOBUF_FIELD_TYPES.STRING, PROTOBUF_NAMES.REPEATED))
-    msgType.add(new protobuf.Field(META_NAMES.TIMESTAMP_MICROS, 3, PROTOBUF_FIELD_TYPES.UINT64))
-    msgType.add(new protobuf.Field(META_NAMES.LAMPORT, 4, PROTOBUF_FIELD_TYPES.UINT32))
-    msgType.add(new protobuf.Field(META_NAMES.APP_ID, 5, PROTOBUF_FIELD_TYPES.STRING))
-    msgType.add(new protobuf.Field(META_NAMES.EVENT_ID, 6, PROTOBUF_FIELD_TYPES.STRING))
-    msgType.add(new protobuf.Field(META_NAMES.STREAM, 7, PROTOBUF_FIELD_TYPES.STRING))
-    msgType.add(new protobuf.Field(META_NAMES.OFFSET, 8, PROTOBUF_FIELD_TYPES.UINT32))
+    msgType.add(generateField(META_NAMES.IS_LOCAL_EVENT, 1, PROTOBUF_FIELD_TYPES.BOOL))
+    msgType.add(generateField(META_NAMES.TAGS, 2, PROTOBUF_FIELD_TYPES.STRING, PROTOBUF_NAMES.REPEATED))
+    msgType.add(generateField(META_NAMES.TIMESTAMP_MICROS, 3, PROTOBUF_FIELD_TYPES.UINT64))
+    msgType.add(generateField(META_NAMES.LAMPORT, 4, PROTOBUF_FIELD_TYPES.UINT32))
+    msgType.add(generateField(META_NAMES.APP_ID, 5, PROTOBUF_FIELD_TYPES.STRING))
+    msgType.add(generateField(META_NAMES.EVENT_ID, 6, PROTOBUF_FIELD_TYPES.STRING))
+    msgType.add(generateField(META_NAMES.STREAM, 7, PROTOBUF_FIELD_TYPES.STRING))
+    msgType.add(generateField(META_NAMES.OFFSET, 8, PROTOBUF_FIELD_TYPES.UINT32))
     return msgType
 }
 
