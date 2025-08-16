@@ -84,6 +84,10 @@ export const getFieldType = (fieldTriple: FieldTriple): string => {
   if (isUserDefined(fieldTriple.fieldType)) { return fieldTriple.fieldType.userDefined }
   else { return fieldTriple.fieldType }
 }
+export const getFieldType_ = (fieldType: ProtobufFieldType): string => {
+  if (isUserDefined(fieldType)) { return fieldType.userDefined }
+  else { return fieldType }
+}
 
 // https://dev.to/martinpersson/a-guide-to-using-the-option-type-in-typescript-ki2
 export type Some<T> = { tag: "Some", value: T}
