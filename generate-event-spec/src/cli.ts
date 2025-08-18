@@ -1,7 +1,7 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
-import { extractTypesFromFile } from './extract_types.js';
+import { extractTypesFromFile, extractTypesFromFileCleaned } from './extract_types.js';
 import { eventSpecToString } from './types.js';
 import { eventSpecToProtoBuf } from './encode_protobuf.js';
 import { generateProtoBufMsgDefs } from './protobuf_codegen.js';
@@ -21,6 +21,8 @@ async function main() {
 
   const data = extractTypesFromFile(argv.swarmEvents);
   console.log(eventSpecToString(data, null, 2));
+  const dataCleaned = extractTypesFromFileCleaned(argv.swarmEvents);
+  console.log(eventSpecToString(dataCleaned, null, 2));
   generateProtoBufMsgDefs(eventSpecToProtoBuf("testPackage", data, true))
 
 }
