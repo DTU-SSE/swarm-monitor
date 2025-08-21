@@ -23,7 +23,7 @@ async function main() {
   //console.log(eventSpecToString(data, null, 2));
   const dataCleaned = extractTypesFromFileCleaned(argv.swarmEvents);
   console.log(eventSpecToString(dataCleaned, null, 2));
-  //generateProtoBufMsgDefs(eventSpecToProtoBuf("testPackage", dataCleaned, true))
+  generateProtoBufMsgDefs(eventSpecToProtoBuf("test", dataCleaned, true))
 
 }
 

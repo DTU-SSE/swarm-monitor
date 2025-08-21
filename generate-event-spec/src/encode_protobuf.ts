@@ -44,8 +44,13 @@ function topLevelEvent(events: Event[]): protobuf.Type {
 }
 
 function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
+    const mapper = (typeName: string, typeInfo: PayloadType) => {
+        return encodeEventToProtoBuf({eventTypeName: typeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: typeInfo})
+    }
 
-    return []
+    return Array.from(typeVariables)
+        .filter(([_, typeInfo]) => typeInfo.type === TYPEINFO_TYPES.OBJECT)
+        .flatMap(([typeName, typeInfo]) => mapper(typeName, typeInfo as PayloadType))
 }
 
 function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {

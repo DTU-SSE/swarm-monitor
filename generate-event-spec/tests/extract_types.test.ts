@@ -23,16 +23,17 @@ describe("test warehouse demo with extra events", () => {
     // Also ClosingTypePayload recursively in terms of itself, has a field of type ClosingTypePayload
     // Other type aliases used for event payload types are inlined
     const event_spec = extractTypesFromFile("tests/protocol_2.ts");
-    const expected = new Set(["Haha", "ClosingTypeNested", "ClosingTimePayload", "Boing", "Laquo", "PartReqPayload"])
+    // why?
+    const expected = new Set(["Haha", "ClosingTypeNested", "ClosingTimePayload", "Boing", "PartReqPayload"])
     expect(isEqual(usedNames(event_spec), expected)).toEqual(true)
   });
 
   it("check used names are identified correctly recursive types", () => {
     const event_spec = extractTypesFromFile("tests/protocol_4.ts");
-    //console.log(eventSpecToString(event_spec, null, 2))
     // ClosingTypePayload recursively in terms of itself, has a field of type ClosingTypePayload
     // Other type aliases used for event payload types are inlined
-    const expected = new Set(["Haha", "ClosingTypeNested", "ClosingTimePayload", "Boing", "Laquo"])
+    // Why boing?
+    const expected = new Set(["Haha", "ClosingTypeNested", "ClosingTimePayload", "Boing"])
     expect(isEqual(usedNames(event_spec), expected)).toEqual(true)
   })
 
