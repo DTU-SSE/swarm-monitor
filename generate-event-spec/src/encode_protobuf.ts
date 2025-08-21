@@ -58,7 +58,7 @@ function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObjec
         case TYPEINFO_TYPES.OBJECT:
             return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index + 1)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
-            throw Error("Not implemented")
+            throw Error("Encoding of union types is not implemented")
     }
 }
 
@@ -98,7 +98,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             }
             break
         case TYPEINFO_TYPES.UNION:
-            throw Error("Not implemented") // sealed oneof
+            throw Error("Encoding of union types is not implemented") // sealed oneof
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
             const encodedObject = payloadTypeToFields(typeInfo)
