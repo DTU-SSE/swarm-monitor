@@ -51,9 +51,9 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 // Ok?
 function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInfo {
     function inner(typeVar: string, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
-        const typeInfo = typeVars.get(typeVar)
-        if (typeInfo) {
-            return typeInfo.type === TYPEINFO_TYPES.REFERENCE && !visited.has(typeInfo.asString) ? inner(typeVar, typeVars, visited.add(typeInfo.asString)) : typeInfo
+        const resolvedTypeInfo = typeVars.get(typeVar)
+        if (resolvedTypeInfo) {
+            return resolvedTypeInfo.type === TYPEINFO_TYPES.REFERENCE && !visited.has(resolvedTypeInfo.asString) ? inner(resolvedTypeInfo.asString, typeVars, visited.add(resolvedTypeInfo.asString)) : resolvedTypeInfo
         }
 
         throw Error(`Type ${typeVar} not known`)
@@ -132,29 +132,23 @@ export function usedNames(eventSpec: EventSpec): Set<string> {
 // This should be done to type variables as well ....?
 // If some field or union member array element has a type alias for a primitive type as type, replace by that type
 function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): TypeInfo {
-    console.log(typeInfo)
-    function inner(typeInfo: TypeInfo, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
-        switch (typeInfo.type) {
-            case TYPEINFO_TYPES.BOOLEAN:
-            case TYPEINFO_TYPES.NUMBER:
-            case TYPEINFO_TYPES.STRING:
-                return typeInfo
-            case TYPEINFO_TYPES.REFERENCE:
-                visited.add(typeInfo.asString)
-                console.log(visited)
-                const resolvedType = resolveTypeReference(typeInfo.asString, typeVars)
-                if (isPrimitiveType(resolvedType)) { return resolvedType }
-                return typeInfo
-            case TYPEINFO_TYPES.ARRAY:
-                //console.log(visited)
-                return { ...typeInfo, elementType: inner(typeInfo.elementType, typeVars, visited) }
-            case TYPEINFO_TYPES.UNION:
-                return { ...typeInfo, members: typeInfo.members.map(m => inner(m, typeVars, visited)) }
-            case TYPEINFO_TYPES.OBJECT:
-                return { ...typeInfo, properties: typeInfo.properties.map(([fieldName, field]) => [fieldName, inner(field, typeVars, visited)]) }
-        }
+    switch (typeInfo.type) {
+        case TYPEINFO_TYPES.BOOLEAN:
+        case TYPEINFO_TYPES.NUMBER:
+        case TYPEINFO_TYPES.STRING:
+            return typeInfo
+        case TYPEINFO_TYPES.REFERENCE:
+            const resolvedType = resolveTypeReference(typeInfo.asString, typeVars)
+
+            if (isPrimitiveType(resolvedType) || resolvedType.type === TYPEINFO_TYPES.ARRAY) { return resolvedType }
+            return typeInfo
+        case TYPEINFO_TYPES.ARRAY:
+            return { ...typeInfo, elementType: replacePrimitiveTypeVarsTypeInfo(typeInfo.elementType, typeVars) }
+        case TYPEINFO_TYPES.UNION:
+            return { ...typeInfo, members: typeInfo.members.map(m => replacePrimitiveTypeVarsTypeInfo(m, typeVars)) }
+        case TYPEINFO_TYPES.OBJECT:
+            return { ...typeInfo, properties: typeInfo.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
     }
-    return inner(typeInfo, typeVars, new Set())
 }
 
 // If some field or union member array element has a type alias for a primitive type as type, replace by that type

@@ -104,22 +104,12 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
     throw Error("Not implemented")
 }
 
+// Why is it we have an array here?
 function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type[] {
     const msgType = new protobuf.Type(event.eventTypeName)
     const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFields(event.payloadType) : []
-    //addFields(msgType, fields)
     addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index + 1))))
     return [msgType]
-}
-
-function genMsgType(msgTypeName: string, fields: FieldTriple[]): protobuf.Type {
-    const msgType = new protobuf.Type(msgTypeName)
-
-    for (const [index, field] of fields.entries()) {
-        msgType.add(new protobuf.Field(field.fieldName, field.fieldNumber ?? index + 1, getFieldType(field), field.rule))
-    }
-
-    return msgType
 }
 
 function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) {

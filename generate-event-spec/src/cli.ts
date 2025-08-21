@@ -19,11 +19,11 @@ async function main() {
       throw new Error(`File not found: ${argv.swarmEvents}`);
     }
 
-  const data = extractTypesFromFile(argv.swarmEvents);
-  console.log(eventSpecToString(data, null, 2));
+  //const data = extractTypesFromFile(argv.swarmEvents);
+  //console.log(eventSpecToString(data, null, 2));
   const dataCleaned = extractTypesFromFileCleaned(argv.swarmEvents);
   console.log(eventSpecToString(dataCleaned, null, 2));
-  generateProtoBufMsgDefs(eventSpecToProtoBuf("testPackage", data, true))
+  //generateProtoBufMsgDefs(eventSpecToProtoBuf("testPackage", dataCleaned, true))
 
 }
 

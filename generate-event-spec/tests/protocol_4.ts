@@ -1,7 +1,7 @@
 import { MachineEvent } from "./dummy_interface.js"
 
 type Lars = number[]
-type Laquo = boolean | string
+type Laquo = Lars
 type Boing = Laquo
 type Haha = string
 type ClosingTypeNested = { number: number[], other: Boing}

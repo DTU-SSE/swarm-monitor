@@ -91,6 +91,7 @@ class CollectingVisitor implements ASTVisitor {
                 if (typeArgs.length === 0) {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
+                // By setting payload type through typeNodeToPayloadType we get the object type litterally if it is behind a type alias.
                 this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.eventSpec.typeVariables) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
@@ -130,7 +131,7 @@ class CollectingVisitor implements ASTVisitor {
   }
 
   // Returns a cleaned copy"
-  //  type definitions not used in messages are removed,
+  //  type definitions not used in messages are removed such that we can generate a message type for all type aliases that have an object type
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
   //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
   cleanEventSpec(): EventSpec {
