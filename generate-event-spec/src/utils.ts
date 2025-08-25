@@ -4,6 +4,7 @@ import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
 
 // Function to convert a TypeNode to TypeInfo
 // Right now you can not do things like const a = "a"; type ClosingTimePayload = { timeOfDay: "typeof a" }; type PartIDPayload = {partName: "b"}
+// TypeNodes are found in e.g. type arguments
 export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
     switch (typeNode.getKind()) {
         case SyntaxKind.StringKeyword:
@@ -38,7 +39,6 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
                     const fieldType = typeNodeToTypeInfo(prop.getTypeNode()!);
                     return [prop.getName(), fieldType]
                 });
-            //const properties = new Map<string, TypeInfo>(pairs);
             return { type: 'object', asString: typeLiteral.getText(), properties: pairs };
         default:
             throw new Error(`Unsupported TypeNode kind: ${SyntaxKind[typeNode.getKind()]}`);
@@ -49,6 +49,7 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 // type b = a
 // that situation is not allowed anyway, so i do not think collecting visited necessary here.
 // Ok?
+// Get type that a type alias denotes.
 function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInfo {
     function inner(typeVar: string, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
         const resolvedTypeInfo = typeVars.get(typeVar)
@@ -80,7 +81,9 @@ function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is
 // Function to convert a TypeNode to PayloadType
 export function typeNodeToPayloadType(typeNode: TypeNode, typeVars: TypeVariables): PayloadType {
     var typeInfo = typeNodeToTypeInfo(typeNode)
-    // First level expanded by design...
+    // First level expanded by design.
+    // We want 'message eventTypeName { ... fields of type denoted by type alias }'
+    // instead of  'message eventTypeName { TypeAlias type_alias }' and 'message TypeAlias { ... fields of type denoted by type alias }
     if (typeInfo.type === TYPEINFO_TYPES.REFERENCE) {
         typeInfo = resolveTypeReference(typeInfo.asString, typeVars)
     }
@@ -92,7 +95,7 @@ export function typeNodeToPayloadType(typeNode: TypeNode, typeVars: TypeVariable
 
 }
 
-
+// Get the type aliases used in a TypeInfo
 function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] {
     function inner(typeInfo: TypeInfo, typeVars: TypeVariables, visited: Set<string>): string[] {
         const names: string[] = []
@@ -118,6 +121,7 @@ function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] 
     return inner(typeInfo, typeVars, new Set())
 }
 
+// Get all the type aliases used in an Event
 function usedNamesEvent(event: Event, typeVars: TypeVariables): string[] {
     if (event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD) {
         return namesInTypeInfo(event.payloadType, typeVars)
@@ -125,12 +129,15 @@ function usedNamesEvent(event: Event, typeVars: TypeVariables): string[] {
     return []
 }
 
+// Get all the type aliases used in an EventSpec.
+// This is used to 'clean' the type variables field of an EventSpec so that we can define message types for all
+// type aliases denoting to an object type.
 export function usedNames(eventSpec: EventSpec): Set<string> {
     return new Set(eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.typeVariables)))
 }
 
-// This should be done to type variables as well ....?
-// If some field or union member array element has a type alias for a primitive type as type, replace by that type
+// If some field or union member array element has a type alias for a primitive type as type, replace by that type.
+// Postpone all these union considerations though. Not implemented anyway when encoding.
 function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): TypeInfo {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
@@ -173,6 +180,9 @@ export function replacePrimitiveTypeVars(typeVars: TypeVariables): TypeVariables
     return newTypeVariables
 }
 
+// We do not want to define message types for primitive types.
+// So whenever a type alias for a primtive type is used then replace by the actual type.
+// Do this for events and typevariables
 export function replacePrimitiveTypeVarsEventSpec(eventSpec: EventSpec): EventSpec {
     const mapper = (event: Event): Event => {
         return event.eventKind === TYPEINFO_NAMES.WITHOUT_PAYLOAD
