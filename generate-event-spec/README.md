@@ -46,7 +46,7 @@ Events are encoded to message types according to the table below:
 | ActyxEvent                                                                    | Prococol Buffers                                              |
 | :---                                                                          |    :----:                                                     |
 | `{ payload: { type: "MyEventType", f1: T1, ..., fn: Tn }, meta: Metadata }`   | `message MyEventType { T1' f1 = 1, ..., Meta meta = n+1 }`    |
-|                                                                               |                                                               |
+
 
 Fields of payloads i.e. `f1, ..., fn` of `{type: "MyEventType", f1: T1, ..., fn: Tn}`, are encoded according to the table below.
 | T                         | T' (Prococol Buffers)                             |
@@ -57,7 +57,7 @@ Fields of payloads i.e. `f1, ..., fn` of `{type: "MyEventType", f1: T1, ..., fn:
 | `T[]`                     | `repeated T'`                                     |
 | `{f1: T1, ..., fn: Tn }`  | `message field_ame { f1: T1', ..., fn: Tn' }`*    |
 | `T1 \| ... \| Tn`         | Not supported                                     |
-|                           |                                                   |
+
 
 **Additionally:**
 * Type aliases denoting object types become separate message types. Except if they are the argument to `withPayload`, in which case they are inlined.
