@@ -27,6 +27,8 @@ async function protoFromJsonFile(inputPath: string, outputPath: string): Promise
   });
 }
 
+// Generate a .proto file by turning a protobuf.Root into a json file
+// and transforming that into a .proto using pbjs. Somewhat hacky. Removes the json file afterwards.
 export async function generateProtoBufMsgDefs(root: protobuf.Root, outputFile="output.proto"): Promise<void> {
     const outputPathSplit = outputFile.split('/').slice(0, -1)
     const outputDir = outputPathSplit.length == 0 ? "./" : `${outputPathSplit.join('/')}/`

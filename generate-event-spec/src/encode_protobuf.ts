@@ -1,5 +1,5 @@
 import protobuf from 'protobufjs'
-import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType_ } from './types.js';
+import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType } from './types.js';
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
@@ -125,7 +125,7 @@ function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) 
 }
 
 function generateField(fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string|{ [k: string]: any })): protobuf.Field {
-    return new protobuf.Field(fieldName, fieldNumber, getFieldType_(fieldType), rule)
+    return new protobuf.Field(fieldName, fieldNumber, getFieldType(fieldType), rule)
 }
 
 function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobuf.Type[]) {

@@ -1,8 +1,9 @@
-import { TYPEINFO_TYPES, TYPEINFO_NAMES, PROTOBUF_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from "./constants.js";
+import { TYPEINFO_TYPES, TYPEINFO_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from "./constants.js";
 
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
 
+// Our own intermediate representation of TypeScript types.
 export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType;
 
 export type BooleanType = { type: typeof TYPEINFO_TYPES.BOOLEAN, asString: string };
@@ -13,26 +14,30 @@ export type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, e
 export type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
 export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
 
+// Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
 
 // Maps type aliases to the types they denote.
 export type TypeVariables = Map<string, TypeInfo>;
+
+// Intermediate representation of an Actyx event
 type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITHOUT_PAYLOAD };
 type EventWithPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITH_PAYLOAD; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
+// Constructed when parsing a TypeScript file defining Actyx events.
 export type EventSpec = {
   variables: Variables;
   typeVariables: TypeVariables;
   events: Event[];
 }
 
-// basic here refers to boolean, number and string. typeInfo is BOOLEAN or ...??
+// Primitive here refers to boolean, number and string. typeInfo is BOOLEAN or ...??
 export const isPrimitiveType = (typeInfo: TypeInfo): boolean => {
   return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING
 }
 
-// Pretty print TypeInfo, Event and EventSpec
+// Serializable things are to pretty print TypeInfo, Event and EventSpec
 type Serializable = string | number | boolean | null | SerializableObject | Serializable[]
 export type SerializableObject = { [key: string]: Serializable }
 
@@ -73,28 +78,21 @@ export function eventSpecToString(eventSpec: EventSpec, replacer?: (number | str
   return JSON.stringify(serializeEventSpec(eventSpec), replacer, space)
 }
 
-// Types derived from constants
+// Types derived from constants.ts
 export type TypeInfoTName = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES];
 export type ProtobufFieldType = typeof PROTOBUF_FIELD_TYPES[keyof typeof PROTOBUF_FIELD_TYPES] | { userDefined: string };
 export type MetaNames = typeof META_NAMES[keyof typeof META_NAMES];
 
-// For encoding to protobuf
-export type MessageType = { messageName: string, fields: FieldTriple[] }
-export type FieldTriple = { fieldName: string, fieldNumber?: number, fieldType: ProtobufFieldType, rule?: typeof PROTOBUF_NAMES.REPEATED }
-
 export const isUserDefined = (fieldType: ProtobufFieldType): fieldType is { userDefined: string } => {
   return typeof fieldType === "object" && "userDefined" in fieldType && typeof fieldType.userDefined === "string"
 }
-export const getFieldType = (fieldTriple: FieldTriple): string => {
-  if (isUserDefined(fieldTriple.fieldType)) { return fieldTriple.fieldType.userDefined }
-  else { return fieldTriple.fieldType }
-}
-export const getFieldType_ = (fieldType: ProtobufFieldType): string => {
-  if (isUserDefined(fieldType)) { return fieldType.userDefined }
-  else { return fieldType }
+
+export const getFieldType = (fieldType: ProtobufFieldType): string => {
+  return isUserDefined(fieldType) ? fieldType.userDefined : fieldType
 }
 
 // https://dev.to/martinpersson/a-guide-to-using-the-option-type-in-typescript-ki2
+// Not sure we need this whole option show.
 export type Some<T> = { tag: "Some", value: T}
 export type None = { tag: "None" }
 export type Option<T> = Some<T> | None
