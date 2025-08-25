@@ -1,11 +1,12 @@
 import protobuf from 'protobufjs'
-import { type EventSpec, type Event, type FieldTriple, type MessageType, type TypeInfo, type TypeVariables, type PayloadType, type ArrayType, type Option, some, none, isNone, isSome, type ProtobufFieldType, getFieldType, getFieldType_ } from './types.js';
+import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType_ } from './types.js';
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
 
 type FieldGenerator = (fieldNumber: number) => protobuf.Field
 
+// Transform an EventSpec to a 'Root' -- data structure representing a set of protobuf message types.
 export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
     const root = new protobuf.Root()
     const namespace = root.define(packageName)
@@ -17,15 +18,10 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     // Encode the type definitions referred to by payload types
     addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.typeVariables))
 
-    // Consider if FieldTriple is a good idea at all. We want to encode recursively?? Is one more type necessary?
-    const extra: FieldGenerator[] = [metaField]
-    if (branchTracking) { extra.push(lastUpField) }
+    const extra: FieldGenerator[] = branchTracking ? [metaField, lastUpField] : [metaField]
 
     for (const event of eventSpec.events) {
-        const msgTypes = encodeEventToProtoBuf(event, extra)
-        for (const msgType of msgTypes) {
-            namespace.add(msgType)
-        }
+        namespace.add(encodeEventToProtoBuf(event, extra))
     }
 
     namespace.add(topLevelEvent(eventSpec.events))
@@ -43,6 +39,7 @@ function topLevelEvent(events: Event[]): protobuf.Type {
     return sealedValue
 }
 
+// Transform type aliases denoting object types as message types
 function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     const mapper = (typeName: string, typeInfo: PayloadType) => {
         return encodeEventToProtoBuf({eventTypeName: typeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: typeInfo})
@@ -50,9 +47,12 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
 
     return Array.from(typeVariables)
         .filter(([_, typeInfo]) => typeInfo.type === TYPEINFO_TYPES.OBJECT)
-        .flatMap(([typeName, typeInfo]) => mapper(typeName, typeInfo as PayloadType))
+        .map(([typeName, typeInfo]) => mapper(typeName, typeInfo as PayloadType))
 }
 
+// Transform the fields of an object type used as payload type to an array of 'ReflectionObject'
+// which is a type we use to represent the fields of a message type. A field can itself be a message type.
+// Unions of object types supported as Actyx payload type, but currently not supported here.
 function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
@@ -62,7 +62,7 @@ function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObjec
     }
 }
 
-
+// Primitive TypeInfo type or reference to ProtoBufFieldType. Consider of Option show is necessary
 function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
@@ -78,6 +78,7 @@ function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
     }
 }
 
+// Transform a TypeInfo to a ReflectionObject. Used to create the fields of a message type.
 function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
@@ -89,7 +90,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
                 return generateField(fieldName, fieldNumber, protoBufType.value)
             }
             break
-        // Right now only arrays of bools, numbers, strings or typealias are allowed as element types of arrays.
+        // Right now only arrays of bools, numbers, strings or typealiases are allowed as element types of arrays.
         case TYPEINFO_TYPES.ARRAY:
             const elementProtoBufType = resolveSimpleType(typeInfo.elementType)
             if (isSome(elementProtoBufType)) {
@@ -98,7 +99,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             }
             break
         case TYPEINFO_TYPES.UNION:
-            throw Error("Encoding of union types is not implemented") // sealed oneof
+            throw Error("Encoding of union types is not implemented") // sealed oneof. But what to do with field name? Of sealed oneof and its options.
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
             const encodedObject = payloadTypeToFields(typeInfo)
@@ -109,12 +110,12 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
     throw Error("Not implemented")
 }
 
-// Why is it we have an array here?
-function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type[] {
+// Transform an Event to a protobuf message type
+function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type {
     const msgType = new protobuf.Type(event.eventTypeName)
     const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFields(event.payloadType) : []
     addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index + 1))))
-    return [msgType]
+    return msgType
 }
 
 function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) {
@@ -134,6 +135,9 @@ function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobu
 }
 
 /*
+    Generate the Meta message type. Always included in actyx events at runtime.
+    Always part of the corresponding protobuf version of the event.
+
     Always has the shape:
     message Meta {
         bool is_local_event = 1;
@@ -159,10 +163,12 @@ export const metaMsgType = (): protobuf.Type => {
     return msgType
 }
 
+// Generate the Meta field. Always a field of a message type.
 export const metaField = (fieldNumber: number): protobuf.Field => {
     return new protobuf.Field(META_NAMES.META_NAME_FIELD, fieldNumber, PROTOBUF_FIELD_TYPES.META)
 }
 
+// Generate the last updating event field.
 export const lastUpField = (fieldNumber: number): protobuf.Field => {
     return new protobuf.Field(PROTOBUF_NAMES.LAST_UP, fieldNumber, PROTOBUF_FIELD_TYPES.STRING)
 }
