@@ -21,6 +21,7 @@ function forward(e: any, socket: dgram.Socket) {
 // Convert an event to a protobuf message
 function to_protobuf(e: any): Event {
     const {type, ...ePayload} = e.payload
+    //const ee: Event = Event.fromJsonString(JSON.stringify())
     switch (type) {
         case Events.partReq.type:
             return {sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
