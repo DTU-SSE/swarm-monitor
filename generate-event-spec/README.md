@@ -1,4 +1,3 @@
 ## Generate Protocol Buffers specification from Actyx Event definition
 
-Usage:
-```npm run gen-protobuf -- --swarm-events <file with events>```
+Run ```npm run gen-protobuf -- --help``` for usage information.

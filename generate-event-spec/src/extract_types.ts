@@ -2,11 +2,6 @@ import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAli
 import type { EventSpec } from "./types.js";
 import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 
-/*
-    To run:
-    npm run gen-protobuf -- --swarm-events=protocol.ts
-*/
-
 // Visitor interface
 interface ASTVisitor {
   visitVariableDeclaration?(node: VariableDeclaration): void;
@@ -39,6 +34,7 @@ function basicVisit(node: Node, prepend: string = '') {
   });
 }
 
+// Traverse an ast constructing an EventSpec. Hardcoded to work with a file defining events using MachineEvent.design(...)
 class CollectingVisitor implements ASTVisitor {
   eventSpec: EventSpec = { variables: new Map(), typeVariables: new Map(), events: [] };
 
@@ -51,7 +47,8 @@ class CollectingVisitor implements ASTVisitor {
     return node.getChildren().find(child => Node.isTyped(child));
   }
 
-
+  // Events are defined using MachineEvent.design('event type')...
+  // Extract 'event type'
   getEventTypeNameFromArgs(node: CallExpression): string {
     const args = node.getArguments();
     if (args && args.length > 0) {
@@ -92,6 +89,8 @@ class CollectingVisitor implements ASTVisitor {
                   throw new Error(`Call to MachineEvent.design(...).withPayload with no type arguments: ${node.getText()}`);
                 }
                 // By setting payload type through typeNodeToPayloadType we get the object type litterally if it is behind a type alias.
+                // This is a design choice. We want 'message eventTypeName { ... fields of type denoted by type alias }'
+                // instead of  'message eventTypeName { TypeAlias type_alias }' and 'message TypeAlias { ... fields of type denoted by type alias }
                 this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withPayload', payloadType: typeNodeToPayloadType(node.getTypeArguments()[0]!, this.eventSpec.typeVariables) });
               } else if (propertyAccess.getName() === 'withoutPayload') {
                 this.eventSpec.events.push({ eventTypeName: eventTypeName, eventKind: 'withoutPayload' });
@@ -121,6 +120,7 @@ class CollectingVisitor implements ASTVisitor {
     }
   }
 
+  // Insert a type variable into eventSpec.typeVariables
   visitTypeAliasDeclaration(node: TypeAliasDeclaration) {
     const typeNode = node.getTypeNode();
     if (typeNode) {
@@ -130,10 +130,10 @@ class CollectingVisitor implements ASTVisitor {
     }
   }
 
-  // Returns a cleaned copy"
+  // Returns a cleaned copy of constructed EventSpec
   //  type definitions not used in messages are removed such that we can generate a message type for all type aliases that have an object type
   //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
-  //  fresh names are given to literal types -- nope these are inserted as is nested or they have an alias and become their own 'top-level' messages.
+  //  type aliases denoting primitive types are replaced by these primitive types.
   cleanEventSpec(): EventSpec {
     const eventSpec = replacePrimitiveTypeVarsEventSpec(this.eventSpec)
     const namesInUse = usedNames(eventSpec)
@@ -142,6 +142,7 @@ class CollectingVisitor implements ASTVisitor {
 
 }
 
+// Construct an event spec and return it.
 export function extractTypesFromFile(filePath: string): EventSpec {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
@@ -151,6 +152,7 @@ export function extractTypesFromFile(filePath: string): EventSpec {
   return visitor.eventSpec;
 }
 
+// Construct an event spec, 'clean' it, and return it.
 export function extractTypesFromFileCleaned(filePath: string): EventSpec {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
