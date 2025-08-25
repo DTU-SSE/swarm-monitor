@@ -1,12 +1,12 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
-import { extractTypesFromFile, extractTypesFromFileCleaned } from './extract_types.js';
-import { eventSpecToString } from './types.js';
+import { extractTypesFromFileCleaned } from './extract_types.js';
 import { eventSpecToProtoBuf } from './encode_protobuf.js';
 import { generateProtoBufMsgDefs } from './protobuf_codegen.js';
 
 async function main() {
+  // Command line arguments
   const argv = await yargs(hideBin(process.argv))
     .option('input', {
       alias: 'i',
@@ -32,7 +32,7 @@ async function main() {
       description: 'Include last updating event field in message types.',
       default: false
     })
-    .demandOption("input")
+    .demandOption("input") // Input file must be passed
     .parseAsync();
 
   if (!argv.input) {
@@ -42,6 +42,7 @@ async function main() {
     throw new Error(`File not found: ${argv.input}.`);
   }
 
+  // Generate argv.output (defaults to output.proto) from argv.input
   generateProtoBufMsgDefs(eventSpecToProtoBuf(argv.packageName, extractTypesFromFileCleaned(argv.input), argv.branchTracking), argv.output)
 }
 
