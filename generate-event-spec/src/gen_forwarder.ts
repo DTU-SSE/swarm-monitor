@@ -9,19 +9,21 @@ import {
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
+import { z } from "zod";
 
+const ConfigSchema = z.object({
+  manifest: z.object({
+    appId: z.string(),
+    displayName: z.string(),
+    version: z.string()
+  }),
+  swarmProtocol: z.string(),
+  entityId: z.string(),
+  eventDefinitionFile: z.string(),
+  typeScriptProtoBufTypes: z.string()
+})
 
-export type Config = {
-  manifest: {
-        appId: string,
-        displayName: string,
-        version: string
-    },
-    swarmProtocol: string,
-    entityId: string,
-    eventDefinitionFile: string,
-    typeScriptProtoBufTypes: string
-}
+export type Config = z.infer<typeof ConfigSchema>;
 
 function addImports(sourceFile: SourceFile) {
   sourceFile.addImportDeclarations([
@@ -33,7 +35,7 @@ function addImports(sourceFile: SourceFile) {
 }
 
 // manifest and entityID are values used to set up connection to Actyx
-function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol: string, entityID: string) {
+function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: string, swarmProtocol: string, entityID: string) {
   // async function main() { ... }
   const mainFunction = sourceFile.addFunction({
     name: "main",
@@ -73,7 +75,7 @@ function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol:
       {
         name: "app",
         initializer: writer =>
-          writer.write(`await Actyx.of(${manifest})`),
+          writer.write(`await Actyx.of(${getManifest(JSON.stringify(config.manifest))})`),
       },
     ],
   });
@@ -84,7 +86,7 @@ function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol:
     declarations: [
       {
         name: "tags",
-        initializer: `${swarmProtocol}.tagWithEntityId("${entityID}")`,
+        initializer: `${config.swarmProtocol}.tagWithEntityId("${config.entityId}")`,
       },
     ],
   });
@@ -102,44 +104,42 @@ function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol:
 }
 
 // This works but consider a cleaner way of doing it.
-function getManifest(path: string): string {
-    return fs.readFileSync(path, 'utf8')
+function getManifest(manifestStr: string): string {
+    return manifestStr
       .replace("\"appId\"", "appId")
       .replace("\"displayName\"", "displayName")
       .replace("\"version\"", "version")
       .replace("\"signature\"", "signature")
 }
 
+function getConfig(path: string): Config {
+  try {
+    const c = ConfigSchema.parse(JSON.parse(fs.readFileSync(path, 'utf8')))
+    console.log(c)
+    return c
+  } catch(error) {
+    console.log(error)
+    throw Error /// return to this
+  }
+
+}
+
 async function main() {
     // Command line arguments
   const argv = await yargs(hideBin(process.argv))
-    .option('manifest', {
-      alias: 'm',
+    .option('config', {
+      alias: 'c',
       type: 'string',
-      description: 'File containing manifest used to set up sdk.',
+      description: 'File containing containing forwrder configuration information.',
     })
-    .option('swarm-protocol', {
-      alias: 's',
-      type: 'string',
-      description: 'Name of swarm protocol instance used to design machines of the swarm we want to forward from.',
-    })
-    .option('entity-id', {
-      alias: 'i',
-      type: 'string',
-      description: 'Entity id -- something like id of session.',
-    })
-    .demandOption("manifest") // manifest file must be passed
-    .demandOption("swarm-protocol") // swarm-protocol file must be passed
-    .demandOption("entity-id") // entity-id must be passed
+    .demandOption("config") // configuration must be passed
     .parseAsync();
 
-  if (!argv.manifest) {
-    throw new Error(`No file manifest given.`);
+  if (!fs.existsSync(argv.config)) {
+    throw new Error(`File not found: ${argv.config}.`);
   }
-  if (!fs.existsSync(argv.manifest)) {
-    throw new Error(`File not found: ${argv.input}.`);
-  }
-  const manifest = getManifest(argv.manifest)
+  const config = getConfig(argv.config)
+  const manifest = getManifest(JSON.stringify(config.manifest))
 
   const project = new Project({
     useInMemoryFileSystem: true,
@@ -148,7 +148,7 @@ async function main() {
 
   const sourceFile = project.createSourceFile("main.ts", "", { overwrite: true });
   addImports(sourceFile)
-  genMainFuncion(sourceFile, manifest, argv.swarmProtocol, argv.entityId )
+  genMainFuncion(sourceFile, config)
   // main()
   sourceFile.addStatements("main()");
 
