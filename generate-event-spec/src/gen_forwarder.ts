@@ -11,12 +11,59 @@ import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
 
 
+export type Config = {
+  manifest: {
+        appId: string,
+        displayName: string,
+        version: string
+    },
+    swarmProtocol: string,
+    entityId: string,
+    eventDefinitionFile: string,
+    typeScriptProtoBufTypes: string
+}
+
+function addImports(sourceFile: SourceFile) {
+  sourceFile.addImportDeclarations([
+    { namedImports: ["Actyx", "ActyxEvent", "EventSubscription"], moduleSpecifier: "@actyx/sdk" },
+    { defaultImport: "*", moduleSpecifier: "dgram" },
+    { defaultImport: "yargs", moduleSpecifier: "yargs"},
+    { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"}
+  ])
+}
+
 // manifest and entityID are values used to set up connection to Actyx
 function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol: string, entityID: string) {
   // async function main() { ... }
   const mainFunction = sourceFile.addFunction({
     name: "main",
     isAsync: true,
+  });
+
+  // Accept command line args
+  // const argv = await yargs(hideBin(process.argv))...
+  mainFunction.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    declarations: [
+      {
+        name: "argv",
+        initializer: writer =>
+          writer.write(`await yargs(hideBin(process.argv))
+    .option("address", {
+      alias: "a",
+      type: "string",
+      description: "Address to send to",
+      default: "localhost",
+    })
+    .option("port", {
+      alias: "p",
+      type: "number",
+      description: "Port to send to",
+      default: 9999,
+    })
+    .parseAsync()`),
+      },
+    ],
   });
 
   // const app = await Actyx.of(manifest)
@@ -38,6 +85,17 @@ function genMainFuncion(sourceFile: SourceFile, manifest: string, swarmProtocol:
       {
         name: "tags",
         initializer: `${swarmProtocol}.tagWithEntityId("${entityID}")`,
+      },
+    ],
+  });
+  // const eventSubscrptions: EventSubscription = { query: tags }
+  mainFunction.addVariableStatement({
+    declarationKind: VariableDeclarationKind.Const,
+    declarations: [
+      {
+        name: "eventSubscriptions",
+        type: "EventSubscription",
+        initializer: "{ query: tags }",
       },
     ],
   });
@@ -81,6 +139,7 @@ async function main() {
   if (!fs.existsSync(argv.manifest)) {
     throw new Error(`File not found: ${argv.input}.`);
   }
+  const manifest = getManifest(argv.manifest)
 
   const project = new Project({
     useInMemoryFileSystem: true,
@@ -88,8 +147,7 @@ async function main() {
   });
 
   const sourceFile = project.createSourceFile("main.ts", "", { overwrite: true });
-  const manifest = getManifest(argv.manifest)
-
+  addImports(sourceFile)
   genMainFuncion(sourceFile, manifest, argv.swarmProtocol, argv.entityId )
   // main()
   sourceFile.addStatements("main()");
@@ -105,65 +163,10 @@ main().catch((err: Error) => {
 
 
 
-/* // const app = await Boing.of({ "1": 2 })
-body.addVariableStatement({
-  declarationKind: VariableDeclarationKind.Const,
-  declarations: [
-    {
-      name: "app",
-      initializer: writer =>
-        writer.write("await Boing.of({ \"1\": 2 })"),
-    },
-  ],
-});
+/*
 
-// const tags = Composition.tagWithEntityId("warehouse")
-body.addVariableStatement({
-  declarationKind: VariableDeclarationKind.Const,
-  declarations: [
-    {
-      name: "tags",
-      initializer: "Composition.tagWithEntityId(\"warehouse\")",
-    },
-  ],
-});
 
-// const eventSubscrptions: EventSubscription = { query: tags }
-body.addVariableStatement({
-  declarationKind: VariableDeclarationKind.Const,
-  declarations: [
-    {
-      name: "eventSubscrptions",
-      type: "EventSubscription",
-      initializer: "{ query: tags }",
-    },
-  ],
-});
 
-// const argv = await yargs(hideBin(process.argv))...
-body.addVariableStatement({
-  declarationKind: VariableDeclarationKind.Const,
-  declarations: [
-    {
-      name: "argv",
-      initializer: writer =>
-        writer.write(`await yargs(hideBin(process.argv))
-  .option("address", {
-    alias: "a",
-    type: "string",
-    description: "Address to send to",
-    default: "localhost",
-  })
-  .option("port", {
-    alias: "p",
-    type: "number",
-    description: "Port to send to",
-    default: 9999,
-  })
-  .parseAsync()`),
-    },
-  ],
-});
 
 // const HOST = `${argv.address}`
 body.addVariableStatement({

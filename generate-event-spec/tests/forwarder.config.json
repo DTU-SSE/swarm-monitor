@@ -1,0 +1,11 @@
+{
+    "manifest": {
+        "appId": "com.example.car-factory",
+        "displayName": "Car Factory",
+        "version": "1.0.0"
+    },
+    "swarmProtocol": "Composition",
+    "entityId": "warehouse",
+    "eventDefinitionFile": "warehouse-demo-events.ts",
+    "typeScriptProtoBufTypes": "./generated/warehouse"
+}
