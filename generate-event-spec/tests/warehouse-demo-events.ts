@@ -2,17 +2,17 @@
 import { MachineEvent } from "./dummy_interface.js"
 
 type ClosingTimePayload = { timeOfDay: string }
-type PartIDPayload = {partName: string}
+type PartReqPayload = {partName: string}
 type PosPayload = {position: string, partName: string}
-type PartPayload = {partName: string}
+type PartOKPayload = {partName: string}
 type CarPayload = {partName: string, modelName: string}
 
 export namespace Events {
-  export const partID = MachineEvent.design('partID').withPayload<PartIDPayload>()
-  export const part = MachineEvent.design('part').withPayload<PartPayload>()
+  export const partReq = MachineEvent.design('partReq').withPayload<PartReqPayload>()
+  export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()
   export const pos = MachineEvent.design('pos').withPayload<PosPayload>()
-  export const time = MachineEvent.design('time').withPayload<ClosingTimePayload>()
+  export const closingTime = MachineEvent.design('closingTime').withPayload<ClosingTimePayload>()
   export const car = MachineEvent.design('car').withPayload<CarPayload>()
 
-  export const allEvents = [partID, part, pos, time, car] as const
+  export const allEvents = [partReq, partOK, pos, closingTime, car] as const
 }

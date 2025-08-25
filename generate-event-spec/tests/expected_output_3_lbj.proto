@@ -14,14 +14,14 @@ message Meta {
     uint32 offset = 8;
 }
 
-message partID {
+message partReq {
 
     string part_name = 1;
     Meta meta = 2;
     string lbj = 3;
 }
 
-message part {
+message partOK {
 
     string part_name = 1;
     Meta meta = 2;
@@ -36,7 +36,7 @@ message pos {
     string lbj = 4;
 }
 
-message time {
+message closingTime {
 
     string time_of_day = 1;
     Meta meta = 2;
@@ -55,10 +55,10 @@ message Event {
 
     oneof sealed_value {
 
-        partID part_id = 1;
-        part part = 2;
+        partReq part_req = 1;
+        partOK part_ok = 2;
         pos pos = 3;
-        time time = 4;
+        closingTime closing_time = 4;
         car car = 5;
     }
 }

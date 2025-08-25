@@ -8,26 +8,44 @@ import { generateProtoBufMsgDefs } from './protobuf_codegen.js';
 
 async function main() {
   const argv = await yargs(hideBin(process.argv))
-    .option('swarm-events', {
-      alias: 'e',
+    .option('input', {
+      alias: 'i',
       type: 'string',
-      description: 'File path to the definition of the swarm events',
-      default: 'protocol.ts',
+      description: 'File containing Actyx event definitions.',
+
     })
+    .option('output', {
+      alias: 'o',
+      type: 'string',
+      description: 'Name to give output .proto file.',
+      default: 'output.proto'
+    })
+    .option('package-name', {
+      alias: 'p',
+      type: 'string',
+      description: 'Name to give package containing message types.',
+      default: 'myPackage'
+    })
+    .option('branch-tracking', {
+      alias: 'b',
+      type: 'boolean',
+      description: 'Include last updating event field in message types.',
+      default: false
+    })
+    .demandOption("input")
     .parseAsync();
-    if (!fs.existsSync(argv.swarmEvents)) {
-      throw new Error(`File not found: ${argv.swarmEvents}`);
-    }
 
-  //const data = extractTypesFromFile(argv.swarmEvents);
-  //console.log(eventSpecToString(data, null, 2));
-  const dataCleaned = extractTypesFromFileCleaned(argv.swarmEvents);
-  console.log(eventSpecToString(dataCleaned, null, 2));
-  generateProtoBufMsgDefs(eventSpecToProtoBuf("test", dataCleaned, true))
+  if (!argv.input) {
+    throw new Error(`No file containing definition of Actyx event types given.`);
+  }
+  if (!fs.existsSync(argv.input)) {
+    throw new Error(`File not found: ${argv.input}.`);
+  }
 
+  generateProtoBufMsgDefs(eventSpecToProtoBuf(argv.packageName, extractTypesFromFileCleaned(argv.input), argv.branchTracking), argv.output)
 }
 
-main().catch(err => {
-  console.error(err);
+main().catch((err: Error) => {
+  console.error(`${err.name}: ${err.message}`);
   process.exit(1);
 })

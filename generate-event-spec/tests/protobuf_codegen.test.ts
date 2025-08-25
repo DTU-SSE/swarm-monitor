@@ -3,7 +3,7 @@ import { generateProtoBufMsgDefs } from "../src/protobuf_codegen.js";
 import { metaMsgType, eventSpecToProtoBuf } from "../src/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
-import { extractTypesFromFile, extractTypesFromFileCleaned } from "../src/extract_types.js";
+import { extractTypesFromFileCleaned } from "../src/extract_types.js";
 
 const OUTDIR = "tests"
 
@@ -26,52 +26,50 @@ describe("test dummy messages", () => {
             .add(new protobuf.Field("field2", 2, "string"));
 
         root.define("test.namespace").add(msg);
-        const outputFile = "output_1.proto"
-        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
-        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        const outputFile = `${OUTDIR}/output_1.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(`${OUTDIR}/${outputFile}`)
+        unlinkSync(outputFile)
     })
 
     it("generated meta.proto should be equal to expected meta information message format", async () => {
         const expected: string = readFileSync('tests/expected_meta_w_package.proto', 'utf8');
         const root = generateMetaWithNamespace()
-        const outputFile = "output_meta.proto"
-        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
-        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        const outputFile = `${OUTDIR}/output_meta.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(`${OUTDIR}/${outputFile}`)
+        unlinkSync(outputFile)
     })
     it("generate .proto from tests/warehouse-demo-events.ts", async () => {
         const expected: string = readFileSync('tests/expected_output_3_lbj.proto', 'utf8');
         const eventSpec = extractTypesFromFileCleaned("tests/warehouse-demo-events.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
-        const outputFile = "output_3.proto"
-        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
-        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        const outputFile = `${OUTDIR}/output_3.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(`${OUTDIR}/${outputFile}`)
+        unlinkSync(outputFile)
     })
     it("generate .proto with nested messages as separate message types", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_4.proto', 'utf8');
         const eventSpec = extractTypesFromFileCleaned("tests/protocol_4.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
-        const outputFile = "output_4.proto"
-        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
-        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        const outputFile = `${OUTDIR}/output_4.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(`${OUTDIR}/${outputFile}`)
+        unlinkSync(outputFile)
     })
     it("generate .proto with nested messages", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_5.proto', 'utf8');
         const eventSpec = extractTypesFromFileCleaned("tests/protocol_5.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
-        const outputFile = "output_5.proto"
-        await generateProtoBufMsgDefs(root, outputFile, OUTDIR)
-        const generated = readFileSync(`${OUTDIR}/${outputFile}`, 'utf8')
+        const outputFile = `${OUTDIR}/output_5.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)
-        unlinkSync(`${OUTDIR}/${outputFile}`)
+        unlinkSync(outputFile)
     })
-
-
 });
