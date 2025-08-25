@@ -1,0 +1,56 @@
+{
+  "nested": {
+    "warehouse-eevents": {
+      "nested": {
+        "MyMessage": {
+          "edition": "proto2",
+          "fields": {
+            "id": {
+              "type": "int32",
+              "id": 1
+            },
+            "name": {
+              "type": "string",
+              "id": 2
+            },
+            "timestamp": {
+              "type": "int64",
+              "id": 3
+            }
+          }
+        },
+        "Event": {
+          "edition": "proto2",
+          "oneofs": {
+            "sealed_value": {
+              "oneof": [
+                "partReq",
+                "partOK",
+                "pos",
+                "closingTime"
+              ]
+            }
+          },
+          "fields": {
+            "partReq": {
+              "type": "string",
+              "id": 2
+            },
+            "partOK": {
+              "type": "string",
+              "id": 3
+            },
+            "pos": {
+              "type": "string",
+              "id": 4
+            },
+            "closingTime": {
+              "type": "string",
+              "id": 5
+            }
+          }
+        }
+      }
+    }
+  }
+}

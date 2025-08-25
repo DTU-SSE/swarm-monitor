@@ -1,0 +1,79 @@
+## Generate Protocol Buffers specification from Actyx event definition
+
+Generate Protocol Buffers message types representing the events that can be emitted by a swarm of machines
+ implemented with Actyx [machine-runner](https://www.npmjs.com/package/@actyx/machine-runner) tool.
+
+The events emitted in such a swarm contain payload (represented by the type `MachineEvent`) and metadata (logical timestamp, unique id, etc.).
+The emitted event as a whole has the type `ActyxEvent`.
+
+The different types of `MachineEvent`s that can be emitted in a swarm are defined using 'Factories'.
+The `machine-runner` documentation states that "MachineEvent.Factory is a type definition for a constructor type that serves as a blueprint for the resulting instances."
+
+Factories are typically declared in a dedicated file (e.g. `src/protocol.ts`) using calls to `MachineEvent.design('MyEventType')...`
+
+A typical declaration of factories might look like:
+```typescript
+    type ClosingTimePayload = { timeOfDay: string }
+    type PartReqPayload = {partName: string}
+    type PosPayload = {position: string, partName: string}
+    type PartOKPayload = {partName: string}
+    type CarPayload = {partName: string, modelName: string}
+
+    export namespace Events {
+    export const partReq = MachineEvent.design('partReq').withPayload<PartReqPayload>()
+    export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()
+    export const pos = MachineEvent.design('pos').withPayload<PosPayload>()
+    export const closingTime = MachineEvent.design('closingTime').withPayload<ClosingTimePayload>()
+    export const car = MachineEvent.design('car').withPayload<CarPayload>()
+
+    export const allEvents = [partReq, partOK, pos, closingTime, car] as const
+    }
+```
+
+**This tool converts declarations like the above to a set of [Protocol Buffers](https://protobuf.dev/) message types representing the corresponding types of `ActyxEvent`s
+that would be emitted by a swarm using such a declaration during runtime.**
+
+Run ```npm run gen-protobuf -- --help``` for usage information.
+
+### Encoding
+
+A factory created with `MachineEvent.design("MyEventType").withPayload(T)` generates payloads
+of the shape `{type: "MyEventType", f1: T1, ..., fn: Tn}`, where `f1: T1, ..., fn: Tn` are are the fields and corresponding types of `T`.
+The types `T` are always of the type `{ [key: string]: SerializableValue }`, i.e. an object type with serializable fields.
+A factory created with `MachineEvent.design("MyEventType").withoutPaylaod()` simply generates payloads of the form `{type: "MyEventType"}`
+
+Events are encoded to message types according to the table below:
+| ActyxEvent                                                                    | Prococol Buffers                                              |
+| :---                                                                          |    :----:                                                     |
+| `{ payload: { type: "MyEventType", f1: T1, ..., fn: Tn }, meta: Metadata }`   | `message MyEventType { T1' f1 = 1, ..., Meta meta = n+1 }`    |
+
+
+Fields of payloads i.e. `f1, ..., fn` of `{type: "MyEventType", f1: T1, ..., fn: Tn}`, are encoded according to the table below.
+| T                         | T' (Prococol Buffers)                             |
+| :---                      |    :----:                                         |
+| `boolean`                 | `bool`                                            |
+| `number`                  | `double`                                          |
+| `string`                  | `string`                                          |
+| `T[]`                     | `repeated T'`                                     |
+| `{f1: T1, ..., fn: Tn }`  | `message field_ame { f1: T1', ..., fn: Tn' }`*    |
+| `T1 \| ... \| Tn`         | Not supported                                     |
+
+
+**Additionally:**
+* Type aliases denoting object types become separate message types. Except if they are the argument to `withPayload`, in which case they are inlined.
+
+* The type definition of `Metadata` can be seen [here](https://github.com/Actyx/Actyx/blob/master/js/sdk/src/types/various.ts#L224). The encoding is a straightforward transliteration.
+
+* \* Where `field_name` is the name of the field with type `{f1: T1, ..., fn: Tn }`. Only object types can be used as payload types, so we are bound to have such a name.
+
+
+
+All the different event types are bundled in a message type called `Event` with the shape
+```
+message Event {
+    oneof sealed_value {
+        myEventType1 my_event_type_1 = 1;
+        ...
+        myEventTypeN my_event_type_N = n;
+    }
+}```

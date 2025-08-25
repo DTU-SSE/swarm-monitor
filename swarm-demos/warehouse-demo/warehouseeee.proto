@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package warehouse-eevents;
+
+message MyMessage {
+
+    int32 id = 1;
+    string name = 2;
+    int64 timestamp = 3;
+}
+
+message Event {
+
+    oneof sealed_value {
+
+        string part_req = 2;
+        string partO_k = 3;
+        string pos = 4;
+        string closing_time = 5;
+    }
+}

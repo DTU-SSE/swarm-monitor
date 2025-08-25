@@ -1,0 +1,21 @@
+{
+  "nested": {
+    "warehouse-eevents": {
+      "nested": {
+        "MyMessage": {
+          "edition": "proto2",
+          "fields": {
+            "id": {
+              "type": "int32",
+              "id": 1
+            },
+            "name": {
+              "type": "string",
+              "id": 2
+            }
+          }
+        }
+      }
+    }
+  }
+}

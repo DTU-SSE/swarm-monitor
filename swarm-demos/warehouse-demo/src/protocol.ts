@@ -8,7 +8,6 @@ export const manifest = {
   displayName: 'Car Factory',
   version: '1.0.0',
 }
-
 type ClosingTimePayload = { timeOfDay: string }
 type PartReqPayload = {partName: string}
 type PosPayload = {position: string, partName: string}
