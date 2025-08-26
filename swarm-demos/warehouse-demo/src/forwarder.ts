@@ -4,7 +4,7 @@ import { Actyx, ActyxEvent, EventSubscription } from "@actyx/sdk";
 import * as dgram from "dgram";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import camelCase from "lodash.camelcase";
+import camelCase from "lodash.camelcase"; // npm install lodash.camelcase; npm install --save-dev @types/lodash.camelcase
 
 function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
     const {type, ...ePayload} = e.payload
@@ -45,7 +45,7 @@ async function main() {
         console.error(`Socket error: ${err.message}`);
     });
     app.subscribe(eventSubscriptions, (e: ActyxEvent) => {
-        forward(e as ActyxEvent<{type: string}>, socket);
+        forward(e as ActyxEvent<{type: string}>, socket); // Consider something like union type of Events!
     });
 }
 main()
