@@ -5,7 +5,7 @@ START_R="echo 'Starting factory-robot of the Warehouse protocol.'; echo 'Press C
 START_FL="echo 'Starting forklift of the Warehouse protocol.'; echo 'Press Ctrl + C to exit.'; npm run start-forklift;exec bash"
 START_T="echo 'Starting transporter of the Warehouse protocol.'; echo 'Press Ctrl + C to exit.'; npm run start-transporter;exec bash"
 START_D="echo 'Starting door of the Warehouse protocol.'; echo 'Press Ctrl + C to exit.'; npm run start-door;exec bash"
-START_FORWARDER="echo 'Starting forwarder'; npm run start-forwarder-alt -- --address="$1" --port="$2";exec bash"
+START_FORWARDER="echo 'Starting forwarder'; npm run start-forwarder -- --address="$1" --port="$2";exec bash"
 START_AX="rm -rf ax-data; echo 'Silently running Actyx middleware in this window. Press Ctrl + C to exit'.; ax run 2> /dev/null"
 
 # Start a new tmux session with the first command

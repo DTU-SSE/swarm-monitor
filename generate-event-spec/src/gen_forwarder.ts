@@ -216,11 +216,28 @@ function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: 
     writer => {
       writer.write("app.subscribe(eventSubscriptions, (e: ActyxEvent) => ")
         .inlineBlock(() => {
-          writer.writeLine(`forward(e, ${socketVar});`);
+          writer.writeLine(`forward(e as ActyxEvent<{type: string}>, ${socketVar});`);
         })
       .write(");");
     },
   ]);
+}
+
+// Does not chech whether 'type' is actually one of the known event types... Not good.
+function genForward(sourceFile: SourceFile) {
+  sourceFile.addFunction({
+    name: "forward",
+    parameters: [
+      { name: "e", type: "ActyxEvent<{type: string}>" },
+      { name: "socket", type: "dgram.Socket"}
+    ],
+    statements: [
+      `const {type, ...ePayload} = e.payload`,
+      `const msg = JSON.parse(\`{"sealedValue": { "oneofKind": "\${type}", "\${type}": \${JSON.stringify({...ePayload, meta: e.meta})}}}\`)`,
+      `console.log("Sending: ", msg)`,
+      `socket.send(Event.toBinary(msg))`
+    ]
+  });
 }
 
 // This works but consider a cleaner way of doing it.
@@ -264,6 +281,7 @@ async function main() {
 
   const sourceFile = project.createSourceFile("main.ts", "", { overwrite: true });
   addImports(sourceFile, config)
+  genForward(sourceFile)
   genMainFuncion(sourceFile, config)
   // main()
   sourceFile.addStatements("main()");

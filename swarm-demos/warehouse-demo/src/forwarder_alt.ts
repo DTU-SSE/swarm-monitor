@@ -12,20 +12,19 @@ import { hideBin } from 'yargs/helpers';
 */
 
 // Send a message to monitor
-function forward(e: any, socket: dgram.Socket) {
-    console.log("DKSA:")
+function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
     const msg = to_protobuf(e)
     console.log("Sending: ", msg)
     socket.send(Event.toBinary(msg))
 }
 
 // Convert an event to a protobuf message
-function to_protobuf(e: any): Event {
+function to_protobuf(e: ActyxEvent<{type: string}>): Event {
     const {type, ...ePayload} = e.payload
     //const eee = {sealedValue: { one}}
     //const ee: Event = Event.fromJsonString(JSON.stringify(ePayload))
-    console.log("HEJ ", type)
-    switch (type) {
+    return JSON.parse(`{"sealedValue": { "oneofKind": "${type}", "${type}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`)
+    /* switch (type) {
         case Events.partReq.type:
             const eee = `{"sealedValue": { "oneofKind": "${type}", "${type}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`
             //console.log("one ", eee)
@@ -42,7 +41,7 @@ function to_protobuf(e: any): Event {
             return {sealedValue: {oneofKind: "closingTime", closingTime: {...ePayload, meta: e.meta}}}
         default:
             throw new Error(`Unknown event type: ${type}`);
-        }
+        } */
 }
 
 
@@ -87,7 +86,7 @@ async function main() {
         console.error("Socket error:", err.message);
     });
 
-    app.subscribe(eventSubscriptions, (e: ActyxEvent) => { console.log("HEJ"); forward(e, socket)})
+    app.subscribe(eventSubscriptions, (e: ActyxEvent) => { forward(e as ActyxEvent<{type: string}>, socket) })
 }
 
 main()
