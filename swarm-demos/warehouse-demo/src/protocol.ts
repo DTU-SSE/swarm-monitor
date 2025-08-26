@@ -15,11 +15,11 @@ type PartOKPayload = {partName: string}
 type CarPayload = {partName: string, modelName: string}
 
 export namespace Events {
-  export const partReq = MachineEvent.design('partReq').withPayload<PartReqPayload>()
-  export const partOK = MachineEvent.design('partOK').withPayload<PartOKPayload>()
-  export const pos = MachineEvent.design('pos').withPayload<PosPayload>()
-  export const closingTime = MachineEvent.design('closingTime').withPayload<ClosingTimePayload>()
-  export const car = MachineEvent.design('car').withPayload<CarPayload>()
+  export const partReq = MachineEvent.design('PartReq').withPayload<PartReqPayload>()
+  export const partOK = MachineEvent.design('PartOK').withPayload<PartOKPayload>()
+  export const pos = MachineEvent.design('Pos').withPayload<PosPayload>()
+  export const closingTime = MachineEvent.design('ClosingTime').withPayload<ClosingTimePayload>()
+  export const car = MachineEvent.design('Car').withPayload<CarPayload>()
 
   export const allEvents = [partReq, partOK, pos, closingTime, car] as const
 }

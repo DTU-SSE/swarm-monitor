@@ -6,6 +6,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
 function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
+    //console.log(e)
     const {type, ...ePayload} = e.payload
     const msg = JSON.parse(`{"sealedValue": { "oneofKind": "${type}", "${type}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`)
     console.log("Sending: ", msg)
@@ -13,6 +14,7 @@ function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
 }
 
 async function main() {
+    console.log("The generated one")
     const argv = await yargs(hideBin(process.argv))
             .option("address", {
               alias: "a",

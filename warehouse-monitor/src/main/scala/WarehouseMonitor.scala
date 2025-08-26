@@ -20,9 +20,9 @@ def monitor(algorithm: MatchingAlgorithm) =
   Actor[Event, Unit] {
     receive { (self: ActorRef[Event]) =>
       {
-        case PartReq(part1, lbj1, meta1, _) 
-             &:& Pos(position, part2, lbj2, meta2, _) 
-             &:& PartOK( part3, lbj3, meta3, _) if part1 == part2 && part2 == part3 =>
+        case PartReq(part1, meta1, lbj1, _)
+             &:& Pos(position, part2, meta2, lbj2, _)
+             &:& PartOK( part3, meta3, lbj3, _) => //if part1 == part2 && part2 == part3 =>
           println(
             s"========================= ${Console.BLUE}${Console.UNDERLINED}Join Pattern 01${Console.RESET} =========================\n"
           )
@@ -36,9 +36,9 @@ def monitor(algorithm: MatchingAlgorithm) =
             s"\n========================= ${Console.BLUE}${Console.UNDERLINED}Join Pattern 01${Console.RESET} ========================="
           )
           Continue
-        case PartReq(part1, lbj1, meta1, _)
-             &:& Pos(position, part2, lbj2, meta2, _)
-             &:& PartOK(part3, lbj3, meta3, _) if part2 == "broken part" && part2 == part3 && lbj2 == lbj3 =>
+        case PartReq(part1, meta1, lbj1, _)
+             &:& Pos(position, part2, meta2, lbj2, _)
+             &:& PartOK(part3, meta3, lbj3, _) if part2 == "broken part" && part2 == part3 && lbj2 == lbj3 =>
           println(
             s"========================= ${Console.YELLOW}${Console.UNDERLINED}Join Pattern 02${Console.RESET} =========================\n"
           )
@@ -52,7 +52,7 @@ def monitor(algorithm: MatchingAlgorithm) =
             s"\n========================= ${Console.YELLOW}${Console.UNDERLINED}Join Pattern 02${Console.RESET} ========================="
           )
           Continue
-        case ClosingTime(time, lbj, meta, _) =>
+        case ClosingTime(time, meta, lbj, _) =>
           println(
             s"${Console.RED}${Console.UNDERLINED}Matched messages: ClosingTime(timeOfDay = $time, ...)${Console.RESET}\n"
           )
@@ -66,10 +66,10 @@ def monitor(algorithm: MatchingAlgorithm) =
   }
 
 def printMeta(e: Event) = e match
-  case PartReq(partName, lbj, meta, unknownFields)       => printMetaInner(meta)
-  case PartOK(partName, lbj, meta, unknownFields)        => printMetaInner(meta)
-  case Pos(position, partName, lbj, meta, unknownFields) => printMetaInner(meta)
-  case ClosingTime(timeOfDay, lbj, meta, unknownFields)  => printMetaInner(meta)
+  case PartReq(partName, meta, lbj, unknownFields)       => printMetaInner(meta)
+  case PartOK(partName, meta, lbj, unknownFields)        => printMetaInner(meta)
+  case Pos(position, partName, meta, lbj, unknownFields) => printMetaInner(meta)
+  case ClosingTime(timeOfDay, meta, lbj, unknownFields)  => printMetaInner(meta)
   case _                                                 => ()
 
 def printMetaInner(meta: Option[Meta]) = meta match
@@ -104,6 +104,7 @@ def receiveLoop(
   )
 
   val event = EventMessage.parseFrom(data).toEvent
+  println(event)
   monitorRef ! event
 
   // FIXME

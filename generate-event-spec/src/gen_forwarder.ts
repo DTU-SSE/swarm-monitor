@@ -2,7 +2,6 @@ import {
   Project,
   QuoteKind,
   VariableDeclarationKind,
-  SyntaxKind,
   SourceFile,
 } from "ts-morph";
 
@@ -30,6 +29,7 @@ const ManifestFieldSchema = z.union([
     manifest: ImportInfoSchema
   })
 ])
+
 // Imports are a little sketchy. Their exact syntax depends on ts configurations etc.
 const ConfigSchema = z.object({
   manifest: ManifestFieldSchema,
@@ -37,13 +37,12 @@ const ConfigSchema = z.object({
   eventDefinitionImport: ImportInfoSchema,
   tsProtoBufTypes: ImportInfoSchema,
   entityId: z.string(),
-  //imports: z.array(ImportInfoSchema).optional()
 })
 
 export type ImportInfo = z.infer<typeof ImportInfoSchema>;
 export type Manifest = z.infer<typeof ManifestSchema>;
 export type ManifestField = z.infer<typeof ManifestFieldSchema>;
-export type Config = z.infer<typeof ConfigSchema>;
+export type Config = z.infer<typeof ConfigSchema>; // Better type for config? Or other solution all together.
 
 function addToImportMap(imports: Map<string, Set<string>>, theImport: ImportInfo): Map<string, Set<string>> {
   if (imports.has(theImport.file) && !imports.get(theImport.file)!.has(theImport.item)) {
@@ -57,18 +56,15 @@ function addToImportMap(imports: Map<string, Set<string>>, theImport: ImportInfo
 
 function addImports(sourceFile: SourceFile, config: Config) {
   var imports: Map<string, Set<string>> = new Map()
-  //const addToImports = (theImport: ImportInfo) => { return addImport(imports, theImport); }
+
   if (config.manifest.type === "import") {
     imports = addToImportMap(imports, config.manifest.manifest as ImportInfo)
   }
+
   addToImportMap(imports, config.swarmProtocolImport)
   addToImportMap(imports, config.eventDefinitionImport)
   addToImportMap(imports, config.tsProtoBufTypes)
-  /* if (config.imports) {
-    for (const im of config.imports!) {
-      addToImportMap(imports, im)
-    }
-  } */
+
   for (const [file, items] of imports) {
     const itemsArr = Array.from(items)
     sourceFile.addImportDeclaration( { namedImports: itemsArr, moduleSpecifier: file} )
@@ -76,8 +72,6 @@ function addImports(sourceFile: SourceFile, config: Config) {
 
   sourceFile.addImportDeclarations([
     { namedImports: ["Actyx", "ActyxEvent", "EventSubscription"], moduleSpecifier: "@actyx/sdk" },
-    //{ namedImports: ["Events", config.swarmProtocol], moduleSpecifier: config.eventDefinitionFile}, // Better type for config, embed these requirements (that these things are defined there) there. Or other solution all together.
-    //{ namedImports: ["Event"],  moduleSpecifier: config.typeScriptProtoBufTypes }, // Also find a better solution here. Events/Event...
     { namespaceImport: "dgram", moduleSpecifier: "dgram" },
     { defaultImport: "yargs", moduleSpecifier: "yargs"},
     { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"}
@@ -85,7 +79,7 @@ function addImports(sourceFile: SourceFile, config: Config) {
 }
 
 // manifest and entityID are values used to set up connection to Actyx
-function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: string, swarmProtocol: string, entityID: string) {
+function genMainFuncion(sourceFile: SourceFile, config: Config) {
   // async function main() { ... }
   const mainFunction = sourceFile.addFunction({
     name: "main",
@@ -294,5 +288,3 @@ main().catch((err: Error) => {
   console.error(`${err.name}: ${err.message}`);
   process.exit(1);
 })
-
-
