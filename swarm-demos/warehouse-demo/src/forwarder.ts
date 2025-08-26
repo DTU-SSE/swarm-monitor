@@ -4,19 +4,17 @@ import { Actyx, ActyxEvent, EventSubscription } from "@actyx/sdk";
 import * as dgram from "dgram";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import camelCase from 'lodash.camelcase'
+import camelCase from "lodash.camelcase";
 
 function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
-    //console.log(e)
     const {type, ...ePayload} = e.payload
     const msg = JSON.parse(`{"sealedValue": { "oneofKind": "${camelCase(type)}", "${camelCase(type)}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`)
-    console.log(msg)
     console.log("Sending: ", msg)
     socket.send(Event.toBinary(msg))
 }
 
 async function main() {
-    console.log("The generated one")
+    console.log("The generated one 1")
     const argv = await yargs(hideBin(process.argv))
             .option("address", {
               alias: "a",

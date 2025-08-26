@@ -74,7 +74,8 @@ function addImports(sourceFile: SourceFile, config: Config) {
     { namedImports: ["Actyx", "ActyxEvent", "EventSubscription"], moduleSpecifier: "@actyx/sdk" },
     { namespaceImport: "dgram", moduleSpecifier: "dgram" },
     { defaultImport: "yargs", moduleSpecifier: "yargs"},
-    { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"}
+    { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"},
+    { defaultImport: "camelCase", moduleSpecifier: "lodash.camelcase"}
   ])
 }
 
@@ -218,6 +219,7 @@ function genMainFuncion(sourceFile: SourceFile, config: Config) {
 }
 
 // Does not chech whether 'type' is actually one of the known event types... Not good.
+// Also camelCase() seems sketchy, but ... works
 function genForward(sourceFile: SourceFile) {
   sourceFile.addFunction({
     name: "forward",
@@ -227,7 +229,7 @@ function genForward(sourceFile: SourceFile) {
     ],
     statements: [
       `const {type, ...ePayload} = e.payload`,
-      `const msg = JSON.parse(\`{"sealedValue": { "oneofKind": "\${type}", "\${type}": \${JSON.stringify({...ePayload, meta: e.meta})}}}\`)`,
+      `const msg = JSON.parse(\`{"sealedValue": { "oneofKind": "\${camelCase(type)}", "\${camelCase(type)}": \${JSON.stringify({...ePayload, meta: e.meta})}}}\`)`,
       `console.log("Sending: ", msg)`,
       `socket.send(Event.toBinary(msg))`
     ]
