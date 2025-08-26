@@ -102,7 +102,7 @@ def receiveLoop(
     packet.getOffset,
     packet.getOffset + packet.getLength
   )
-
+  //println(data)
   val event = EventMessage.parseFrom(data).toEvent
   println(event)
   monitorRef ! event
