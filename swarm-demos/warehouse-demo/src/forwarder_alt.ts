@@ -13,6 +13,7 @@ import { hideBin } from 'yargs/helpers';
 
 // Send a message to monitor
 function forward(e: any, socket: dgram.Socket) {
+    console.log("DKSA:")
     const msg = to_protobuf(e)
     console.log("Sending: ", msg)
     socket.send(Event.toBinary(msg))
@@ -21,10 +22,18 @@ function forward(e: any, socket: dgram.Socket) {
 // Convert an event to a protobuf message
 function to_protobuf(e: any): Event {
     const {type, ...ePayload} = e.payload
-    //const ee: Event = Event.fromJsonString(JSON.stringify())
+    //const eee = {sealedValue: { one}}
+    //const ee: Event = Event.fromJsonString(JSON.stringify(ePayload))
+    console.log("HEJ ", type)
     switch (type) {
         case Events.partReq.type:
-            return {sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
+            const eee = `{"sealedValue": { "oneofKind": "${type}", "${type}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`
+            //console.log("one ", eee)
+            //console.log("two ", {sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}})
+            console.log("one: ", JSON.parse(eee))
+            console.log("two: ", {sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}})
+            //return Event.fromJsonString(eee)
+            return JSON.parse(eee)//{sealedValue: {oneofKind: "partReq", partReq: {...ePayload, meta: e.meta}}}
         case Events.partOK.type:
             return {sealedValue: {oneofKind: "partOK", partOK: {...ePayload, meta: e.meta}}}
         case Events.pos.type:
@@ -41,7 +50,7 @@ function to_protobuf(e: any): Event {
 async function main() {
     const app = await Actyx.of(manifest)
     const tags = Composition.tagWithEntityId('warehouse')
-    const eventSubscrptions: EventSubscription = {query: tags}
+    const eventSubscriptions: EventSubscription = {query: tags}
     const argv = await yargs(hideBin(process.argv))
         .option('address', {
             alias: 'a',
@@ -78,7 +87,7 @@ async function main() {
         console.error("Socket error:", err.message);
     });
 
-    app.subscribe(eventSubscrptions, (e: ActyxEvent) => { forward(e, socket)})
+    app.subscribe(eventSubscriptions, (e: ActyxEvent) => { console.log("HEJ"); forward(e, socket)})
 }
 
 main()

@@ -48,7 +48,7 @@ async function main() {
           console.log()
           stateAfterTimeOut?.cast().commands()?.close()
         }
-      }, getRandomInt(3000, 8000))
+      }, getRandomInt(8000, 18000))
     }
   }
   rl.close();
