@@ -1,11 +1,7 @@
 {
-    "manifest": {
-        "appId": "com.example.car-factory",
-        "displayName": "Car Factory",
-        "version": "1.0.0"
-    },
-    "swarmProtocol": "Composition",
-    "entityId": "warehouse",
-    "eventDefinitionFile": "warehouse-demo-events.ts",
-    "typeScriptProtoBufTypes": "./generated/warehouse"
+    "manifest": { "type": "import", "manifest": {"item": "manifest", "file": "./protocol"}},
+    "swarmProtocolImport": {"item": "Composition", "file": "./protocol"},
+    "eventDefinitionImport": {"item": "Events", "file": "./protocol"},
+    "tsProtoBufTypes": {"item": "Event", "file": "./generated/warehouse"},
+    "entityId": "warehouse"
 }

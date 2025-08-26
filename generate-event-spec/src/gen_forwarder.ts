@@ -11,25 +11,73 @@ import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
 import { z } from "zod";
 
-const ConfigSchema = z.object({
-  manifest: z.object({
-    appId: z.string(),
-    displayName: z.string(),
-    version: z.string()
+const ImportInfoSchema = z.object({
+  item: z.string(),
+  file: z.string()
+})
+const ManifestSchema = z.object({
+  appId: z.string(),
+  displayName: z.string(),
+  version: z.string()
+})
+const ManifestFieldSchema = z.union([
+  z.object({
+    type: z.literal("literal"),
+    manifest: ManifestSchema
   }),
-  swarmProtocol: z.string(),
+  z.object({
+    type: z.literal("import"),
+    manifest: ImportInfoSchema
+  })
+])
+// Imports are a little sketchy. Their exact syntax depends on ts configurations etc.
+const ConfigSchema = z.object({
+  manifest: ManifestFieldSchema,
+  swarmProtocolImport: ImportInfoSchema,
+  eventDefinitionImport: ImportInfoSchema,
+  tsProtoBufTypes: ImportInfoSchema,
   entityId: z.string(),
-  eventDefinitionFile: z.string(),
-  typeScriptProtoBufTypes: z.string()
+  //imports: z.array(ImportInfoSchema).optional()
 })
 
+export type ImportInfo = z.infer<typeof ImportInfoSchema>;
+export type Manifest = z.infer<typeof ManifestSchema>;
+export type ManifestField = z.infer<typeof ManifestFieldSchema>;
 export type Config = z.infer<typeof ConfigSchema>;
 
+function addToImportMap(imports: Map<string, Set<string>>, theImport: ImportInfo): Map<string, Set<string>> {
+  if (imports.has(theImport.file) && !imports.get(theImport.file)!.has(theImport.item)) {
+    const items = imports.get(theImport.file)!.add(theImport.item)
+    imports.set(theImport.file, items)
+  } else {
+    imports.set(theImport.file, new Set([theImport.item]))
+  }
+  return imports
+}
+
 function addImports(sourceFile: SourceFile, config: Config) {
+  var imports: Map<string, Set<string>> = new Map()
+  //const addToImports = (theImport: ImportInfo) => { return addImport(imports, theImport); }
+  if (config.manifest.type === "import") {
+    imports = addToImportMap(imports, config.manifest.manifest as ImportInfo)
+  }
+  addToImportMap(imports, config.swarmProtocolImport)
+  addToImportMap(imports, config.eventDefinitionImport)
+  addToImportMap(imports, config.tsProtoBufTypes)
+  /* if (config.imports) {
+    for (const im of config.imports!) {
+      addToImportMap(imports, im)
+    }
+  } */
+  for (const [file, items] of imports) {
+    const itemsArr = Array.from(items)
+    sourceFile.addImportDeclaration( { namedImports: itemsArr, moduleSpecifier: file} )
+  }
+
   sourceFile.addImportDeclarations([
     { namedImports: ["Actyx", "ActyxEvent", "EventSubscription"], moduleSpecifier: "@actyx/sdk" },
-    { namedImports: ["Events", config.swarmProtocol], moduleSpecifier: config.eventDefinitionFile}, // Better type for config, embed these requirements (that these things are defined there) there. Or other solution all together.
-    { namedImports: ["Event"],  moduleSpecifier: config.typeScriptProtoBufTypes }, // Also find a better solution here. Events/Event...
+    //{ namedImports: ["Events", config.swarmProtocol], moduleSpecifier: config.eventDefinitionFile}, // Better type for config, embed these requirements (that these things are defined there) there. Or other solution all together.
+    //{ namedImports: ["Event"],  moduleSpecifier: config.typeScriptProtoBufTypes }, // Also find a better solution here. Events/Event...
     { namespaceImport: "dgram", moduleSpecifier: "dgram" },
     { defaultImport: "yargs", moduleSpecifier: "yargs"},
     { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"}
@@ -77,7 +125,7 @@ function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: 
       {
         name: "app",
         initializer: writer =>
-          writer.write(`await Actyx.of(${getManifest(JSON.stringify(config.manifest))})`),
+          writer.write(`await Actyx.of(${config.manifest.type === "literal" ? getManifest(JSON.stringify(config.manifest.manifest)) : config.manifest.manifest.item})`),
       },
     ],
   });
@@ -88,7 +136,7 @@ function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: 
     declarations: [
       {
         name: "tags",
-        initializer: `${config.swarmProtocol}.tagWithEntityId("${config.entityId}")`,
+        initializer: `${config.swarmProtocolImport.item}.tagWithEntityId("${config.entityId}")`,
       },
     ],
   });
