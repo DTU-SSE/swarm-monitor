@@ -140,10 +140,38 @@ function genMainFuncion(sourceFile: SourceFile, config: Config) { //, manifest: 
   // socket.on("error", (err) => { console.error("Socket error:", err.message); })
   // app.subscribe(eventSubscrptions, (e: AE) => { forward(e, socket) })
   mainFunction.addStatements([
-    `${socketVar}.connect(PORT, HOST, () => { console.log(\`Connected to \${HOST}:\${PORT}\`); })`,
-    `${socketVar}.on("close", () => { console.log("Connection closed"); })`,
-    `${socketVar}.on("error", (err) => { console.error("Socket error:", err.message); })`,
-    `app.subscribe(eventSubscriptions, (e: ActyxEvent) => { forward(e, socket) })`
+    writer => {
+      writer.write(`${socketVar}.connect(PORT, HOST, () => `)
+        .inlineBlock(() => {
+          writer.writeLine('console.log(\`Connected to \${HOST}:\${PORT}\`);');
+        })
+      .write(");");
+    },
+    writer => {
+      writer.write(`${socketVar}.on(`)
+      .quote("close")
+      .write(`, () => `)
+        .inlineBlock(() => {
+          writer.writeLine('console.log("Connection closed");');
+        })
+      .write(");");
+    },
+    writer => {
+      writer.write(`${socketVar}.on(`)
+      .quote("error")
+      .write(`, (err) => `)
+        .inlineBlock(() => {
+          writer.writeLine('console.error(\`Socket error: ${err.message}\`);');
+        })
+      .write(");");
+    },
+    writer => {
+      writer.write("app.subscribe(eventSubscriptions, (e: ActyxEvent) => ")
+        .inlineBlock(() => {
+          writer.writeLine(`forward(e, ${socketVar});`);
+        })
+      .write(");");
+    },
   ]);
 }
 
