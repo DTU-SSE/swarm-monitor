@@ -21,8 +21,6 @@ async function main() {
   await program.parseAsync();
 }
 
-main()
-
 /* type Options = {
     outputfile: string,
     package: string,
