@@ -271,7 +271,7 @@ export function getText(project: Project, file: string): string {
   }
 }
 
-export function generate_forwarder(configFile: string, outputFile: string): Project {
+export function generateForwarder(configFile: string, outputFile: string): Project {
   try {
     const config = getConfig(configFile)
 

@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import path from "path";
 import { FORWARDER_CONSTANTS } from "./constants.js";
-import { generate_forwarder, getText, writeSourceFile } from "./gen_forwarder.js";
+import { generateForwarder, getText, writeSourceFile } from "./gen_forwarder.js";
 
 type Options = {
     output: string
@@ -14,7 +14,7 @@ export const mkfwd = new Command("mkfwd")
     .option("-o, --output <FILE>", "Output file (defaults to forwarder.ts)", FORWARDER_CONSTANTS.FORWARDER_FILE_NAME)
     .option("-p, --print", "Prints generated file to stdout without saving it", false)
     .action((configFile: string, options: Options) => {
-        const generated = generate_forwarder(path.resolve(process.cwd(), configFile), options.output)
+        const generated = generateForwarder(path.resolve(process.cwd(), configFile), options.output)
         if (options.print) {
             console.log(getText(generated, options.output))
         }
