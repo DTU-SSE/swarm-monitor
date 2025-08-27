@@ -292,27 +292,3 @@ export function generate_forwarder(configFile: string, outputFile: string): Proj
     throw error
   }
 }
-
-
-/* async function main() {
-    // Command line arguments
-  const argv = await yargs(hideBin(process.argv))
-    .option('config', {
-      alias: 'c',
-      type: 'string',
-      description: 'File containing containing forwarder configuration information.',
-    })
-    .demandOption("config") // configuration must be passed
-    .parseAsync();
-
-  if (!fs.existsSync(argv.config)) {
-    throw new Error(`File not found: ${argv.config}.`);
-  }
-
-  writeSourceFile(generate_forwarder(argv.config, FORWARDER_CONSTANTS.FORWARDER_FILE_NAME), FORWARDER_CONSTANTS.FORWARDER_FILE_NAME)
-}
-
-main().catch((err: Error) => {
-  console.error(`${err.name}: ${err.message}`);
-  process.exit(1);
-}) */

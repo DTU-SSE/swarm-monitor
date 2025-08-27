@@ -1,4 +1,4 @@
-import { Command, Option } from "commander";
+import { Command } from "commander";
 import path from "path";
 import { FORWARDER_CONSTANTS } from "./constants.js";
 import { generate_forwarder, getText, writeSourceFile } from "./gen_forwarder.js";
