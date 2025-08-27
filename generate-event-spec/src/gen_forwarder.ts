@@ -255,7 +255,7 @@ function getConfig(path: string): Config {
 
 }
 
-function writeSourceFile(project: Project, file: string) {
+export function writeSourceFile(project: Project, file: string) {
   try {
     project.getSourceFileOrThrow(file).saveSync()
   } catch (error) {
@@ -263,7 +263,15 @@ function writeSourceFile(project: Project, file: string) {
   }
 }
 
-export function generate_forwarder(configFile: string): Project {
+export function getText(project: Project, file: string): string {
+    try {
+      return project.getSourceFileOrThrow(file).getFullText()
+    } catch (error) {
+    throw error
+  }
+}
+
+export function generate_forwarder(configFile: string, outputFile: string): Project {
   try {
     const config = getConfig(configFile)
 
@@ -271,12 +279,12 @@ export function generate_forwarder(configFile: string): Project {
       manipulationSettings: { quoteKind: QuoteKind.Double },
     });
 
-    const sourceFile = project.createSourceFile(FORWARDER_CONSTANTS.FORWARDER_FILE_NAME, "", { overwrite: true });
+    const sourceFile = project.createSourceFile(outputFile, "", { overwrite: true });
     addImports(sourceFile, config)
     genForward(sourceFile)
     genMainFuncion(sourceFile, config)
     // main()
-    sourceFile.addStatements("main()");
+    sourceFile.addStatements(FORWARDER_CONSTANTS.MAIN_FUNCTION_CALL);
 
     return project
 
@@ -286,13 +294,13 @@ export function generate_forwarder(configFile: string): Project {
 }
 
 
-async function main() {
+/* async function main() {
     // Command line arguments
   const argv = await yargs(hideBin(process.argv))
     .option('config', {
       alias: 'c',
       type: 'string',
-      description: 'File containing containing forwrder configuration information.',
+      description: 'File containing containing forwarder configuration information.',
     })
     .demandOption("config") // configuration must be passed
     .parseAsync();
@@ -300,25 +308,11 @@ async function main() {
   if (!fs.existsSync(argv.config)) {
     throw new Error(`File not found: ${argv.config}.`);
   }
-  /* const config = getConfig(argv.config)
 
-  const project = new Project({
-    manipulationSettings: { quoteKind: QuoteKind.Double },
-  });
-
-  const sourceFile = project.createSourceFile("forwarder.ts", "", { overwrite: true });
-  addImports(sourceFile, config)
-  genForward(sourceFile)
-  genMainFuncion(sourceFile, config)
-  // main()
-  sourceFile.addStatements("main()"); */
-
-  // Print program
-  //console.log(sourceFile.getFullText());
-  console.log(generate_forwarder(argv.config).getSourceFile("forwarder.ts")?.getFullText())
+  writeSourceFile(generate_forwarder(argv.config, FORWARDER_CONSTANTS.FORWARDER_FILE_NAME), FORWARDER_CONSTANTS.FORWARDER_FILE_NAME)
 }
 
 main().catch((err: Error) => {
   console.error(`${err.name}: ${err.message}`);
   process.exit(1);
-})
+}) */

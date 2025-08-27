@@ -47,5 +47,6 @@ export const META_NAMES = {
 
 // Constants for forwarder generation
 export const FORWARDER_CONSTANTS = {
-    FORWARDER_FILE_NAME: "forwarder.ts"
+    FORWARDER_FILE_NAME: "forwarder.ts",
+    MAIN_FUNCTION_CALL: "main()"
 }
