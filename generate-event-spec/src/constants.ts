@@ -44,3 +44,8 @@ export const META_NAMES = {
     STREAM: "stream",
     OFFSET: "offset"
 } as const;
+
+// Constants for forwarder generation
+export const FORWARDER_CONSTANTS = {
+    FORWARDER_FILE_NAME: "forwarder.ts"
+}

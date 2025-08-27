@@ -9,6 +9,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
 import { z } from "zod";
+import { FORWARDER_CONSTANTS } from "./constants.js";
 
 const ImportInfoSchema = z.object({
   item: z.string(),
@@ -254,6 +255,37 @@ function getConfig(path: string): Config {
 
 }
 
+function writeSourceFile(project: Project, file: string) {
+  try {
+    project.getSourceFileOrThrow(file).saveSync()
+  } catch (error) {
+    throw error
+  }
+}
+
+export function generate_forwarder(configFile: string): Project {
+  try {
+    const config = getConfig(configFile)
+
+    const project = new Project({
+      manipulationSettings: { quoteKind: QuoteKind.Double },
+    });
+
+    const sourceFile = project.createSourceFile(FORWARDER_CONSTANTS.FORWARDER_FILE_NAME, "", { overwrite: true });
+    addImports(sourceFile, config)
+    genForward(sourceFile)
+    genMainFuncion(sourceFile, config)
+    // main()
+    sourceFile.addStatements("main()");
+
+    return project
+
+  } catch (error) {
+    throw error
+  }
+}
+
+
 async function main() {
     // Command line arguments
   const argv = await yargs(hideBin(process.argv))
@@ -268,22 +300,22 @@ async function main() {
   if (!fs.existsSync(argv.config)) {
     throw new Error(`File not found: ${argv.config}.`);
   }
-  const config = getConfig(argv.config)
+  /* const config = getConfig(argv.config)
 
   const project = new Project({
-    useInMemoryFileSystem: true,
     manipulationSettings: { quoteKind: QuoteKind.Double },
   });
 
-  const sourceFile = project.createSourceFile("main.ts", "", { overwrite: true });
+  const sourceFile = project.createSourceFile("forwarder.ts", "", { overwrite: true });
   addImports(sourceFile, config)
   genForward(sourceFile)
   genMainFuncion(sourceFile, config)
   // main()
-  sourceFile.addStatements("main()");
+  sourceFile.addStatements("main()"); */
 
   // Print program
-  console.log(sourceFile.getFullText());
+  //console.log(sourceFile.getFullText());
+  console.log(generate_forwarder(argv.config).getSourceFile("forwarder.ts")?.getFullText())
 }
 
 main().catch((err: Error) => {
