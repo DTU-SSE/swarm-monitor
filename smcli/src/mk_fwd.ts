@@ -10,10 +10,10 @@ type Options = {
 }
 
 export const mkfwd = new Command("mkfwd")
-    .description("Generate a program that joins an Actyx session forwarding all messages to some destination")
+    .description("Generate a program that joins an Actyx session forwarding all messages to some destination.")
     .argument("<CONFIG_FILE>")
-    .option("-o, --output <FILE>", "Output file (defaults to forwarder.ts)", FORWARDER_CONSTANTS.FORWARDER_FILE_NAME)
-    .option("-p, --print", "Prints generated file to stdout without saving it", false)
+    .option("-o, --output <FILE>", "Output file.", FORWARDER_CONSTANTS.FORWARDER_FILE_NAME)
+    .option("-p, --print", "Prints generated file.", false)
     .action((configFile: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output}.`);
         const generated = generateForwarder(path.resolve(process.cwd(), configFile), options.output)

@@ -12,10 +12,10 @@ type Options = {
 }
 
 export const ax2pb = new Command("ax2pb")
-    .description("Translate an Actyx event definition to a Protocol Buffers message types")
+    .description("Translate an Actyx event definition to a Protocol Buffers message types.")
     .argument("<FILE>")
-    .option("-o, --output <FILE>", "Output file (defaults to output.proto)", "output.proto")
-    .option("-p, --package-name <PACKAGE>", "Name to give package containing message types (defaults to ;myPackage').", "myPackage")
+    .option("-o, --output <FILE>", "Output file.", "output.proto")
+    .option("-p, --package-name <PACKAGE>", "Name to give package containing message types.", "myPackage")
     .option("-b, --branch-tracking", "Include last updating event field in message types.", false)
     .action((file: string, options: Options) => { 
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
