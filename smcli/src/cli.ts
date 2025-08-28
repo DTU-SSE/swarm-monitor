@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { ax2pb } from './actyxToProtobuf.js';
+import { ax2pb } from './ax2pb.js';
 import { mkfwd } from './mk_fwd.js';
 import { stopSpinner } from './spinner.js';
 
