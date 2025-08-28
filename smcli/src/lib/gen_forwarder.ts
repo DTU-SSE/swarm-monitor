@@ -5,8 +5,6 @@ import {
   SourceFile,
 } from "ts-morph";
 
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import fs from 'fs';
 import { z } from "zod";
 import { FORWARDER_CONSTANTS } from "./constants.js";
