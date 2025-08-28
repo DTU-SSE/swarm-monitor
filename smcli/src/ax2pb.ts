@@ -1,9 +1,9 @@
 import { Command } from "commander";
-import { generateProtoBufMsgDefs } from "./protobuf_codegen.js";
-import { eventSpecToProtoBuf } from "./encode_protobuf.js";
-import { extractTypesFromFileCleaned } from "./extract_types.js";
+import { generateProtoBufMsgDefs } from "./lib/protobuf_codegen.js";
+import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
+import { extractTypesFromFileCleaned } from "./lib/extract_types.js";
 import path from "path";
-import { spinnerSuccess, updateSpinnerText } from "./spinner.js";
+import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 
 type Options = {
     output: string,

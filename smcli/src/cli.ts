@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import { ax2pb } from './ax2pb.js';
 import { mkfwd } from './mk_fwd.js';
-import { stopSpinner } from './spinner.js';
+import { stopSpinner } from './lib/spinner.js';
 
 // https://github.com/TerribleDev/example-ts-cli/blob/main/index.ts
 const program = new Command()

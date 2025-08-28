@@ -1,9 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
-import { generateProtoBufMsgDefs } from "../src/protobuf_codegen.js";
-import { metaMsgType, eventSpecToProtoBuf } from "../src/encode_protobuf.js";
+import { generateProtoBufMsgDefs } from "../src/lib/protobuf_codegen.js";
+import { metaMsgType, eventSpecToProtoBuf } from "../src/lib/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
-import { extractTypesFromFileCleaned } from "../src/extract_types.js";
+import { extractTypesFromFileCleaned } from "../src/lib/extract_types.js";
 
 const OUTDIR = "tests"
 

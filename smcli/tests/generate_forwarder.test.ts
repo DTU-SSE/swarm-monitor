@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { getText, generateForwarder } from "../src/gen_forwarder.js"
+import { getText, generateForwarder } from "../src/lib/gen_forwarder.js"
 import { readFileSync } from "fs" // Is actually fine, it runs
 
 

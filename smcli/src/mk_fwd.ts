@@ -1,8 +1,8 @@
 import { Command } from "commander";
 import path from "path";
-import { FORWARDER_CONSTANTS } from "./constants.js";
-import { generateForwarder, getText, writeSourceFile } from "./gen_forwarder.js";
-import { spinnerSuccess, updateSpinnerText } from "./spinner.js";
+import { FORWARDER_CONSTANTS } from "./lib/constants.js";
+import { generateForwarder, getText, writeSourceFile } from "./lib/gen_forwarder.js";
+import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 
 type Options = {
     output: string
