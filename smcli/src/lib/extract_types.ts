@@ -52,11 +52,11 @@ class CollectingVisitor implements ASTVisitor {
   getEventTypeNameFromArgs(node: CallExpression): string {
     const args = node.getArguments();
     if (args && args.length > 0) {
-      if (args[0]?.getKind() === SyntaxKind.StringLiteral) {
-        return args[0]?.getText().replace(/['"]/g, '');
+      if (args[0]!.getKind() === SyntaxKind.StringLiteral) {
+        return args[0]!.getText().replace(/['"]/g, '');
       } else if (args[0]?.getKind() === SyntaxKind.Identifier) { // const a = "a"; const b = a; const eventTypeName = b; ??? What happens
-        if (this.eventSpec.variables.has(args[0]?.getText())) {
-          return this.eventSpec.variables.get(args[0]?.getText().replace(/['"]/g, ''))!;
+        if (this.eventSpec.variables.has(args[0]!.getText())) {
+          return this.eventSpec.variables.get(args[0]!.getText().replace(/['"]/g, ''))!;
         }
       }
     }

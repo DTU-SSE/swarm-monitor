@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package warehouse_messages;
+
+/*"meta": {
+    "isLocalEvent": false,
+    "tags": [
+      "Composition",
+      "Composition:warehouse-factory"
+    ],
+    "timestampMicros": 1747990971813688,
+    "lamport": 11,
+    "appId": "com.example.car-factory",
+    "eventId": "0000000000000011/e0/rCannphYiaOQW4aQFeqE.SbHbplsf3mzyQP6DYkk-0",
+    "stream": "e0/rCannphYiaOQW4aQFeqE.SbHbplsf3mzyQP6DYkk-0",
+    "offset": 11
+}*/
+
+/*
+https://github.com/timostamm/protobuf-ts/blob/main/MANUAL.md#the-protoc-plugin
+npm install @protobuf-ts/plugin
+  To compile:
+   npx protoc \
+  --ts_out src/generated/ \
+  --ts_opt long_type_string \
+  --proto_path protos \
+  protos/warehouse.proto
+
+  for oneof remember to set strictNullChecks to true in tsconfig.json
+
+
+  npx protoc \
+  --ts_out src/generated/ \
+  --ts_opt long_type_string \
+  --proto_path protos \
+  protos/warehouse.proto
+*/
+
+
+message Event {
+  oneof sealed_value {
+    PartReq partReq = 1;
+    PartOK partOK = 2;
+    Pos pos = 3;
+    ClosingTime closingTime = 4;
+    Car car = 5;
+  }
+}
+
+message Meta {
+  bool isLocalEvent = 1;
+  repeated string tags = 2;
+  uint64 timestampMicros = 3;
+  uint32 lamport = 4;
+  string appId = 5;
+  string eventId = 6;
+  string stream = 7;
+  uint32 offset = 8;
+}
+
+message PartReq {
+  string partName = 1;
+  string lbj = 2;
+  Meta meta = 3;
+}
+
+message PartOK {
+  string partName = 1;
+  string lbj = 2;
+  Meta meta = 3;
+}
+
+message Pos {
+  string position = 1;
+  string partName = 2;
+  string lbj = 3;
+  Meta meta = 4;
+}
+
+message ClosingTime {
+  string timeOfDay = 1;
+  string lbj = 2;
+  Meta meta = 3;
+}
+
+message Car {
+  string partName = 1;
+  string modelName = 2;
+  string lbj = 3;
+  Meta meta = 4;
+}
+

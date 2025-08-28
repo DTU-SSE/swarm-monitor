@@ -1,0 +1,24 @@
+import { Command } from "commander";
+import { generateProtoBufMsgDefs } from "./lib/protobuf_codegen.js";
+import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
+import { extractTypesFromFileCleaned } from "./lib/extract_types.js";
+import path from "path";
+import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
+
+type Options = {
+    output: string,
+    packageName: string,
+    branchTracking: boolean
+}
+
+export const ax2pb = new Command("ax2pb")
+    .description("Translate an Actyx event definition to a Protocol Buffers message types.")
+    .argument("<FILE>")
+    .option("-o, --output <FILE>", "Output file.", "output.proto")
+    .option("-p, --package-name <PACKAGE>", "Name to give package containing message types.", "myPackage")
+    .option("-b, --branch-tracking", "Include last updating event field in message types.", false)
+    .action((file: string, options: Options) => { 
+        updateSpinnerText(`Generating ${options.output} from ${file}.`);
+        generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
+        spinnerSuccess()
+    })

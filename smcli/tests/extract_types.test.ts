@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
-import { extractTypesFromFile } from "../src/extract_types.js";
-import { eventSpecToString } from "../src/types.js";
-import { usedNames } from "../src/utils.js"
+import { extractTypesFromFile } from "../src/lib/extract_types.js";
+import { eventSpecToString } from "../src/lib/types.js";
+import { usedNames } from "../src/lib/utils.js"
 import { readFileSync } from "fs" // Is actually fine, it runs
 import isEqual from 'lodash.isequal'
 
