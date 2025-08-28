@@ -1,13 +1,8 @@
 #!/usr/bin/env node
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
-import fs from 'fs';
-import { extractTypesFromFileCleaned } from './extract_types.js';
-import { eventSpecToProtoBuf } from './encode_protobuf.js';
-import { generateProtoBufMsgDefs } from './protobuf_codegen.js';
 import { Command } from 'commander';
 import { ax2pb } from './actyxToProtobuf.js';
 import { mkfwd } from './mk_fwd.js';
+import { stopSpinner } from './spinner.js';
 
 // https://github.com/TerribleDev/example-ts-cli/blob/main/index.ts
 const program = new Command()
@@ -23,6 +18,7 @@ async function main() {
 }
 
 main().catch((err: Error) => {
+  stopSpinner()
   console.error(`${err.name}: ${err.message}`);
   process.exit(1);
 })
