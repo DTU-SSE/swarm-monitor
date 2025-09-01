@@ -4,13 +4,13 @@ import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
 import { extractTypesFromFileCleaned } from "./lib/extract_types.js";
 import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
-import { updatePackageJson } from "./lib/update_package_json.js";
+import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
 
 type Options = {
     output: string,
     packageName: string,
     branchTracking: boolean,
-    compile: string
+    compile: boolean
 }
 
 export const ax2pb = new Command("ax2pb")
@@ -19,12 +19,15 @@ export const ax2pb = new Command("ax2pb")
     .option("-o, --output <FILE>", "Output file.", "output.proto")
     .option("-p, --package-name <PACKAGE>", "Name to give package containing message types.", "myPackage")
     .option("-b, --branch-tracking", "Include last updating event field in message types.", false)
-    .option("-c, --compile <PACKAGE.JSON FILE>", "Adds compilation of generated .proto to 'scripts' package.json")
+    .option("-c, --compile", "Adds compilation of generated .proto to 'scripts' package.json")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
         generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
         if (options.compile) {
-            updatePackageJson(path.resolve(process.cwd(), options.compile)) // maybe just pass a directory here, then find a package.json create the add the scripts, maybe assert that it is the directory with the protocol.ts
+
+            setUpAutoCompile(file)
+            //updatePackageJson(path.resolve(process.cwd(), options.compile), updates) // maybe just pass a directory here, then find a package.json create the add the scripts, maybe assert that it is the directory with the protocol.ts
+
         }
         spinnerSuccess()
     })

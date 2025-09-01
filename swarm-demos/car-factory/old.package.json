@@ -4,15 +4,11 @@
   "type": "module",
   "scripts": {
     "start-stamp": "tsc && node dist/stamp.js",
-    "start-body-assembler": "tsc && node dist/body_assembler.js",
-    "compile-proto": "npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/*.proto"
+    "start-body-assembler": "tsc && node dist/body_assembler.js"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
-    "typescript": "^5.9.2",
-    "@protobuf-ts/plugin": "^2.11.1",
-    "@protobuf-ts/runtime": "^2.11.1",
-    "protoc": "^32.0.0"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@actyx/machine-check": "file:../../machines/machine-check",
