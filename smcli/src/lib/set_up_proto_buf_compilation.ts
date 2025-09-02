@@ -114,7 +114,7 @@ export async function setUpAutoCompile(protoBufFile: string) {
             { key: "typescript", value: "^5.9.2" },
             { key: "tsx", value: "^4.20.5" }
         ],
-        scripts: [{ key: "compile-proto", value: `npx tsx scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`}]
+        scripts: [{ key: "compile-proto", value: `npx tsx scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`, preScript: true}]
         }
 
         const projectRoot = findProjectRoot(protoBufFile)

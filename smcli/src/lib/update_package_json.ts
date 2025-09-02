@@ -4,18 +4,35 @@ import type { PackageJson } from "package-json";
 import path from "path";
 
 export type KeyValue = { key: string, value: string }
-export type PackageJsonEntries = { dependencies?: KeyValue[], devDependencies?: KeyValue[], scripts?: KeyValue[] }
+export type Script = { key: string, value: string, preScript: boolean }
+export type PackageJsonEntries = { dependencies?: KeyValue[], devDependencies?: KeyValue[], scripts?: Script[] }
 
-const addToField = (obj: any, field: string, dependencies: KeyValue[]): any => {
+const addToField = (obj: any, field: string, keyValuePairs: KeyValue[]): any => {
     const updatedField = obj[field] ? obj[field] : {}
-    for (const dependency of dependencies) {
-        if (!(dependency.key in updatedField)) {
-            updatedField[dependency.key] = dependency.value
+    for (const keyValuePair of keyValuePairs) {
+        if (!(keyValuePair.key in updatedField)) {
+            updatedField[keyValuePair.key] = keyValuePair.value
         }
     }
     obj[field] = updatedField
     return obj
 }
+
+// Add 'prescripts' https://docs.npmjs.com/cli/v7/using-npm/scripts. Called before every other pre-existing script.
+// Then add all scripts.
+const addScripts = (obj: PackageJson, scripts: Script[]): any => {
+    const preScript = `${scripts.filter(script => script.preScript).map(script => `npm run ${script.key}`).join(" && ")}`
+    if (obj.scripts) {
+        for (const scriptName in obj.scripts) {
+            // These two conditions are a little redundant, but nice when we test things and run the command many times.
+            if (scriptName !== "compile-proto" && !scriptName.startsWith("pre")) {
+                obj.scripts[`pre${scriptName}`] = preScript
+            }
+        }
+    }
+    return addToField(obj, "scripts", scripts)
+}
+
 
 export function updatePackageJson(filePath: string, packageJsonEntries: PackageJsonEntries) {
     try {
@@ -28,7 +45,7 @@ export function updatePackageJson(filePath: string, packageJsonEntries: PackageJ
            packageJson = addToField(packageJson, "devDependencies", packageJsonEntries.devDependencies)
         }
         if (packageJsonEntries.scripts) {
-           packageJson = addToField(packageJson, "scripts", packageJsonEntries.scripts)
+           packageJson = addScripts(packageJson, packageJsonEntries.scripts)
         }
 
         writeFileSync(path.resolve(filePath), JSON.stringify(packageJson, null, 2), "utf-8")
