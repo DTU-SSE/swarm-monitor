@@ -16,6 +16,7 @@
     "@types/lodash.isequal": "^4.5.8",
     "@types/lodash.snakecase": "^4.1.9",
     "@types/node": "^24.2.1",
+    "@types/package-json": "^5.0.0",
     "@types/yargs": "^17.0.33",
     "jest": "^30.0.5",
     "lodash.isequal": "^4.5.0",
@@ -25,6 +26,7 @@
   },
   "dependencies": {
     "commander": "^14.0.0",
+    "comment-json": "^4.2.5",
     "lodash.snakecase": "^4.1.1",
     "ora": "^8.2.0",
     "protobufjs": "^7.5.3",

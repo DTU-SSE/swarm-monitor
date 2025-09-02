@@ -1,4 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
+import { CommentArray, parse, stringify, type CommentObject } from "comment-json"
+import type { PackageJson } from "package-json";
+import path from "path";
 
 export type KeyValue = { key: string, value: string }
 export type PackageJsonEntries = { dependencies?: KeyValue[], devDependencies?: KeyValue[], scripts?: KeyValue[] }
@@ -12,26 +15,36 @@ const addToField = (obj: any, field: string, dependencies: KeyValue[]): any => {
     return obj
 }
 
-export function updatePackageJson(path: string, packageJsonEntries: PackageJsonEntries) {
-    const packageJson: string = readFileSync(path, 'utf8');
+export function updatePackageJson(filePath: string, packageJsonEntries: PackageJsonEntries) {
     try {
-
-        var jsonObject = JSON.parse(packageJson)
+        const text: string = readFileSync(path.resolve(filePath), "utf8");
+        var packageJson: PackageJson = JSON.parse(text)
         if (packageJsonEntries.dependencies) {
-           jsonObject = addToField(jsonObject, "dependencies", packageJsonEntries.dependencies)
+           packageJson = addToField(packageJson, "dependencies", packageJsonEntries.dependencies)
         }
         if (packageJsonEntries.devDependencies) {
-           jsonObject = addToField(jsonObject, "devDependencies", packageJsonEntries.devDependencies)
+           packageJson = addToField(packageJson, "devDependencies", packageJsonEntries.devDependencies)
         }
         if (packageJsonEntries.scripts) {
-           jsonObject = addToField(jsonObject, "scripts", packageJsonEntries.scripts)
+           packageJson = addToField(packageJson, "scripts", packageJsonEntries.scripts)
         }
 
-        writeFileSync(path, JSON.stringify(jsonObject, null, 2))
+        writeFileSync(path.resolve(filePath), JSON.stringify(packageJson, null, 2), "utf-8")
     } catch (error) {
         throw error
     }
 }
-//npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/*.proto
-//    "@protobuf-ts/plugin": "^2.11.1",
-// "@protobuf-ts/runtime": "^2.11.1"
+
+export function includeFileTsConfig(filePath: string, include: string[]) {
+    try {
+        const text: string = readFileSync(path.resolve(filePath), "utf8");
+        const tsConfig = parse(text) as CommentObject
+        if (tsConfig.include) {
+            const includes: Set<string> = new Set<string>(tsConfig.include as CommentArray<string>);
+            (tsConfig.include as CommentArray<string>).push(...include.filter(element => !includes.has(element)))
+        }
+        writeFileSync(path.resolve(filePath), stringify(tsConfig, null, 2), "utf-8")
+    } catch (error) {
+        throw error
+    }
+}

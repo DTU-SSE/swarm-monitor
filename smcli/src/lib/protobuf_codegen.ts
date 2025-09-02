@@ -1,7 +1,8 @@
 import protobuf from "protobufjs";
-import { writeFileSync, promises } from "fs";
+import { writeFileSync, promises, mkdirSync } from "fs";
 import { randomUUID } from "crypto";
 import pbjs from "protobufjs-cli/pbjs.js";
+import path from "path";
 
 
 async function removeFile(path: string): Promise<void> {
@@ -30,9 +31,9 @@ async function protoFromJsonFile(inputPath: string, outputPath: string): Promise
 // Generate a .proto file by turning a protobuf.Root into a json file
 // and transforming that into a .proto using pbjs. Somewhat hacky. Removes the json file afterwards.
 export async function generateProtoBufMsgDefs(root: protobuf.Root, outputFile="output.proto"): Promise<void> {
-    const outputPathSplit = outputFile.split('/').slice(0, -1)
-    const outputDir = outputPathSplit.length == 0 ? "./" : `${outputPathSplit.join('/')}/`
-    const tempJsonPath = `${outputDir}proto-${randomUUID()}.json`;
+    const outputDir = path.dirname(outputFile)
+    mkdirSync(outputDir, {recursive: true})
+    const tempJsonPath = path.join(outputDir, `proto-${randomUUID()}.json`)
     writeFileSync(tempJsonPath, JSON.stringify(root.toJSON())); // .replaceAll("proto2", "proto3") consider?
     try {
         await protoFromJsonFile(tempJsonPath, `${outputFile}`);

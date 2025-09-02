@@ -5,7 +5,7 @@
   "scripts": {
     "start-stamp": "tsc && node dist/stamp.js",
     "start-body-assembler": "tsc && node dist/body_assembler.js",
-    "compile-proto": "node dist/compile_protobuf.js protos/car_factory.proto src/generated/car_factory.ts"
+    "compile-proto": "node scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

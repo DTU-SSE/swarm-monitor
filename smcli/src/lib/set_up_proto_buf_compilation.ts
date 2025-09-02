@@ -1,5 +1,5 @@
 import path from "path";
-import { updatePackageJson, type PackageJsonEntries } from "./update_package_json.js";
+import { includeFileTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_package_json.js";
 import * as fs from "fs"
 import {
   Project,
@@ -106,23 +106,27 @@ const compileProtoBufScript = (scriptFilename: string) => {
 }
 
 export async function setUpAutoCompile(protoBufFile: string) {
-    const updates: PackageJsonEntries = {
+    try {
+        const updates: PackageJsonEntries = {
         devDependencies: [
             { key: "@protobuf-ts/plugin", value: "^2.11.1" }, // also install protoc
             { key: "@protobuf-ts/runtime", value: "^2.11.1" },
             { key: "typescript", value: "^5.9.2"}
             //{ key: "protoc", value: "^32.0.0" }
         ],
-        //scripts: [{ key: "compile-proto", value: "npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/*.proto" }]
         scripts: [{ key: "compile-proto", value: `node scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`}]
+        }
+
+        const projectRoot = findProjectRoot(protoBufFile)
+        updatePackageJson(path.join(projectRoot, "package.json"), updates)
+        includeFileTsConfig(path.join(projectRoot, "tsconfig.json"), ["scripts/**/*.ts"])
+
+        //fs.mkdirSync(path.join(projectRoot, "generated"), { recursive: true })
+        //fs.mkdirSync(path.join(projectRoot, "scripts"), { recursive: true })
+
+        compileProtoBufScript(`${projectRoot}/scripts/compile_protobuf.ts`)
+    } catch (err) {
+        throw err
     }
 
-    const projectRoot = findProjectRoot(protoBufFile)
-    console.log(projectRoot)
-    updatePackageJson(path.join(projectRoot, "package.json"), updates)
-
-    fs.mkdirSync(path.join(projectRoot, "generated"), { recursive: true })
-    fs.mkdirSync(path.join(projectRoot, "scripts"), { recursive: true })
-
-    compileProtoBufScript(`${projectRoot}/scripts/compile_protobuf.ts`)
 }
