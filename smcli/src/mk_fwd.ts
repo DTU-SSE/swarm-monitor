@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import path from "path";
 import { FORWARDER_CONSTANTS } from "./lib/constants.js";
-import { generateForwarder, getText, writeSourceFile } from "./lib/gen_forwarder.js";
+import { generateForwarder, getText, updatePackageJsonFwd, writeSourceFile } from "./lib/gen_forwarder.js";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 
 type Options = {
@@ -21,5 +21,6 @@ export const mkfwd = new Command("mkfwd")
             console.log(getText(generated, options.output))
         }
         writeSourceFile(generated, options.output)
+        updatePackageJsonFwd(options.output)
         spinnerSuccess()
     });

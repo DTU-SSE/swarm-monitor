@@ -1,5 +1,5 @@
-import { manifest, Composition, Events } from "./protocol";
-import { Event } from "./generated/warehouse";
+import { manifest, Composition, Events } from "./protocol.js";
+import { Event } from "./generated/car_factory.js";
 import { Actyx, ActyxEvent } from "@actyx/sdk";
 import type { EventSubscription } from "@actyx/sdk";
 import * as dgram from "dgram";
@@ -30,7 +30,7 @@ async function main() {
             })
             .parseAsync();
     const app = await Actyx.of(manifest);
-    const tags = Composition.tagWithEntityId("warehouse");
+    const tags = Composition.tagWithEntityId("car-factory");
     const eventSubscriptions: EventSubscription = { query: tags };
     const HOST = `${argv.address}`;
     const PORT = argv.port;

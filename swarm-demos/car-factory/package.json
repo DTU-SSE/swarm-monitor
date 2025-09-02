@@ -7,19 +7,25 @@
     "start-body-assembler": "tsc && node dist/src/body_assembler.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",
-    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts"
+    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",
+    "prestart-forwarder": "npm run compile-proto",
+    "start-forwarder": "tsc && node dist/src/forwarder.js"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
     "@protobuf-ts/plugin": "^2.11.1",
     "@protobuf-ts/runtime": "^2.11.1",
     "typescript": "^5.9.2",
-    "tsx": "^4.20.5"
+    "tsx": "^4.20.5",
+    "@types/lodash.camelcase": "^4.3.9",
+    "@types/yargs": "^17.0.33"
   },
   "dependencies": {
     "@actyx/machine-check": "file:../../machines/machine-check",
     "@actyx/machine-runner": "file:../../machines/machine-runner",
     "@actyx/sdk": "^0.5.9",
-    "chalk": "^5.6.0"
+    "chalk": "^5.6.0",
+    "lodash.camelcase": "^4.3.0",
+    "yargs": "^18.0.0"
   }
 }

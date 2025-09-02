@@ -1,42 +1,9 @@
 import path from "path";
-import { updateTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_config_files.js";
-import * as fs from "fs"
+import { updateTsConfig, updatePackageJson, type PackageJsonEntries, findProjectRoot } from "./update_config_files.js";
 import {
   Project,
   QuoteKind,
 } from "ts-morph";
-
-const getDir = (somePath: string): string => {
-    const resolvedPath = path.resolve(somePath)
-    try {
-        const stats = fs.statSync(resolvedPath)
-        return stats.isFile() ? path.dirname(resolvedPath) : resolvedPath
-    } catch (error) {
-        throw error
-    }
-}
-
-const containsFile = (dir: string, fileName: string): boolean => {
-    const filePath = path.join(dir, fileName)
-    return fs.existsSync(filePath) && fs.statSync(filePath).isFile()
-}
-
-// Find nearest ancestral directory with a file called package.json.
-// Consider this directory the project root and return it.
-// If no success we stop at /. Sketchy.
-const findProjectRoot = (aPath: string): string => {
-    let dir = getDir(aPath)
-    const isPackageRoot = (dir: string): boolean => containsFile(dir, "package.json")
-    while (!isPackageRoot(dir)) {
-        const parent = path.dirname(dir)
-        if (parent === dir) {
-            throw Error("No project root found")
-        }
-        dir = parent
-    }
-
-    return dir
-}
 
 // typeScriptFile is the result of compiling protoBufFile to typescript.
 // Recompile protoBufFile if it is younger than typeScriptFile

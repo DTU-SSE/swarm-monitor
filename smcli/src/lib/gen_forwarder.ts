@@ -8,6 +8,9 @@ import {
 import fs from 'fs';
 import { z } from "zod";
 import { FORWARDER_CONSTANTS } from "./constants.js";
+import { findProjectRoot, updatePackageJson } from "./update_config_files.js";
+import type { PackageJsonEntries } from "./update_config_files.js";
+import path from "path";
 
 const ImportInfoSchema = z.object({
   item: z.string(),
@@ -70,7 +73,8 @@ function addImports(sourceFile: SourceFile, config: Config) {
   }
 
   sourceFile.addImportDeclarations([
-    { namedImports: ["Actyx", "ActyxEvent", "EventSubscription"], moduleSpecifier: "@actyx/sdk" },
+    { namedImports: ["Actyx", "ActyxEvent"], moduleSpecifier: "@actyx/sdk" },
+    { moduleSpecifier: "@actyx/sdk", isTypeOnly: true, namedImports: [{name: "EventSubscription"}]},
     { namespaceImport: "dgram", moduleSpecifier: "dgram" },
     { defaultImport: "yargs", moduleSpecifier: "yargs"},
     { namedImports: ["hideBin"], moduleSpecifier: "yargs/helpers"},
@@ -267,6 +271,32 @@ export function getText(project: Project, file: string): string {
     } catch (error) {
     throw error
   }
+}
+
+// Add imports to package.json and add a script for starting forwarder.
+export function updatePackageJsonFwd(filePath: string) {
+
+  const projectRoot = findProjectRoot(filePath)
+  path.resolve()
+  // little sketchy... what if filePath is /home/a/b/src/forwarder.ts ??
+  const executablePath = path.join("dist", path.dirname(filePath), `${path.basename(filePath, ".ts")}.js`)
+  const updates: PackageJsonEntries = {
+    devDependencies: [
+        { key: "@types/lodash.camelcase", value: "^4.3.9" },
+        { key: "@types/yargs", value: "^17.0.33" }
+    ],
+    dependencies: [
+      { key: "lodash.camelcase", value: "^4.3.0" },
+      { key: "yargs", value: "^18.0.0" },
+
+    ],
+    // sketchy. assumes there is this compile-proto script...
+    scripts: [
+      { key: "prestart-forwarder", value: `npm run compile-proto`, preScript: false},
+      { key: "start-forwarder", value: `tsc && node ${executablePath}`, preScript: false}]
+    }
+
+  updatePackageJson(path.join(projectRoot, "package.json"), updates)
 }
 
 export function generateForwarder(configFile: string, outputFile: string): Project {

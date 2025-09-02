@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "fs"
 import { CommentArray, parse, stringify, type CommentObject } from "comment-json"
 import type { PackageJson } from "package-json";
 import path from "path";
+import * as fs from "fs"
 
 export type KeyValue = { key: string, value: string }
 export type Script = { key: string, value: string, preScript: boolean }
@@ -22,7 +23,7 @@ const addToField = (obj: any, field: string, keyValuePairs: KeyValue[]): any => 
 // Then add all scripts.
 const addScripts = (obj: PackageJson, scripts: Script[]): any => {
     const preScript = `${scripts.filter(script => script.preScript).map(script => `npm run ${script.key}`).join(" && ")}`
-    if (obj.scripts) {
+    if (obj.scripts && preScript.length != 0) {
         for (const scriptName in obj.scripts) {
             // These two conditions are a little redundant, but nice when we test things and run the command many times.
             if (scriptName !== "compile-proto" && !scriptName.startsWith("pre")) {
@@ -73,4 +74,37 @@ export function updateTsConfig(filePath: string, include: string[]) {
     } catch (error) {
         throw error
     }
+}
+
+/* Functions working on directories. Not conceptually close to other functions here, but, used in mulitple places. */
+const getDir = (somePath: string): string => {
+    const resolvedPath = path.resolve(somePath)
+    try {
+        const stats = fs.statSync(resolvedPath)
+        return stats.isFile() ? path.dirname(resolvedPath) : resolvedPath
+    } catch (error) {
+        throw error
+    }
+}
+
+const containsFile = (dir: string, fileName: string): boolean => {
+    const filePath = path.join(dir, fileName)
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile()
+}
+
+// Find nearest ancestral directory with a file called package.json.
+// Consider this directory the project root and return it.
+// If no success we stop at /. Sketchy.
+export const findProjectRoot = (aPath: string): string => {
+    let dir = getDir(aPath)
+    const isPackageRoot = (dir: string): boolean => containsFile(dir, "package.json")
+    while (!isPackageRoot(dir)) {
+        const parent = path.dirname(dir)
+        if (parent === dir) {
+            throw Error("No project root found")
+        }
+        dir = parent
+    }
+
+    return dir
 }
