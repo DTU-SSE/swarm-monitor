@@ -9,7 +9,9 @@ export type PackageJsonEntries = { dependencies?: KeyValue[], devDependencies?: 
 const addToField = (obj: any, field: string, dependencies: KeyValue[]): any => {
     const updatedField = obj[field] ? obj[field] : {}
     for (const dependency of dependencies) {
-        updatedField[dependency.key] = dependency.value
+        if (!(dependency.key in updatedField)) {
+            updatedField[dependency.key] = dependency.value
+        }
     }
     obj[field] = updatedField
     return obj
@@ -35,13 +37,20 @@ export function updatePackageJson(filePath: string, packageJsonEntries: PackageJ
     }
 }
 
-export function includeFileTsConfig(filePath: string, include: string[]) {
+export function updateTsConfig(filePath: string, include: string[]) {
     try {
         const text: string = readFileSync(path.resolve(filePath), "utf8");
         const tsConfig = parse(text) as CommentObject
         if (tsConfig.include) {
             const includes: Set<string> = new Set<string>(tsConfig.include as CommentArray<string>);
             (tsConfig.include as CommentArray<string>).push(...include.filter(element => !includes.has(element)))
+        }
+        // Necessary to be able to use the ts files generated from .proto files.
+        if ((tsConfig.compilerOptions as any)?.noUncheckedIndexedAccess) {
+            (tsConfig.compilerOptions as any).noUncheckedIndexedAccess = false
+        }
+        if ((tsConfig.compilerOptions as any)?.noImplicitOverride) {
+            (tsConfig.compilerOptions as any).noImplicitOverride = false
         }
         writeFileSync(path.resolve(filePath), stringify(tsConfig, null, 2), "utf-8")
     } catch (error) {

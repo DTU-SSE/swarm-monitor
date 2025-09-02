@@ -21,9 +21,9 @@ async function main() {
         const protoBufFileTime = fs.statSync(protoBufFile).mtimeMs;
         if (!fs.existsSync(typeScriptFile) || protoBufFileTime > fs.statSync(typeScriptFile).mtimeMs){
             runProtoc([
-                        `--ts_out ${path.dirname(typeScriptFile)}`,
-                        `--ts_opt long_type_string`,
-                        `--proto_path protos ${protoBufFile}`
+                        `--ts_out`, `${path.dirname(typeScriptFile)}`,
+                        `--ts_opt`, `long_type_string`,
+                        `--proto_path`, `protos`, `${protoBufFile}`
                         ])
         }
     } catch (err){

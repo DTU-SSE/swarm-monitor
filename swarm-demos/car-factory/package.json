@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start-stamp": "tsc && node dist/stamp.js",
-    "start-body-assembler": "tsc && node dist/body_assembler.js",
-    "compile-proto": "node scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts"
+    "start-stamp": "tsc && node dist/src/stamp.js",
+    "start-body-assembler": "tsc && node dist/src/body_assembler.js",
+    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
-    "typescript": "^5.9.2",
     "@protobuf-ts/plugin": "^2.11.1",
-    "@protobuf-ts/runtime": "^2.11.1"
+    "@protobuf-ts/runtime": "^2.11.1",
+    "typescript": "^5.9.2",
+    "tsx": "^4.20.5"
   },
   "dependencies": {
     "@actyx/machine-check": "file:../../machines/machine-check",

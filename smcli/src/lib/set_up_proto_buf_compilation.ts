@@ -1,5 +1,5 @@
 import path from "path";
-import { includeFileTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_package_json.js";
+import { updateTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_package_json.js";
 import * as fs from "fs"
 import {
   Project,
@@ -89,9 +89,9 @@ const compileProtoBufScript = (scriptFilename: string) => {
             writer.writeLine("const protoBufFileTime = fs.statSync(protoBufFile).mtimeMs;")
             writer.write("if (!fs.existsSync(typeScriptFile) || protoBufFileTime > fs.statSync(typeScriptFile).mtimeMs)").inlineBlock(() => {
                 writer.writeLine(`runProtoc([
-            \`--ts_out \${path.dirname(typeScriptFile)}\`,
-            \`--ts_opt long_type_string\`,
-            \`--proto_path protos \${protoBufFile}\`
+            \`--ts_out\`, \`\${path.dirname(typeScriptFile)}\`,
+            \`--ts_opt\`, \`long_type_string\`,
+            \`--proto_path\`, \`protos\`, \`\${protoBufFile}\`
             ])`
                 )
             })
@@ -109,20 +109,17 @@ export async function setUpAutoCompile(protoBufFile: string) {
     try {
         const updates: PackageJsonEntries = {
         devDependencies: [
-            { key: "@protobuf-ts/plugin", value: "^2.11.1" }, // also install protoc
+            { key: "@protobuf-ts/plugin", value: "^2.11.1" }, // also installs protoc?
             { key: "@protobuf-ts/runtime", value: "^2.11.1" },
-            { key: "typescript", value: "^5.9.2"}
-            //{ key: "protoc", value: "^32.0.0" }
+            { key: "typescript", value: "^5.9.2" },
+            { key: "tsx", value: "^4.20.5" }
         ],
-        scripts: [{ key: "compile-proto", value: `node scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`}]
+        scripts: [{ key: "compile-proto", value: `npx tsx scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`}]
         }
 
         const projectRoot = findProjectRoot(protoBufFile)
         updatePackageJson(path.join(projectRoot, "package.json"), updates)
-        includeFileTsConfig(path.join(projectRoot, "tsconfig.json"), ["scripts/**/*.ts"])
-
-        //fs.mkdirSync(path.join(projectRoot, "generated"), { recursive: true })
-        //fs.mkdirSync(path.join(projectRoot, "scripts"), { recursive: true })
+        updateTsConfig(path.join(projectRoot, "tsconfig.json"), ["scripts/**/*.ts"])
 
         compileProtoBufScript(`${projectRoot}/scripts/compile_protobuf.ts`)
     } catch (err) {

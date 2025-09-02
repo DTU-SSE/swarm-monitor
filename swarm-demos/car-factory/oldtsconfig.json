@@ -11,8 +11,8 @@
     "verbatimModuleSyntax": true,
     /* Strictness */
     "strict": true,
-    "noUncheckedIndexedAccess": false,
-    "noImplicitOverride": false,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     /* Transpiling with TypeScript: */
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
