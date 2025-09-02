@@ -1,14 +1,10 @@
 import path from "path";
-import { updateTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_package_json.js";
+import { updateTsConfig, updatePackageJson, type PackageJsonEntries } from "./update_config_files.js";
 import * as fs from "fs"
 import {
   Project,
   QuoteKind,
-  VariableDeclarationKind,
-  SourceFile,
 } from "ts-morph";
-
-//const isOlder()
 
 const getDir = (somePath: string): string => {
     const resolvedPath = path.resolve(somePath)
