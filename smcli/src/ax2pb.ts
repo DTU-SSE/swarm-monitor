@@ -25,7 +25,7 @@ export const ax2pb = new Command("ax2pb")
         generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
         if (options.compile) {
 
-            setUpAutoCompile(file)
+            setUpAutoCompile(options.output)
             //updatePackageJson(path.resolve(process.cwd(), options.compile), updates) // maybe just pass a directory here, then find a package.json create the add the scripts, maybe assert that it is the directory with the protocol.ts
 
         }

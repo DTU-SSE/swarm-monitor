@@ -42,33 +42,87 @@ const findProjectRoot = (aPath: string): string => {
     return dir
 }
 
-const compileProtoBufScript = (filename: string, protoBufFile: string) => {
+// typeScriptFile is the result of compiling protoBufFile to typescript.
+// Recompile protoBufFile if it is younger than typeScriptFile
+const compileProtoBufScript = (scriptFilename: string) => {
     const project = new Project({
       manipulationSettings: { quoteKind: QuoteKind.Double },
     });
-    const sourceFile = project.createSourceFile(filename, "", { overwrite: true });
-    sourceFile.addImportDeclaration( { moduleSpecifier: "fs", namespaceImport: "fs"})
-    console.log(sourceFile.getText())
+    const sourceFile = project.createSourceFile(scriptFilename, "", { overwrite: true });
 
+    // import * as fs from "fs"
+    sourceFile.addImportDeclarations([
+        { moduleSpecifier: "fs", namespaceImport: "fs" },
+        { defaultImport: "path", moduleSpecifier: "path"},
+        { namedImports: ["spawn"], moduleSpecifier: "child_process"}
+    ])
+
+    sourceFile.addFunction({
+        name: "runProtoc",
+        isAsync: true,
+        parameters: [
+        { name: "args", type: "string[]" }
+        ],
+        statements: writer => {
+            writer.writeLine(`const proc = spawn("npx", ["protoc", ...args]);`)
+            writer.write(`await new Promise<void>((resolve, reject) => `).inlineBlock(() => {
+                writer.writeLine(`proc.once("error", reject);`)
+                writer.writeLine(`proc.once("close", (code) => code === 0 ? resolve() : reject(new Error(\`protoc ended with code \${code}\`)));`)
+            }).writeLine(");")
+        }
+    })
+
+    const mainFunction = sourceFile.addFunction({
+        name: "main",
+        isAsync: true,
+    });
+    // try/catch block checking if typeScriptFile is younger than protoBufFile, compiling the latter if this is the case.
+    mainFunction.addStatements(writer => {
+        writer.write("try ").inlineBlock(() => {
+            // Get files to check
+            writer.writeLine("const protoBufFile = process.argv[2]!;")
+            writer.writeLine("const typeScriptFile = process.argv[3]!;")
+
+            writer.write("if (!fs.existsSync(path.dirname(typeScriptFile)))").inlineBlock(() => {
+                writer.writeLine("fs.mkdirSync(path.dirname(typeScriptFile), {recursive: true});")
+            })
+            writer.writeLine("const protoBufFileTime = fs.statSync(protoBufFile).mtimeMs;")
+            writer.write("if (!fs.existsSync(typeScriptFile) || protoBufFileTime > fs.statSync(typeScriptFile).mtimeMs)").inlineBlock(() => {
+                writer.writeLine(`runProtoc([
+            \`--ts_out \${path.dirname(typeScriptFile)}\`,
+            \`--ts_opt long_type_string\`,
+            \`--proto_path protos \${protoBufFile}\`
+            ])`
+                )
+            })
+        }).write(" catch (err)").inlineBlock(() => {
+            writer.writeLine(`throw err`)
+        })
+    })
+
+    sourceFile.addStatements(["main();"])
+
+    sourceFile.saveSync()
 }
 
-
-export async function setUpAutoCompile(somePath: string) {
+export async function setUpAutoCompile(protoBufFile: string) {
     const updates: PackageJsonEntries = {
         devDependencies: [
-            { key: "@protobuf-ts/plugin", value: "^2.11.1" },
+            { key: "@protobuf-ts/plugin", value: "^2.11.1" }, // also install protoc
             { key: "@protobuf-ts/runtime", value: "^2.11.1" },
-            { key: "protoc", value: "^32.0.0" }
+            { key: "typescript", value: "^5.9.2"}
+            //{ key: "protoc", value: "^32.0.0" }
         ],
-        scripts: [{ key: "compile-proto", value: "npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/*.proto" }]
+        //scripts: [{ key: "compile-proto", value: "npx protoc --ts_out src/generated/ --ts_opt long_type_string --proto_path protos protos/*.proto" }]
+        scripts: [{ key: "compile-proto", value: `node scripts/compile_protobuf.ts ${protoBufFile} src/generated/${path.basename(protoBufFile, ".proto")}.ts`}]
     }
 
-    const projectRoot = findProjectRoot(somePath)
+    const projectRoot = findProjectRoot(protoBufFile)
     console.log(projectRoot)
     updatePackageJson(path.join(projectRoot, "package.json"), updates)
 
     fs.mkdirSync(path.join(projectRoot, "generated"), { recursive: true })
     fs.mkdirSync(path.join(projectRoot, "scripts"), { recursive: true })
-    compileProtoBufScript("lala", "dklsajasdl")
 
+    compileProtoBufScript(`${projectRoot}/scripts/compile_protobuf.ts`)
 }
