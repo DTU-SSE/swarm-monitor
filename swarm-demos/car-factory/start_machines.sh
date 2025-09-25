@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+#bash split_and_run.sh a arr1 arr2 arr3 arr4 arr5 arr6 arr7 arr8 arr9 arr10
+
+
+START_STAMP="npm run start-stamp;exec bash"
+START_BODY_ASSEMBLER="npm run start-body-assembler;exec bash"
+
+bash split_and_run.sh $1 "$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_BODY_ASSEMBLER" "$START_BODY_ASSEMBLER"
