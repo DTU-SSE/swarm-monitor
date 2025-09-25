@@ -5,6 +5,7 @@ split_and_run() {
     # store remanining arguments in an array, "$@" expands to "$1" "$2" "$3" ...
     local cmds=("$@")
     local cmds_len=${#cmds[@]}
+    #echo "CMDS LEN: $cmds_len"
     tmux new-window -n demo-window "${cmds[0]}"
     # number of commands invoked
     local n=1
@@ -18,6 +19,8 @@ split_and_run() {
             local split="-v"
         fi
 
+        # i think this is more complicated than it has to be.
+        # but allows us to have more panes than just splitting not changing orientation of split
         # 'split round' -- go through all panes and split them or stop when all commands have been issued
         for ((i=0; i<2**(n_split_rounds); i++)); do
             if ((n >= cmds_len)); then

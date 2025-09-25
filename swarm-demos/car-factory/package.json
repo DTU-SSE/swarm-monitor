@@ -5,6 +5,7 @@
   "scripts": {
     "start-stamp": "tsc && node dist/src/stamp.js",
     "start-body-assembler": "tsc && node dist/src/body_assembler.js",
+    "start-painter": "tsc && node dist/src/painter.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",

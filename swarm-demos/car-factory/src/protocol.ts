@@ -9,31 +9,67 @@ export const manifest = {
   version: '1.0.0',
 }
 type CarBodyPayload = { shape: string }
+type PaintedBodyPayload = { shape: string, color: string }
 
 export namespace Events {
   export const steelRoll = MachineEvent.design('SteelRoll').withoutPayload()
   export const steelParts = MachineEvent.design('SteelParts').withoutPayload()
   export const carBody = MachineEvent.design('CarBody').withPayload<CarBodyPayload>()
+  export const paintedBody = MachineEvent.design('PaintedBody').withPayload<PaintedBodyPayload>()
 
-  export const allEvents = [steelRoll, steelParts, carBody] as const
+  export const allEvents = [steelRoll, steelParts, carBody, paintedBody] as const
 }
 
 export const Composition = SwarmProtocol.make('Composition', Events.allEvents)
 
-export const steelPressProtocol: SwarmProtocolType = {
-  initial: '0',
+export namespace SteelPressProtocol {
+  const initial = "0"
+  const steelPickedUp = "1"
+  const steelPressed = "2"
+  const bodyAssembled = "3"
+  export const stampRole = "Stamp"
+  export const bodyAssemblerRole = "BodyAssembler"
+  export const cmdPickUpSteel = "pickUpSteelRoll"
+  export const cmdPressSteel = "pressSteel"
+  export const cmdAssembleBody = "assembleBody"
+
+  export const protocol: SwarmProtocolType = {
+  initial: initial,
   transitions: [
-    {source: '0', target: '1', label: {cmd: 'pickUpSteelRoll', role: 'Stamp', logType: [Events.steelRoll.type]}},
-    {source: '1', target: '2', label: {cmd: 'pressSteel', role: 'Stamp', logType: [Events.steelParts.type]}},
-    {source: '2', target: '3', label: {cmd: 'assembleBody', role: 'BodyAssembler', logType: [Events.carBody.type]}}
+    {source: initial, target: steelPickedUp, label: {cmd: cmdPickUpSteel, role: stampRole, logType: [Events.steelRoll.type]}},
+    {source: steelPickedUp, target: steelPressed, label: {cmd: cmdPressSteel, role: stampRole, logType: [Events.steelParts.type]}},
+    {source: steelPressed, target: bodyAssembled, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.carBody.type]}}
   ]}
 
-const resultSubsSteelPress: DataResult<Subscriptions>
-  = overapproxWWFSubscriptions([steelPressProtocol], {}, 'TwoStep')
-if (resultSubsSteelPress.type === 'ERROR') throw new Error(resultSubsSteelPress.errors.join(', '))
-export var subsSteelPress: Subscriptions = resultSubsSteelPress.data
+  const subscriptionsResult: DataResult<Subscriptions>
+    = overapproxWWFSubscriptions([protocol], {}, 'TwoStep')
+  if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
+  export const subscriptions: Subscriptions = subscriptionsResult.data
+}
 
-export const carFactoryProtocol: InterfacingProtocols = [steelPressProtocol]
+export namespace PaintShopProtocol {
+  const initial = "0"
+  const bodyAssembled = "1"
+  const bodyPainted = "2"
+  export const bodyAssemblerRole = "BodyAssembler"
+  export const painterRole = "Painter"
+  export const cmdAssembleBody = "assembleBody"
+  export const cmdPaintBody = "paintBody"
+
+  export const protocol: SwarmProtocolType = {
+    initial: initial,
+    transitions: [
+      {source: initial, target: bodyAssembled, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.carBody.type]}},
+      {source: bodyAssembled, target: bodyPainted, label: {cmd: cmdPaintBody, role: painterRole, logType: [Events.paintedBody.type]}},
+    ]}
+
+  const subscriptionsResult: DataResult<Subscriptions>
+    = overapproxWWFSubscriptions([protocol], {}, 'TwoStep')
+  if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
+  export const subscriptions: Subscriptions = subscriptionsResult.data
+}
+
+export const carFactoryProtocol: InterfacingProtocols = [SteelPressProtocol.protocol, PaintShopProtocol.protocol]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>
   = overapproxWWFSubscriptions(carFactoryProtocol, {}, 'TwoStep')

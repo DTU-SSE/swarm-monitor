@@ -1,26 +1,29 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { Events, manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from './protocol.js'
+import { Events, manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, PaintShopProtocol } from './protocol.js'
 import { checkComposedProjection } from '@actyx/machine-check';
 
 // Using the machine runner DSL an implmentation of body assembler in the steel press protocol:
-const bodyAssembler = Composition.makeMachine(SteelPressProtocol.bodyAssemblerRole)
-export const s0 = bodyAssembler.designEmpty('s0').finish()
-export const s1 = bodyAssembler.designEmpty('s1')
-  .command(SteelPressProtocol.cmdAssembleBody, [Events.carBody], () => {
-    return [Events.carBody.make({ shape: "truck" })]
-  }).finish()
-export const s2 = bodyAssembler.designEmpty('s2').finish()
+const painter = Composition.makeMachine(PaintShopProtocol.painterRole)
+export const s0 = painter.designEmpty('s0').finish()
+export const s1 = painter.designState('s1')
+    .withPayload<{shape: string}>()
+    .command(PaintShopProtocol.cmdPaintBody, [Events.paintedBody], (ctx) => {
+        return [Events.paintedBody.make({ shape: ctx.self.shape, color: "red" })]
+    })
+    .finish()
+export const s2 = painter.designEmpty('s2')
+    .finish()
 
-s0.react([Events.steelParts], s1, (_) => { return s1.make() })
-s1.react([Events.carBody], s2, (_) => { return s2.make() })
+s0.react([Events.carBody], s1, (_, event) => { return s1.make({ shape: event.payload.shape }) })
+s1.react([Events.paintedBody], s2, (_) => { return s2.make() })
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.
-const checkProjResult = checkComposedProjection([SteelPressProtocol.protocol], SteelPressProtocol.subscriptions, SteelPressProtocol.bodyAssemblerRole, bodyAssembler.createJSONForAnalysis(s0))
+const checkProjResult = checkComposedProjection([PaintShopProtocol.protocol], PaintShopProtocol.subscriptions, PaintShopProtocol.painterRole, painter.createJSONForAnalysis(s0))
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.bodyAssemblerRole, carFactoryProtocol, 0, subsCarFactory, [bodyAssembler, s0], true).data!
+const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.painterRole, carFactoryProtocol, 1, subsCarFactory, [painter, s0], true).data!
 
 // Run the adapted machine
 async function main() {
@@ -35,7 +38,7 @@ async function main() {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s1)) {
           console.log()
-          stateAfterTimeOut?.cast().commands()?.assembleBody()
+          stateAfterTimeOut?.cast().commands()?.paintBody()
         }
       }, getRandomInt(1000, 5000))
     }
