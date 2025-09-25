@@ -32,7 +32,7 @@ async function main() {
   const tags = Composition.tagWithEntityId('car-factory')
   const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, stampAdapted)
   printState(stampAdapted.machineName, s0Adapted.mechanism.name, undefined)
-  console.log(chalk.bgBlack.red.dim`    [SteelRoll]!`);
+  console.log(chalk.bgBlack.red.dim`    SteelRoll!`);
 
   for await (const state of machine) {
     if (state.isLike(s0)) {

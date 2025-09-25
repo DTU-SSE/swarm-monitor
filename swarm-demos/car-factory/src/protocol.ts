@@ -88,5 +88,5 @@ export function getRandomInt(min: number, max: number) {
 }
 
 export const printState = (machineName: string, stateName: string, statePayload: any) => {
-  console.log(chalk.bgBlack.white.bold`${machineName} - State: ${stateName}. Payload: ${statePayload ? JSON.stringify(statePayload, null, 0) : "{}"}`)
+  console.log(chalk.bgBlack.white.bold(`${machineName} - State: ${stateName}. Payload: ${statePayload ? JSON.stringify(statePayload, null, 0) : "{}"}`))
 }
