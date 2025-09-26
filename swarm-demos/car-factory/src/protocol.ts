@@ -19,7 +19,6 @@ export type SelectedPayload = { winnerTransport: string }
 export type GuidanceRequestPayload = { item: string, to: string }
 export type RoutePayload = { directions: string[] }
 
-
 export const NUMBER_OF_CAR_PARTS = 3
 
 export namespace Events {
@@ -27,7 +26,7 @@ export namespace Events {
   export const steelParts = MachineEvent.design('SteelParts').withPayload<SteelPartsPayload>()
   export const partialCarBody = MachineEvent.design('PartialCarBody').withPayload<PartialCarBodyPayload>()
   export const carBody = MachineEvent.design('CarBody').withPayload<CarBodyPayload>()
-  export const paintedBody = MachineEvent.design('PaintedBody').withPayload<PaintedBodyPayload>()
+  export const paintedBody = MachineEvent.design('PaintedCarBody').withPayload<PaintedBodyPayload>()
   export const itemRequest = MachineEvent.design('ItemRequest').withPayload<ItemDeliveryPayload>()
   export const bid = MachineEvent.design('Bid').withPayload<BidPayload>()
   export const selected = MachineEvent.design('Selected').withPayload<SelectedPayload>()
@@ -36,13 +35,16 @@ export namespace Events {
   export const itemPickupBasic = MachineEvent.design('ItemPickupBasic').withPayload<ItemDeliveryPayload>()
   export const itemPickupSmart = MachineEvent.design('ItemPickupSmart').withPayload<ItemDeliveryPayload>()
   export const handover = MachineEvent.design('Handover').withPayload<ItemDeliveryPayload>()
-  export const delivered = MachineEvent.design("Delivered").withPayload<ItemDeliveryPayload>()
+  export const itemDelivery = MachineEvent.design("ItemDeliver").withPayload<ItemDeliveryPayload>()
+  export const requestEngine = MachineEvent.design("RequestEngine").withPayload<ItemDeliveryPayload>()
+  export const engineInstalled = MachineEvent.design("EngineInstalled").withoutPayload()
 
   export const allEvents =
     [
       steelRoll, steelParts, partialCarBody, carBody,
       paintedBody,
-      itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, delivered
+      itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, itemDelivery,
+      requestEngine, engineInstalled
     ] as const
 }
 
@@ -63,13 +65,14 @@ export namespace SteelPressProtocol {
   export const cmdCarBodyDone = "carBodyDone"
 
   export const protocol: SwarmProtocolType = {
-  initial: initial,
-  transitions: [
-    {source: initial, target: steelPickedUp, label: {cmd: cmdPickUpSteel, role: steelTransportRole, logType: [Events.steelRoll.type]}},
-    {source: steelPickedUp, target: steelPressed, label: {cmd: cmdPressSteel, role: stampRole, logType: [Events.steelParts.type]}},
-    {source: steelPressed, target: initial, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.partialCarBody.type]}},
-    {source: initial, target: bodyAssembled, label: {cmd: cmdCarBodyDone, role: carBodyCheckerRole, logType: [Events.carBody.type]}}
-  ]}
+    initial: initial,
+    transitions: [
+      {source: initial, target: steelPickedUp, label: {cmd: cmdPickUpSteel, role: steelTransportRole, logType: [Events.steelRoll.type]}},
+      {source: steelPickedUp, target: steelPressed, label: {cmd: cmdPressSteel, role: stampRole, logType: [Events.steelParts.type]}},
+      {source: steelPressed, target: initial, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.partialCarBody.type]}},
+      {source: initial, target: bodyAssembled, label: {cmd: cmdCarBodyDone, role: carBodyCheckerRole, logType: [Events.carBody.type]}}
+    ]
+  }
 
   const subscriptionsResult: DataResult<Subscriptions>
     = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
@@ -91,7 +94,8 @@ export namespace PaintShopProtocol {
     transitions: [
       {source: initial, target: bodyAssembled, label: {cmd: cmdCarBodyDone, role: carBodyCheckerRole, logType: [Events.carBody.type]}},
       {source: bodyAssembled, target: bodyPainted, label: {cmd: cmdPaintBody, role: painterRole, logType: [Events.paintedBody.type]}},
-    ]}
+    ]
+  }
 
   const subscriptionsResult: DataResult<Subscriptions>
     = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
@@ -131,8 +135,9 @@ export namespace WarehouseProtocol {
       {source: guidanceGiven, target: itemPickedUp, label: {cmd: cmdBasicPickup, role: transportRole, logType: [Events.itemPickupBasic.type]}},
       {source: transporterSelected, target: itemPickedUp, label: {cmd: cmdSmartPickup, role: transportRole, logType: [Events.itemPickupSmart.type]}},
       {source: itemPickedUp, target: itemHandedOver, label: {cmd: cmdHandover, role: transportRole, logType: [Events.handover.type]}},
-      {source: itemHandedOver, target: initial, label: {cmd: cmdDeliver, role: warehouseRole, logType: [Events.delivered.type]}}
-    ]}
+      {source: itemHandedOver, target: initial, label: {cmd: cmdDeliver, role: warehouseRole, logType: [Events.itemDelivery.type]}}
+    ]
+  }
 
   const subscriptionsResult: DataResult<Subscriptions>
     = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
@@ -140,7 +145,35 @@ export namespace WarehouseProtocol {
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
 
-console.log(JSON.stringify(WarehouseProtocol.protocol, null, 2))
+export namespace EngineInstallationProtocol {
+  const initial = "0"
+  const bodyPainted = "1"
+  const engineRequested = "2"
+  const warehouseEngaged = "3"
+  const delivered = "4"
+  const engineInstalled = "5"
+  export const painterRole = "Painter"
+  export const engineInstallerRole = "EngineInstaller"
+  export const warehouseRole = "Warehouse"
+  export const cmdPaintBody = "applyPaint"
+  export const cmdRequestEngine = "requestEngine"
+  export const cmdRequest = "request"
+  export const cmdDeliver = "deliver"
+  export const cmdInstallEngine = "installEngine"
+
+  export const protocol: SwarmProtocolType = {
+    initial: initial,
+    transitions: [
+      {source: initial, target: bodyPainted, label: {cmd: cmdPaintBody, role: painterRole, logType: [Events.paintedBody.type]}},
+      {source: bodyPainted, target: engineRequested, label: {cmd: cmdRequestEngine, role: engineInstallerRole, logType: [Events.requestEngine.type]}},
+      {source: engineRequested, target: warehouseEngaged, label: {cmd: cmdRequest, role: warehouseRole, logType: [Events.itemRequest.type]}},
+      {source: warehouseEngaged, target: delivered, label: {cmd: cmdDeliver, role: warehouseRole, logType: [Events.itemDelivery.type]}},
+      {source: delivered, target: engineInstalled, label: {cmd: cmdInstallEngine, role: engineInstallerRole, logType: [Events.engineInstalled.type]}},
+    ]
+  }
+}
+
+console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
 
 export const carFactoryProtocol: InterfacingProtocols = [SteelPressProtocol.protocol, PaintShopProtocol.protocol]
 // Well-formed subscription for the composition protocol
