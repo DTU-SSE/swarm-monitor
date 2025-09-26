@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from '../../protocol.js'
+import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, NUMBER_OF_CAR_PARTS } from '../../protocol.js'
 import chalk from 'chalk';
 import { s0, steelTransport } from '../../machines/steel_press_protocol/steel_transport.js';
 
@@ -11,19 +11,20 @@ const [steelTransportAdapted, s0Adapted] = Composition.adaptMachine(SteelPressPr
 async function main() {
   const app = await Actyx.of(manifest)
   const tags = Composition.tagWithEntityId('car-factory')
-  const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, steelTransportAdapted)
-  printState(steelTransportAdapted.machineName, s0Adapted.mechanism.name, undefined)
+  const initialPayload = { steelRollsDelivered: 0 }
+  const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, steelTransportAdapted)
+  printState(steelTransportAdapted.machineName, s0Adapted.mechanism.name, initialPayload)
   console.log(chalk.bgBlack.red.dim`    SteelRoll!`);
 
   for await (const state of machine) {
     if (state.isLike(s0)) {
       setTimeout(() => {
         const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s0)) {
+        if (stateAfterTimeOut?.isLike(s0) && state.cast().payload.steelRollsDelivered < NUMBER_OF_CAR_PARTS) {
           console.log()
           stateAfterTimeOut?.cast().commands()?.pickUpSteelRoll()
         }
-      }, getRandomInt(1000, 5000))
+      }, 1000)
     }
   }
   app.dispose()

@@ -1,8 +1,23 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
 import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from '../../protocol.js'
-import chalk from "chalk";
 import { s0, s1, stamp } from '../../machines/steel_press_protocol/stamp.js';
+
+// Car parts that the stamp can produce
+
+const getPart = (i: number): string => {
+  switch (i) {
+    case 0:
+      return "frontFrame"
+    case 1:
+      return Math.random() > 0.5 ? "loadBed" : "rearFrame"
+    case 2:
+      return "roof"
+    default:
+      return ""
+  }
+}
+let index = 0
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
 const [stampAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.stampRole, carFactoryProtocol, 0, subsCarFactory, [stamp, s0], true).data!
@@ -20,9 +35,10 @@ async function main() {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s1)) {
           console.log()
-          stateAfterTimeOut?.cast().commands()?.pressSteel()
+          stateAfterTimeOut?.cast().commands()?.pressSteel(getPart(index))
+          index = (index + 1) % 3
         }
-      }, getRandomInt(1000, 5000))
+      }, 1000)
     }
   }
   app.dispose()

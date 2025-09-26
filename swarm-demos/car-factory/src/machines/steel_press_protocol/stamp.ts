@@ -5,8 +5,8 @@ import { checkComposedProjection } from '@actyx/machine-check';
 export const stamp = Composition.makeMachine(SteelPressProtocol.stampRole)
 export const s0 = stamp.designEmpty('s0').finish()
 export const s1 = stamp.designEmpty('s1')
-  .command(SteelPressProtocol.cmdPressSteel, [Events.steelParts], () => {
-    return [Events.steelParts.make({})]
+  .command(SteelPressProtocol.cmdPressSteel, [Events.steelParts], (_, part: string) => {
+    return [Events.steelParts.make({part: part})]
   }).finish()
 export const s2 = stamp.designEmpty('s2').finish()
 

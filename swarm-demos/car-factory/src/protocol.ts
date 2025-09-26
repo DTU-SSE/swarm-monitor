@@ -8,13 +8,18 @@ export const manifest = {
   displayName: 'Car Factory',
   version: '1.0.0',
 }
-type CarBodyPayload = { shape: string }
-type PaintedBodyPayload = { shape: string, color: string }
+
+export type SteelPartsPayload = { part: string }
+export type PartialCarBodyPayload = { parts: string[] }
+export type CarBodyPayload = { shape: string }
+export type PaintedBodyPayload = { shape: string, color: string }
+
+export const NUMBER_OF_CAR_PARTS = 3
 
 export namespace Events {
   export const steelRoll = MachineEvent.design('SteelRoll').withoutPayload()
-  export const steelParts = MachineEvent.design('SteelParts').withoutPayload()
-  export const partialCarBody = MachineEvent.design('PartialCarBody').withPayload<CarBodyPayload>()
+  export const steelParts = MachineEvent.design('SteelParts').withPayload<SteelPartsPayload>()
+  export const partialCarBody = MachineEvent.design('PartialCarBody').withPayload<PartialCarBodyPayload>()
   export const carBody = MachineEvent.design('CarBody').withPayload<CarBodyPayload>()
   export const paintedBody = MachineEvent.design('PaintedBody').withPayload<PaintedBodyPayload>()
 

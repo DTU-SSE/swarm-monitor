@@ -3,6 +3,9 @@ import { createMachineRunnerBT } from '@actyx/machine-runner'
 import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, PaintShopProtocol } from '../../protocol.js'
 import { painter, s0, s1 } from '../../machines/paint_shop_protocol/painter.js';
 
+// A car can have one of these colors
+const colors = ["red", "blue", "green"]
+
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
 const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.painterRole, carFactoryProtocol, 1, subsCarFactory, [painter, s0], true).data!
 
@@ -19,9 +22,9 @@ async function main() {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s1)) {
           console.log()
-          stateAfterTimeOut?.cast().commands()?.applyPaint()
+          stateAfterTimeOut?.cast().commands()?.applyPaint(colors[Math.floor(Math.random() * colors.length)])
         }
-      }, getRandomInt(1000, 5000))
+      }, 1000)
     }
   }
   app.dispose()

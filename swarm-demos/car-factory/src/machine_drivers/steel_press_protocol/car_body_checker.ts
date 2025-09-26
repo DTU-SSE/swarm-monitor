@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from '../../protocol.js'
+import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, NUMBER_OF_CAR_PARTS } from '../../protocol.js'
 import chalk from "chalk";
 import { carBodyChecker, s0 } from '../../machines/steel_press_protocol/car_body_checker.js';
 
@@ -11,8 +11,9 @@ const [carBodyCheckerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressPr
 async function main() {
   const app = await Actyx.of(manifest)
   const tags = Composition.tagWithEntityId('car-factory')
-  const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, carBodyCheckerAdapted)
-  printState(carBodyCheckerAdapted.machineName, s0Adapted.mechanism.name, undefined)
+  const initialPayload = { parts: [] }
+  const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, carBodyCheckerAdapted)
+  printState(carBodyCheckerAdapted.machineName, s0Adapted.mechanism.name, initialPayload)
   console.log(chalk.bgBlack.red.dim`    carBody!`);
 
   for await (const state of machine) {
@@ -20,10 +21,14 @@ async function main() {
       setTimeout(() => {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s0)) {
-          console.log()
-          stateAfterTimeOut?.cast().commands()?.carBodyDone()
+          const currentState = state.cast()
+          if (currentState.payload.parts.length == NUMBER_OF_CAR_PARTS) {
+            console.log()
+            stateAfterTimeOut?.cast().commands()?.carBodyDone()
+          }
+
         }
-      }, getRandomInt(1000, 5000))
+      }, 1000)
     }
   }
   app.dispose()

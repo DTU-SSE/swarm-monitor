@@ -10,8 +10,9 @@ const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressPro
 async function main() {
   const app = await Actyx.of(manifest)
   const tags = Composition.tagWithEntityId('car-factory')
-  const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, bodyAssemblerAdapted)
-  printState(bodyAssemblerAdapted.machineName, s0Adapted.mechanism.name, undefined)
+  const initialPayload = { parts: [] }
+  const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, bodyAssemblerAdapted)
+  printState(bodyAssemblerAdapted.machineName, s0Adapted.mechanism.name, initialPayload)
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
@@ -21,7 +22,7 @@ async function main() {
           console.log()
           stateAfterTimeOut?.cast().commands()?.assembleBody()
         }
-      }, getRandomInt(1000, 5000))
+      }, 1000)
     }
   }
   app.dispose()

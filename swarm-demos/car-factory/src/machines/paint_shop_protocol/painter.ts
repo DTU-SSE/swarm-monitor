@@ -6,8 +6,8 @@ export const painter = Composition.makeMachine(PaintShopProtocol.painterRole)
 export const s0 = painter.designEmpty('s0').finish()
 export const s1 = painter.designState('s1')
     .withPayload<{shape: string}>()
-    .command(PaintShopProtocol.cmdPaintBody, [Events.paintedBody], (ctx) => {
-        return [Events.paintedBody.make({ shape: ctx.self.shape, color: "red" })]
+    .command(PaintShopProtocol.cmdPaintBody, [Events.paintedBody], (ctx, color: string) => {
+        return [Events.paintedBody.make({ shape: ctx.self.shape, color: color })]
     })
     .finish()
 export const s2 = painter.designEmpty('s2')
