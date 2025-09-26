@@ -14,10 +14,11 @@ type PaintedBodyPayload = { shape: string, color: string }
 export namespace Events {
   export const steelRoll = MachineEvent.design('SteelRoll').withoutPayload()
   export const steelParts = MachineEvent.design('SteelParts').withoutPayload()
+  export const partialCarBody = MachineEvent.design('PartialCarBody').withPayload<CarBodyPayload>()
   export const carBody = MachineEvent.design('CarBody').withPayload<CarBodyPayload>()
   export const paintedBody = MachineEvent.design('PaintedBody').withPayload<PaintedBodyPayload>()
 
-  export const allEvents = [steelRoll, steelParts, carBody, paintedBody] as const
+  export const allEvents = [steelRoll, steelParts, partialCarBody, carBody, paintedBody] as const
 }
 
 export const Composition = SwarmProtocol.make('Composition', Events.allEvents)
@@ -29,16 +30,20 @@ export namespace SteelPressProtocol {
   const bodyAssembled = "3"
   export const stampRole = "Stamp"
   export const bodyAssemblerRole = "BodyAssembler"
+  export const steelTransportRole = "SteelTransport"
+  export const carBodyCheckerRole = "CarBodyChecker"
   export const cmdPickUpSteel = "pickUpSteelRoll"
   export const cmdPressSteel = "pressSteel"
   export const cmdAssembleBody = "assembleBody"
+  export const cmdCarBodyDone = "carBodyDone"
 
   export const protocol: SwarmProtocolType = {
   initial: initial,
   transitions: [
-    {source: initial, target: steelPickedUp, label: {cmd: cmdPickUpSteel, role: stampRole, logType: [Events.steelRoll.type]}},
+    {source: initial, target: steelPickedUp, label: {cmd: cmdPickUpSteel, role: steelTransportRole, logType: [Events.steelRoll.type]}},
     {source: steelPickedUp, target: steelPressed, label: {cmd: cmdPressSteel, role: stampRole, logType: [Events.steelParts.type]}},
-    {source: steelPressed, target: bodyAssembled, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.carBody.type]}}
+    {source: steelPressed, target: initial, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.partialCarBody.type]}},
+    {source: initial, target: bodyAssembled, label: {cmd: cmdCarBodyDone, role: carBodyCheckerRole, logType: [Events.carBody.type]}}
   ]}
 
   const subscriptionsResult: DataResult<Subscriptions>
@@ -51,15 +56,15 @@ export namespace PaintShopProtocol {
   const initial = "0"
   const bodyAssembled = "1"
   const bodyPainted = "2"
-  export const bodyAssemblerRole = "BodyAssembler"
+  export const carBodyCheckerRole = "CarBodyChecker"
   export const painterRole = "Painter"
-  export const cmdAssembleBody = "assembleBody"
-  export const cmdPaintBody = "paintBody"
+  export const cmdCarBodyDone = "carBodyDone"
+  export const cmdPaintBody = "applyPaint"
 
   export const protocol: SwarmProtocolType = {
     initial: initial,
     transitions: [
-      {source: initial, target: bodyAssembled, label: {cmd: cmdAssembleBody, role: bodyAssemblerRole, logType: [Events.carBody.type]}},
+      {source: initial, target: bodyAssembled, label: {cmd: cmdCarBodyDone, role: carBodyCheckerRole, logType: [Events.carBody.type]}},
       {source: bodyAssembled, target: bodyPainted, label: {cmd: cmdPaintBody, role: painterRole, logType: [Events.paintedBody.type]}},
     ]}
 
