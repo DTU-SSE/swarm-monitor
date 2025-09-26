@@ -7,14 +7,14 @@ import { painter, s0, s1 } from '../../machines/paint_shop_protocol/painter.js';
 const colors = ["red", "blue", "green"]
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.painterRole, carFactoryProtocol, 1, subsCarFactory, [painter, s0], true).data!
+const [painterAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.painterRole, carFactoryProtocol, 1, subsCarFactory, [painter, s0], true).data!
 
 // Run the adapted machine
 async function main() {
   const app = await Actyx.of(manifest)
   const tags = Composition.tagWithEntityId('car-factory')
-  const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, bodyAssemblerAdapted)
-  printState(bodyAssemblerAdapted.machineName, s0Adapted.mechanism.name, undefined)
+  const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, painterAdapted)
+  printState(painterAdapted.machineName, s0Adapted.mechanism.name, undefined)
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
