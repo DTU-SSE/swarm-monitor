@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { MachineEvent, SwarmProtocol } from '@actyx/machine-runner'
-import { type SwarmProtocolType, type Subscriptions, type Result, type DataResult, overapproxWWFSubscriptions, checkWWFSwarmProtocol, type InterfacingProtocols} from '@actyx/machine-check'
+import { type SwarmProtocolType, type Subscriptions, type Result, type DataResult, overapproxWFSubscriptions, checkComposedSwarmProtocol, type InterfacingProtocols} from '@actyx/machine-check'
 import chalk from "chalk";
 
 export const manifest = {
@@ -52,7 +52,7 @@ export namespace SteelPressProtocol {
   ]}
 
   const subscriptionsResult: DataResult<Subscriptions>
-    = overapproxWWFSubscriptions([protocol], {}, 'TwoStep')
+    = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
   if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
@@ -74,7 +74,7 @@ export namespace PaintShopProtocol {
     ]}
 
   const subscriptionsResult: DataResult<Subscriptions>
-    = overapproxWWFSubscriptions([protocol], {}, 'TwoStep')
+    = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
   if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
@@ -82,12 +82,12 @@ export namespace PaintShopProtocol {
 export const carFactoryProtocol: InterfacingProtocols = [SteelPressProtocol.protocol, PaintShopProtocol.protocol]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>
-  = overapproxWWFSubscriptions(carFactoryProtocol, {}, 'TwoStep')
+  = overapproxWFSubscriptions(carFactoryProtocol, {}, 'TwoStep')
 if (resultSubsCarFactory.type === 'ERROR') throw new Error(resultSubsCarFactory.errors.join(', '))
 export var subsCarFactory: Subscriptions = resultSubsCarFactory.data
 
 // check that the subscription generated for the composition is indeed well-formed
-const resultCheckWf: Result = checkWWFSwarmProtocol(carFactoryProtocol, subsCarFactory)
+const resultCheckWf: Result = checkComposedSwarmProtocol(carFactoryProtocol, subsCarFactory)
 if (resultCheckWf.type === 'ERROR') throw new Error(resultCheckWf.errors.join(', \n'))
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random

@@ -10,7 +10,7 @@ const getPart = (i: number): string => {
     case 0:
       return "frontFrame"
     case 1:
-      return Math.random() > 0.5 ? "loadBed" : "rearFrame"
+      return Math.random() >= 0.5 ? "loadBed" : "rearFrame"
     case 2:
       return "roof"
     default:
