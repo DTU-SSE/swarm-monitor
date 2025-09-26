@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-START_AX="rm -rf ax-data; echo 'Silently running Actyx middleware in this window. Press Ctrl + C to exit'.; ax run 2> /dev/null"
+CMD_START_AX="rm -rf ax-data; echo 'Silently running Actyx middleware in this window. Press Ctrl + C to exit'.; ax run 2> /dev/null"
 split_and_run() {
     # store remanining arguments in an array, "$@" expands to "$1" "$2" "$3" ...
     local cmds=("$@")
@@ -43,10 +43,32 @@ if [ "$#" -lt 2 ]; then
     echo "Usage: $0 <session_name> <cmd1 [cmd2 ...]>"
     exit 1
 fi
+#if [ "$#" -lt 3 ]; then
+#    echo "Usage: $0 <session_name> [-s (start ax false if not set)] <cmd1 [cmd2 ...]>"
+#    exit 1
+#fi
 
 session=$1
 # shift arguments making the old $2 the new $1 etc.
 shift
 
-tmux new-session -d -s "$session" "$START_AX"
+#start_ax=0
+#while getopts "s" opt; do
+#  case $opt in
+#    s) start_ax=1 ;;
+#    \?) echo "Usage: $0 [-v] [-o file] input1 input2 ..." ; exit 1 ;;
+#  esac
+#done
+#shift
+
+#if ((start_ax)); then
+#    tmux new-session -d -s "$session" "$CMD_START_AX"
+#fi
+# Sketchy because ax could be some other program.... but we assume that it is called ax anyway when running it...
+if pgrep ax; then
+    tmux new-session -d -s "$session"
+else
+    tmux new-session -d -s "$session" "$CMD_START_AX"
+fi
+#tmux new-session -d -s "$session" "$CMD_START_AX"
 split_and_run "$@"
