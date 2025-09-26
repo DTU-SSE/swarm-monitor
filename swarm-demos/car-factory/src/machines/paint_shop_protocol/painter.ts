@@ -6,15 +6,15 @@ export const painter = Composition.makeMachine(PaintShopProtocol.painterRole)
 export const s0 = painter.designEmpty('s0').finish()
 export const s1 = painter.designState('s1')
     .withPayload<{shape: string}>()
-    .command(PaintShopProtocol.cmdPaintBody, [Events.paintedBody], (ctx, color: string) => {
-        return [Events.paintedBody.make({ shape: ctx.self.shape, color: color })]
+    .command(PaintShopProtocol.cmdPaintBody, [Events.paintedCarBody], (ctx, color: string) => {
+        return [Events.paintedCarBody.make({ shape: ctx.self.shape, color: color })]
     })
     .finish()
 export const s2 = painter.designEmpty('s2')
     .finish()
 
 s0.react([Events.carBody], s1, (_, event) => { return s1.make({ shape: event.payload.shape }) })
-s1.react([Events.paintedBody], s2, (_) => { return s2.make() })
+s1.react([Events.paintedCarBody], s2, (_) => { return s2.make() })
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.
 const checkProjResult = checkComposedProjection([PaintShopProtocol.protocol], PaintShopProtocol.subscriptions, PaintShopProtocol.painterRole, painter.createJSONForAnalysis(s0))
