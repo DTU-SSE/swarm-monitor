@@ -11,6 +11,8 @@
     "start-basic-transport": "tsc && node dist/src/machine_drivers/warehouse_protocol/basic_transport.js",
     "start-smart-transport": "tsc && node dist/src/machine_drivers/warehouse_protocol/smart_transport.js",
     "start-base-station": "tsc && node dist/src/machine_drivers/warehouse_protocol/base_station.js",
+    "start-engine-installer": "tsc && node dist/src/machine_drivers/engine_installation_protocol/engine_installer.js",
+    "start-warehouse": "tsc && node dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",

@@ -178,9 +178,14 @@ export namespace EngineInstallationProtocol {
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
 
-console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
+//console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
 
-export const carFactoryProtocol: InterfacingProtocols = [SteelPressProtocol.protocol, PaintShopProtocol.protocol]
+export const carFactoryProtocol: InterfacingProtocols = [
+  SteelPressProtocol.protocol,
+  PaintShopProtocol.protocol,
+  WarehouseProtocol.protocol,
+  EngineInstallationProtocol.protocol
+]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>
   = overapproxWFSubscriptions(carFactoryProtocol, {}, 'TwoStep')
