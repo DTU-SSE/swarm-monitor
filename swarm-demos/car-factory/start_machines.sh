@@ -8,14 +8,14 @@ START_BODY_ASSEMBLER="npm run start-body-assembler; exec bash"
 START_CAR_BODY_CHECKER="npm run start-car-body-checker; exec bash"
 START_PAINTER="npm run start-painter; exec bash"
 START_BASIC_TRANSPORT="npm run start-basic-transport; exec bash"
-START_SMART_TRANSPORT="npm start-smart-transport; exec bash"
-START_BASE_STATION="npm start-base-station; exec bash"
-START_ENGINE_INSTALLER="start-engine-installer; exec bash"
-START_WAREHOUSE="start-warehouse; exec bash"
+START_SMART_TRANSPORT="npm run start-smart-transport; exec bash"
+START_BASE_STATION="npm run start-base-station; exec bash"
+START_ENGINE_INSTALLER="npm run start-engine-installer; exec bash"
+START_WAREHOUSE="npm run start-warehouse; exec bash"
 
 bash split_and_run.sh $1 "$START_STEEL_TRANSPORT" "$START_STAMP" "$START_BODY_ASSEMBLER" \
     "$START_CAR_BODY_CHECKER" "$START_PAINTER" "$START_BASIC_TRANSPORT" "$START_SMART_TRANSPORT" \
-    "$START_BASE_STATION" "$START_ENGINE_INSTALLER" "$START_WAREHOUSE"
+    "$START_BASIC_TRANSPORT" "$START_SMART_TRANSPORT" "$START_BASE_STATION" "$START_ENGINE_INSTALLER" "$START_WAREHOUSE"
 
 #"$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_STAMP" "$START_BODY_ASSEMBLER" "$START_BODY_ASSEMBLER" "$START_PAINTER" "$START_PAINTER" "$START_PAINTER"
 

@@ -43,9 +43,9 @@ s1.react([Events.selected], s2, (ctx, event) => {
 })
 s2.react([Events.requestGuidance], s3, (ctx) => { return ctx.self })
 s2.react([Events.itemPickupSmart], s5, (ctx) => { return ctx.self })
-s3.react([Events.itemPickupSmart], s4, (ctx) => { return ctx.self })
-s4.react([Events.itemPickupSmart], s5, (ctx) => { return ctx.self })
-s5.react([Events.itemPickupSmart], s0, (ctx) => { return s0.make({id: ctx.self.id}) })
+s3.react([Events.giveGuidance], s4, (ctx) => { return ctx.self })
+s4.react([Events.itemPickupBasic], s5, (ctx) => { return ctx.self })
+s5.react([Events.handover], s0, (ctx) => { return s0.make({id: ctx.self.id}) })
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.
 const checkProjResult = checkComposedProjection([WarehouseProtocol.protocol], WarehouseProtocol.subscriptions, WarehouseProtocol.transportRole, transport.createJSONForAnalysis(s0))

@@ -4,7 +4,7 @@ import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, 
 import { baseStation, s0, s2 } from '../../machines/warehouse_protocol/base_station.js'
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [baseStationAdapted, s0Adapted] = Composition.adaptMachine(WarehouseProtocol.baseStationRole, carFactoryProtocol, 2, subsCarFactory, [baseStation, s0], true).data!
+const [baseStationAdapted, s0Adapted] = Composition.adaptMachine(WarehouseProtocol.baseStationRole, carFactoryProtocol, 3, subsCarFactory, [baseStation, s0], true).data!
 
 // Run the adapted machine
 async function main() {

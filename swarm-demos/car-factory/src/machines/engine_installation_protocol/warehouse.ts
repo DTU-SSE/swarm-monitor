@@ -19,8 +19,8 @@ export const s2 = warehouse.designState('s2')
 export const s3 = warehouse.designEmpty('s3').finish()
 export const s4 = warehouse.designEmpty('s4').finish()
 
-s0.react([Events.requestEngine], s1, (_, event) => { return s1.make(event.payload) })
-s1.react([Events.itemRequest], s2, (_, event) => { return s2.make(event.payload) })
+s0.react([Events.requestEngine], s1, (_, event) => { return s1.make({ item: event.payload.item, to: event.payload.to }) })
+s1.react([Events.itemRequest], s2, (_, event) => { return s2.make({ item: event.payload.item, to: event.payload.to }) })
 s2.react([Events.itemDelivery], s3, (_) => { return s3.make() })
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.

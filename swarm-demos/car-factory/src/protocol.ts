@@ -179,12 +179,14 @@ export namespace EngineInstallationProtocol {
 }
 
 //console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
-
+// Machine adaptation did not go well when switching the order of warehouse and engine installer. Why?
+// Not minimized?
+// throw new Error(`${firstTrigger.type} has been registered as a reaction guard for this state.`);
 export const carFactoryProtocol: InterfacingProtocols = [
   SteelPressProtocol.protocol,
   PaintShopProtocol.protocol,
-  WarehouseProtocol.protocol,
-  EngineInstallationProtocol.protocol
+  EngineInstallationProtocol.protocol,
+  WarehouseProtocol.protocol
 ]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>
