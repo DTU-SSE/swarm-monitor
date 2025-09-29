@@ -18,6 +18,7 @@ export type BidPayload = { transportId: string, delay: number }
 export type SelectedPayload = { winnerTransport: string }
 export type GuidanceRequestPayload = { item: string, to: string }
 export type RoutePayload = { directions: string[] }
+export type EngineInstallationPayload = { shape: string, color: string, engine: string }
 
 export const NUMBER_OF_CAR_PARTS = 3
 
@@ -37,7 +38,7 @@ export namespace Events {
   export const handover = MachineEvent.design('Handover').withPayload<ItemDeliveryPayload>()
   export const itemDelivery = MachineEvent.design("ItemDeliver").withPayload<ItemDeliveryPayload>()
   export const requestEngine = MachineEvent.design("RequestEngine").withPayload<ItemDeliveryPayload>()
-  export const engineInstalled = MachineEvent.design("EngineInstalled").withoutPayload()
+  export const engineInstalled = MachineEvent.design("EngineInstalled").withPayload<EngineInstallationPayload>()
 
   export const allEvents =
     [
