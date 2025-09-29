@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, NUMBER_OF_CAR_PARTS } from '../../protocol.js'
+import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, SteelPressProtocol, NUMBER_OF_CAR_PARTS } from '../../protocol.js'
 import chalk from "chalk";
 import { carBodyChecker, s0 } from '../../machines/steel_press_protocol/car_body_checker.js';
 

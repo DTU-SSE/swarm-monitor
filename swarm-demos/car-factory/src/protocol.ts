@@ -19,6 +19,7 @@ export type SelectedPayload = { winnerTransport: string }
 export type GuidanceRequestPayload = { item: string, to: string }
 export type RoutePayload = { directions: string[] }
 export type EngineInstallationPayload = { shape: string, color: string, engine: string }
+export type FinishedCarPayload = { shape: string, color: string, engine: string, numWheels: number, numWindows: number }
 
 export const NUMBER_OF_CAR_PARTS = 3
 
@@ -39,13 +40,18 @@ export namespace Events {
   export const itemDelivery = MachineEvent.design("ItemDeliver").withPayload<ItemDeliveryPayload>()
   export const requestEngine = MachineEvent.design("RequestEngine").withPayload<ItemDeliveryPayload>()
   export const engineInstalled = MachineEvent.design("EngineInstalled").withPayload<EngineInstallationPayload>()
+  export const wheelPickup = MachineEvent.design("WheelPickup").withPayload<FinishedCarPayload>()
+  export const wheelInstalled = MachineEvent.design("WheelInstalled").withPayload<FinishedCarPayload>()
+  export const wheelsDone = MachineEvent.design("AllWheelsInstalled").withPayload<FinishedCarPayload>()
+  export const finishedCar = MachineEvent.design("FinishedCar").withPayload<FinishedCarPayload>()
 
   export const allEvents =
     [
       steelRoll, steelParts, partialCarBody, carBody,
       paintedCarBody,
       itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, itemDelivery,
-      requestEngine, engineInstalled
+      requestEngine, engineInstalled,
+      wheelPickup, wheelInstalled, wheelsDone, finishedCar
     ] as const
 }
 
@@ -179,6 +185,41 @@ export namespace EngineInstallationProtocol {
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
 
+export namespace WheelInstalationProtocol {
+  const initial = "0"
+  const pickUpWheel = "1"
+  const installWheel = "2"
+  const allWheelsInstalled = "3"
+  const carDone = "4"
+
+  export const engineInstallerRole = "EngineInstaller"
+  export const wheelInstallerRole = "WheelInstaller"
+  export const qualityTransportRole = "QualityTransport"
+
+  export const cmdInstallEngine = "installEngine"
+  export const cmdPickUpWheel = "pickUpWheel"
+  export const cmdInstallWheel = "installWheel"
+  export const cmdWheelsDone = "wheelsDone"
+  export const cmdCarDone = "carDone"
+
+  export const protocol: SwarmProtocolType = {
+    initial: initial,
+    transitions: [
+      {source: initial, target: pickUpWheel, label: {cmd: cmdInstallEngine, role: engineInstallerRole, logType: [Events.engineInstalled.type]}},
+      {source: pickUpWheel, target: installWheel, label: {cmd: cmdPickUpWheel, role: wheelInstallerRole, logType: [Events.wheelPickup.type]}},
+      {source: installWheel, target: pickUpWheel, label: {cmd: cmdInstallWheel, role: wheelInstallerRole, logType: [Events.wheelInstalled.type]}},
+      {source: pickUpWheel, target: allWheelsInstalled, label: {cmd: cmdWheelsDone, role: wheelInstallerRole, logType: [Events.wheelsDone.type]}},
+      {source: allWheelsInstalled, target: carDone, label: {cmd: cmdCarDone, role: qualityTransportRole, logType: [Events.finishedCar.type]}},
+    ]
+  }
+
+
+  const subscriptionsResult: DataResult<Subscriptions>
+    = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
+  if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
+  export const subscriptions: Subscriptions = subscriptionsResult.data
+}
+
 //console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
 // Machine adaptation did not go well when switching the order of warehouse and engine installer. Why?
 // Not minimized?
@@ -187,7 +228,8 @@ export const carFactoryProtocol: InterfacingProtocols = [
   SteelPressProtocol.protocol,
   PaintShopProtocol.protocol,
   EngineInstallationProtocol.protocol,
-  WarehouseProtocol.protocol
+  WarehouseProtocol.protocol,
+  WheelInstalationProtocol.protocol
 ]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>

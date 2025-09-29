@@ -13,6 +13,8 @@
     "start-base-station": "tsc && node dist/src/machine_drivers/warehouse_protocol/base_station.js",
     "start-engine-installer": "tsc && node dist/src/machine_drivers/engine_installation_protocol/engine_installer.js",
     "start-warehouse": "tsc && node dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
+    "start-wheel-installer": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/wheel_installer.js",
+    "start-quality-transport": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/quality_transport.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",

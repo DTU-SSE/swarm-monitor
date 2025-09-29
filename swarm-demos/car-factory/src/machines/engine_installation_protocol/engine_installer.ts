@@ -3,7 +3,7 @@ import { checkComposedProjection } from '@actyx/machine-check';
 
 type RequestEnginePayload = { shape: string, color: string }
 
-// Using the machine runner DSL an implmentation of body assembler in the steel press protocol:
+// Using the machine runner DSL an implmentation of the engine installer in the engine installation protocol:
 export const engineInstaller = Composition.makeMachine(EngineInstallationProtocol.engineInstallerRole)
 export const s0 = engineInstaller.designEmpty('s0').finish()
 export const s1 = engineInstaller.designState('s1')
