@@ -15,6 +15,7 @@
     "start-engine-checker": "tsc && node dist/src/machine_drivers/engine_installation_protocol/engine_checker.js",
     "start-warehouse": "tsc && node dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
     "start-wheel-installer": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/wheel_installer.js",
+    "start-window-installer": "tsc && node dist/src/machine_drivers/window_installation_protocol/window_installer.js",
     "start-quality-transport": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/quality_transport.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",

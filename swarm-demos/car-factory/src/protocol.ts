@@ -44,6 +44,9 @@ export namespace Events {
   export const wheelPickup = MachineEvent.design("WheelPickup").withPayload<FinishedCarPayload>()
   export const wheelInstalled = MachineEvent.design("WheelInstalled").withPayload<FinishedCarPayload>()
   export const wheelsDone = MachineEvent.design("AllWheelsInstalled").withPayload<FinishedCarPayload>()
+  export const windowPickup = MachineEvent.design("WindowPickup").withPayload<FinishedCarPayload>()
+  export const windowInstalled = MachineEvent.design("WindowInstalled").withPayload<FinishedCarPayload>()
+  export const windowsDone = MachineEvent.design("AllWindowsInstalled").withPayload<FinishedCarPayload>()
   export const finishedCar = MachineEvent.design("FinishedCar").withPayload<FinishedCarPayload>()
 
   export const allEvents =
@@ -52,7 +55,8 @@ export namespace Events {
       paintedCarBody,
       itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, itemDelivery,
       requestEngine, engineInstalled, engineChecked,
-      wheelPickup, wheelInstalled, wheelsDone, finishedCar
+      wheelPickup, wheelInstalled, wheelsDone, finishedCar,
+      windowPickup, windowInstalled, windowsDone
     ] as const
 }
 
@@ -224,6 +228,41 @@ export namespace WheelInstalationProtocol {
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
 
+export namespace WindowInstalationProtocol {
+  const initial = "0"
+  const pickUpwindow = "1"
+  const installwindow = "2"
+  const allwindowsInstalled = "3"
+  const carDone = "4"
+  export const engineCheckerRole = "EngineChecker"
+  export const windowInstallerRole = "WindowInstaller"
+  export const qualityTransportRole = "QualityTransport"
+  export const cmdCheckEngine = "checkEngine"
+  export const cmdInstallEngine = "installEngine"
+  export const cmdPickUpwindow = "pickUpWindow"
+  export const cmdInstallwindow = "installWindow"
+  export const cmdwindowsDone = "windowsDone"
+  export const cmdCarDone = "carDone"
+
+  export const protocol: SwarmProtocolType = {
+    initial: initial,
+    transitions: [
+      {source: initial, target: pickUpwindow, label: {cmd: cmdCheckEngine, role: engineCheckerRole, logType: [Events.engineChecked.type]}},
+      {source: pickUpwindow, target: installwindow, label: {cmd: cmdPickUpwindow, role: windowInstallerRole, logType: [Events.windowPickup.type]}},
+      {source: installwindow, target: pickUpwindow, label: {cmd: cmdInstallwindow, role: windowInstallerRole, logType: [Events.windowInstalled.type]}},
+      {source: pickUpwindow, target: allwindowsInstalled, label: {cmd: cmdwindowsDone, role: windowInstallerRole, logType: [Events.windowsDone.type]}},
+      {source: allwindowsInstalled, target: carDone, label: {cmd: cmdCarDone, role: qualityTransportRole, logType: [Events.finishedCar.type]}},
+    ]
+  }
+
+
+  const subscriptionsResult: DataResult<Subscriptions>
+    = overapproxWFSubscriptions([protocol], {}, 'TwoStep')
+  if (subscriptionsResult.type === 'ERROR') throw new Error(subscriptionsResult.errors.join(', '))
+  export const subscriptions: Subscriptions = subscriptionsResult.data
+}
+
+
 // Machine adaptation did not go well when switching the order of warehouse and engine installer. Why?
 // Not minimized?
 // throw new Error(`${firstTrigger.type} has been registered as a reaction guard for this state.`);
@@ -232,7 +271,8 @@ export const carFactoryProtocol: InterfacingProtocols = [
   PaintShopProtocol.protocol,
   EngineInstallationProtocol.protocol,
   WarehouseProtocol.protocol,
-  WheelInstalationProtocol.protocol
+  WheelInstalationProtocol.protocol,
+  WindowInstalationProtocol.protocol
 ]
 // Well-formed subscription for the composition protocol
 const resultSubsCarFactory: DataResult<Subscriptions>
