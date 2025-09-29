@@ -20,11 +20,15 @@ export const s2 = wheelInstaller.designState('s2')
     .finish()
 export const s3 = wheelInstaller.designEmpty('s3').finish()
 
-s0.react([Events.engineInstalled], s1, (_, event) => { return s1.make(
+s0.react([Events.engineChecked], s1, (_, event) => { return s1.make(
     { shape: event.payload.shape, color: event.payload.color, engine: event.payload.engine, numWheels: 0, numWindows: 0}
 )})
-s1.react([Events.wheelPickup], s2, (_, event) => { return s2.make(event.payload)})
-s2.react([Events.wheelInstalled], s1, (_, event) => { return s1.make(event.payload)})
+s1.react([Events.wheelPickup], s2, (_, event) => { 
+    const {shape, color, engine, numWheels, numWindows} = event.payload;
+    return s2.make({shape, color, engine, numWheels, numWindows})})
+s2.react([Events.wheelInstalled], s1, (_, event) => { 
+    const {shape, color, engine, numWheels, numWindows} = event.payload;
+    return s1.make({shape, color, engine, numWheels, numWindows})})
 s1.react([Events.wheelsDone], s3, () => { return s3.make()})
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.

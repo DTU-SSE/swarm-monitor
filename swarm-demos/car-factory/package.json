@@ -12,6 +12,7 @@
     "start-smart-transport": "tsc && node dist/src/machine_drivers/warehouse_protocol/smart_transport.js",
     "start-base-station": "tsc && node dist/src/machine_drivers/warehouse_protocol/base_station.js",
     "start-engine-installer": "tsc && node dist/src/machine_drivers/engine_installation_protocol/engine_installer.js",
+    "start-engine-checker": "tsc && node dist/src/machine_drivers/engine_installation_protocol/engine_checker.js",
     "start-warehouse": "tsc && node dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
     "start-wheel-installer": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/wheel_installer.js",
     "start-quality-transport": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/quality_transport.js",

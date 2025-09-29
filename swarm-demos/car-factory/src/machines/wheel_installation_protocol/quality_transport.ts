@@ -12,7 +12,9 @@ export const s1 = qualityTransport.designState('s1')
 export const s2 = qualityTransport.designEmpty('s2').finish()
 
 s0.react([Events.wheelPickup], s0, () => { return s0.make()})
-s0.react([Events.wheelsDone], s1, (_, event) => { return s1.make(event.payload)})
+s0.react([Events.wheelsDone], s1, (_, event) => { 
+    const {shape, color, engine, numWheels, numWindows} = event.payload;
+    return s1.make({shape, color, engine, numWheels, numWindows})})
 s1.react([Events.finishedCar], s2, () => { return s2.make()})
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.

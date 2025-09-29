@@ -40,6 +40,7 @@ export namespace Events {
   export const itemDelivery = MachineEvent.design("ItemDeliver").withPayload<ItemDeliveryPayload>()
   export const requestEngine = MachineEvent.design("RequestEngine").withPayload<ItemDeliveryPayload>()
   export const engineInstalled = MachineEvent.design("EngineInstalled").withPayload<EngineInstallationPayload>()
+  export const engineChecked = MachineEvent.design("EngineChecked").withPayload<EngineInstallationPayload>()
   export const wheelPickup = MachineEvent.design("WheelPickup").withPayload<FinishedCarPayload>()
   export const wheelInstalled = MachineEvent.design("WheelInstalled").withPayload<FinishedCarPayload>()
   export const wheelsDone = MachineEvent.design("AllWheelsInstalled").withPayload<FinishedCarPayload>()
@@ -50,7 +51,7 @@ export namespace Events {
       steelRoll, steelParts, partialCarBody, carBody,
       paintedCarBody,
       itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, itemDelivery,
-      requestEngine, engineInstalled,
+      requestEngine, engineInstalled, engineChecked,
       wheelPickup, wheelInstalled, wheelsDone, finishedCar
     ] as const
 }
@@ -159,14 +160,17 @@ export namespace EngineInstallationProtocol {
   const warehouseEngaged = "3"
   const delivered = "4"
   const engineInstalled = "5"
+  const engineChecked = "6"
   export const painterRole = "Painter"
   export const engineInstallerRole = "EngineInstaller"
   export const warehouseRole = "Warehouse"
+  export const engineCheckerRole = "EngineChecker"
   export const cmdPaintBody = "applyPaint"
   export const cmdRequestEngine = "requestEngine"
   export const cmdRequest = "request"
   export const cmdDeliver = "deliver"
   export const cmdInstallEngine = "installEngine"
+  export const cmdCheckEngine = "checkEngine"
 
   export const protocol: SwarmProtocolType = {
     initial: initial,
@@ -176,6 +180,7 @@ export namespace EngineInstallationProtocol {
       {source: engineRequested, target: warehouseEngaged, label: {cmd: cmdRequest, role: warehouseRole, logType: [Events.itemRequest.type]}},
       {source: warehouseEngaged, target: delivered, label: {cmd: cmdDeliver, role: warehouseRole, logType: [Events.itemDelivery.type]}},
       {source: delivered, target: engineInstalled, label: {cmd: cmdInstallEngine, role: engineInstallerRole, logType: [Events.engineInstalled.type]}},
+      {source: engineInstalled, target: engineChecked, label: {cmd: cmdCheckEngine, role: engineCheckerRole, logType: [Events.engineChecked.type]}}
     ]
   }
 
@@ -191,11 +196,10 @@ export namespace WheelInstalationProtocol {
   const installWheel = "2"
   const allWheelsInstalled = "3"
   const carDone = "4"
-
-  export const engineInstallerRole = "EngineInstaller"
+  export const engineCheckerRole = "EngineChecker"
   export const wheelInstallerRole = "WheelInstaller"
   export const qualityTransportRole = "QualityTransport"
-
+  export const cmdCheckEngine = "checkEngine"
   export const cmdInstallEngine = "installEngine"
   export const cmdPickUpWheel = "pickUpWheel"
   export const cmdInstallWheel = "installWheel"
@@ -205,7 +209,7 @@ export namespace WheelInstalationProtocol {
   export const protocol: SwarmProtocolType = {
     initial: initial,
     transitions: [
-      {source: initial, target: pickUpWheel, label: {cmd: cmdInstallEngine, role: engineInstallerRole, logType: [Events.engineInstalled.type]}},
+      {source: initial, target: pickUpWheel, label: {cmd: cmdCheckEngine, role: engineCheckerRole, logType: [Events.engineChecked.type]}},
       {source: pickUpWheel, target: installWheel, label: {cmd: cmdPickUpWheel, role: wheelInstallerRole, logType: [Events.wheelPickup.type]}},
       {source: installWheel, target: pickUpWheel, label: {cmd: cmdInstallWheel, role: wheelInstallerRole, logType: [Events.wheelInstalled.type]}},
       {source: pickUpWheel, target: allWheelsInstalled, label: {cmd: cmdWheelsDone, role: wheelInstallerRole, logType: [Events.wheelsDone.type]}},
@@ -220,7 +224,6 @@ export namespace WheelInstalationProtocol {
   export const subscriptions: Subscriptions = subscriptionsResult.data
 }
 
-//console.log(JSON.stringify(EngineInstallationProtocol.protocol, null, 2))
 // Machine adaptation did not go well when switching the order of warehouse and engine installer. Why?
 // Not minimized?
 // throw new Error(`${firstTrigger.type} has been registered as a reaction guard for this state.`);
@@ -251,3 +254,8 @@ export function getRandomInt(min: number, max: number) {
 export const printState = (machineName: string, stateName: string, statePayload: any) => {
   console.log(chalk.bgBlack.white.bold(`${machineName} - State: ${stateName}. Payload: ${statePayload ? JSON.stringify(statePayload, null, 0) : "{}"}`))
 }
+
+/* for (const p of carFactoryProtocol) {
+  console.log(JSON.stringify(p, null, 2))
+  console.log("$$$$")
+} */
