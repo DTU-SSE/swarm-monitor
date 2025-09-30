@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { MachineEvent, SwarmProtocol } from '@actyx/machine-runner'
-import { type SwarmProtocolType, type Subscriptions, type Result, type DataResult, overapproxWFSubscriptions, checkComposedSwarmProtocol, type InterfacingProtocols} from '@actyx/machine-check'
+import { type SwarmProtocolType, type Subscriptions, type Result, type DataResult, overapproxWFSubscriptions, checkComposedSwarmProtocol, type InterfacingProtocols, composeProtocols} from '@actyx/machine-check'
 import chalk from "chalk";
 
 export const manifest = {
@@ -19,7 +19,10 @@ export type SelectedPayload = { winnerTransport: string }
 export type GuidanceRequestPayload = { item: string, to: string }
 export type RoutePayload = { directions: string[] }
 export type EngineInstallationPayload = { shape: string, color: string, engine: string }
+export type WheelInstallationPayload = { shape: string, color: string, engine: string, numWheels: number }
+export type WindowInstallationPayload = { shape: string, color: string, engine: string, numWindows: number }
 export type FinishedCarPayload = { shape: string, color: string, engine: string, numWheels: number, numWindows: number }
+export type FinishedCheckedCarPayload = { shape: string, color: string, engine: string, numWheels: number, numWindows: number, isOk: boolean }
 
 export const NUMBER_OF_CAR_PARTS = 3
 
@@ -41,12 +44,14 @@ export namespace Events {
   export const requestEngine = MachineEvent.design("RequestEngine").withPayload<ItemDeliveryPayload>()
   export const engineInstalled = MachineEvent.design("EngineInstalled").withPayload<EngineInstallationPayload>()
   export const engineChecked = MachineEvent.design("EngineChecked").withPayload<EngineInstallationPayload>()
-  export const wheelPickup = MachineEvent.design("WheelPickup").withPayload<FinishedCarPayload>()
-  export const wheelInstalled = MachineEvent.design("WheelInstalled").withPayload<FinishedCarPayload>()
-  export const wheelsDone = MachineEvent.design("AllWheelsInstalled").withPayload<FinishedCarPayload>()
-  export const windowPickup = MachineEvent.design("WindowPickup").withPayload<FinishedCarPayload>()
-  export const windowInstalled = MachineEvent.design("WindowInstalled").withPayload<FinishedCarPayload>()
-  export const windowsDone = MachineEvent.design("AllWindowsInstalled").withPayload<FinishedCarPayload>()
+  export const wheelPickup = MachineEvent.design("WheelPickup").withPayload<WheelInstallationPayload>()
+  export const wheelInstalled = MachineEvent.design("WheelInstalled").withPayload<WheelInstallationPayload>()
+  export const wheelsDone = MachineEvent.design("AllWheelsInstalled").withPayload<WheelInstallationPayload>()
+  export const wheelsChecked = MachineEvent.design("WheelsChecked").withPayload<WheelInstallationPayload>()
+  export const windowPickup = MachineEvent.design("WindowPickup").withPayload<WindowInstallationPayload>()
+  export const windowInstalled = MachineEvent.design("WindowInstalled").withPayload<WindowInstallationPayload>()
+  export const windowsDone = MachineEvent.design("AllWindowsInstalled").withPayload<WindowInstallationPayload>()
+  export const windowsChecked = MachineEvent.design("WindowsChecked").withPayload<WindowInstallationPayload>()
   export const finishedCar = MachineEvent.design("FinishedCar").withPayload<FinishedCarPayload>()
 
   export const allEvents =
@@ -55,8 +60,8 @@ export namespace Events {
       paintedCarBody,
       itemRequest, bid, selected, requestGuidance, giveGuidance, itemPickupBasic, itemPickupSmart, handover, itemDelivery,
       requestEngine, engineInstalled, engineChecked,
-      wheelPickup, wheelInstalled, wheelsDone, finishedCar,
-      windowPickup, windowInstalled, windowsDone
+      wheelPickup, wheelInstalled, wheelsDone, wheelsChecked,
+      windowPickup, windowInstalled, windowsDone, windowsChecked
     ] as const
 }
 
@@ -199,16 +204,16 @@ export namespace WheelInstalationProtocol {
   const pickUpWheel = "1"
   const installWheel = "2"
   const allWheelsInstalled = "3"
-  const carDone = "4"
+  const wheelsChecked = "4"
   export const engineCheckerRole = "EngineChecker"
   export const wheelInstallerRole = "WheelInstaller"
-  export const qualityTransportRole = "QualityTransport"
+  export const wheelCheckerRole = "WheelCheckerRole"
   export const cmdCheckEngine = "checkEngine"
   export const cmdInstallEngine = "installEngine"
   export const cmdPickUpWheel = "pickUpWheel"
   export const cmdInstallWheel = "installWheel"
   export const cmdWheelsDone = "wheelsDone"
-  export const cmdCarDone = "carDone"
+  export const cmdCheckWheels = "checkWheels"
 
   export const protocol: SwarmProtocolType = {
     initial: initial,
@@ -217,7 +222,7 @@ export namespace WheelInstalationProtocol {
       {source: pickUpWheel, target: installWheel, label: {cmd: cmdPickUpWheel, role: wheelInstallerRole, logType: [Events.wheelPickup.type]}},
       {source: installWheel, target: pickUpWheel, label: {cmd: cmdInstallWheel, role: wheelInstallerRole, logType: [Events.wheelInstalled.type]}},
       {source: pickUpWheel, target: allWheelsInstalled, label: {cmd: cmdWheelsDone, role: wheelInstallerRole, logType: [Events.wheelsDone.type]}},
-      {source: allWheelsInstalled, target: carDone, label: {cmd: cmdCarDone, role: qualityTransportRole, logType: [Events.finishedCar.type]}},
+      {source: allWheelsInstalled, target: wheelsChecked, label: {cmd: cmdCheckWheels, role: wheelCheckerRole, logType: [Events.wheelsChecked.type]}},
     ]
   }
 
@@ -233,16 +238,16 @@ export namespace WindowInstalationProtocol {
   const pickUpwindow = "1"
   const installwindow = "2"
   const allwindowsInstalled = "3"
-  const carDone = "4"
+  const windowsChecked = "4"
   export const engineCheckerRole = "EngineChecker"
   export const windowInstallerRole = "WindowInstaller"
-  export const qualityTransportRole = "QualityTransport"
+  export const windowCheckerRole = "WindowCheckerRole"
   export const cmdCheckEngine = "checkEngine"
   export const cmdInstallEngine = "installEngine"
   export const cmdPickUpwindow = "pickUpWindow"
   export const cmdInstallwindow = "installWindow"
   export const cmdwindowsDone = "windowsDone"
-  export const cmdCarDone = "carDone"
+  export const cmdCheckWindows = "checkWindows"
 
   export const protocol: SwarmProtocolType = {
     initial: initial,
@@ -251,7 +256,7 @@ export namespace WindowInstalationProtocol {
       {source: pickUpwindow, target: installwindow, label: {cmd: cmdPickUpwindow, role: windowInstallerRole, logType: [Events.windowPickup.type]}},
       {source: installwindow, target: pickUpwindow, label: {cmd: cmdInstallwindow, role: windowInstallerRole, logType: [Events.windowInstalled.type]}},
       {source: pickUpwindow, target: allwindowsInstalled, label: {cmd: cmdwindowsDone, role: windowInstallerRole, logType: [Events.windowsDone.type]}},
-      {source: allwindowsInstalled, target: carDone, label: {cmd: cmdCarDone, role: qualityTransportRole, logType: [Events.finishedCar.type]}},
+      {source: allwindowsInstalled, target: windowsChecked, label: {cmd: cmdCheckWindows, role: windowCheckerRole, logType: [Events.windowsChecked.type]}},
     ]
   }
 
@@ -299,3 +304,7 @@ export const printState = (machineName: string, stateName: string, statePayload:
   console.log(JSON.stringify(p, null, 2))
   console.log("$$$$")
 } */
+
+const composeProtocolsResult = composeProtocols(carFactoryProtocol)
+if (composeProtocolsResult.type === 'ERROR') throw new Error(composeProtocolsResult.errors.join(", \n"))
+console.log(JSON.stringify(composeProtocolsResult.data, null, 2))
