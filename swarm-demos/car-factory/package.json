@@ -18,6 +18,7 @@
     "start-wheel-checker": "tsc && node dist/src/machine_drivers/wheel_installation_protocol/wheel_checker.js",
     "start-window-installer": "tsc && node dist/src/machine_drivers/window_installation_protocol/window_installer.js",
     "start-window-checker": "tsc && node dist/src/machine_drivers/window_installation_protocol/window_checker.js",
+    "start-quality-control": "tsc && node dist/src/machine_drivers/quality_control_protocol/quality_control.js",
     "prestart-stamp": "npm run compile-proto",
     "prestart-body-assembler": "npm run compile-proto",
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",

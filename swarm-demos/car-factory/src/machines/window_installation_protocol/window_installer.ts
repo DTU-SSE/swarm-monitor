@@ -1,20 +1,17 @@
-import { Events, Composition, WindowInstalationProtocol, type WindowInstallationPayload } from './../../protocol.js'
+import { Events, Composition, WindowInstallationProtocol, type WindowInstallationPayload } from './../../protocol.js'
 import { checkComposedProjection } from '@actyx/machine-check';
 
-export const windowInstaller = Composition.makeMachine(WindowInstalationProtocol.windowInstallerRole)
+export const windowInstaller = Composition.makeMachine(WindowInstallationProtocol.windowInstallerRole)
 export const s0 = windowInstaller.designEmpty('s0').finish()
 export const s1 = windowInstaller.designState('s1')
     .withPayload<WindowInstallationPayload>()
-    .command(WindowInstalationProtocol.cmdPickUpwindow, [Events.windowPickup], (ctx) => {
+    .command(WindowInstallationProtocol.cmdPickUpWindow, [Events.windowPickup], (ctx) => {
             return [Events.windowPickup.make(ctx.self)]
         })
-    .command(WindowInstalationProtocol.cmdwindowsDone, [Events.windowsDone], (ctx) => {
-        return [Events.windowsDone.make(ctx.self)]
-    })
     .finish()
 export const s2 = windowInstaller.designState('s2')
     .withPayload<WindowInstallationPayload>()
-    .command(WindowInstalationProtocol.cmdInstallwindow, [Events.windowInstalled], (ctx) => {
+    .command(WindowInstallationProtocol.cmdInstallwindow, [Events.windowInstalled], (ctx) => {
             return [Events.windowInstalled.make({...ctx.self, numWindows: ctx.self.numWindows + 1})]
         })
     .finish()
@@ -32,5 +29,5 @@ s2.react([Events.windowInstalled], s1, (_, event) => {
 s1.react([Events.windowsDone], s3, () => { return s3.make()})
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.
-const checkProjResult = checkComposedProjection([WindowInstalationProtocol.protocol], WindowInstalationProtocol.subscriptions, WindowInstalationProtocol.windowInstallerRole, windowInstaller.createJSONForAnalysis(s0))
+const checkProjResult = checkComposedProjection([WindowInstallationProtocol.protocol], WindowInstallationProtocol.subscriptions, WindowInstallationProtocol.windowInstallerRole, windowInstaller.createJSONForAnalysis(s0))
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))

@@ -1,20 +1,17 @@
-import { Events, Composition, WheelInstalationProtocol, type WheelInstallationPayload } from './../../protocol.js'
+import { Events, Composition, WheelInstallationProtocol, type WheelInstallationPayload } from './../../protocol.js'
 import { checkComposedProjection } from '@actyx/machine-check';
 
-export const wheelInstaller = Composition.makeMachine(WheelInstalationProtocol.wheelInstallerRole)
+export const wheelInstaller = Composition.makeMachine(WheelInstallationProtocol.wheelInstallerRole)
 export const s0 = wheelInstaller.designEmpty('s0').finish()
 export const s1 = wheelInstaller.designState('s1')
     .withPayload<WheelInstallationPayload>()
-    .command(WheelInstalationProtocol.cmdPickUpWheel, [Events.wheelPickup], (ctx) => {
+    .command(WheelInstallationProtocol.cmdPickUpWheel, [Events.wheelPickup], (ctx) => {
             return [Events.wheelPickup.make(ctx.self)]
         })
-    .command(WheelInstalationProtocol.cmdWheelsDone, [Events.wheelsDone], (ctx) => {
-        return [Events.wheelsDone.make(ctx.self)]
-    })
     .finish()
 export const s2 = wheelInstaller.designState('s2')
     .withPayload<WheelInstallationPayload>()
-    .command(WheelInstalationProtocol.cmdInstallWheel, [Events.wheelInstalled], (ctx) => {
+    .command(WheelInstallationProtocol.cmdInstallWheel, [Events.wheelInstalled], (ctx) => {
             return [Events.wheelInstalled.make({...ctx.self, numWheels: ctx.self.numWheels + 1})]
         })
     .finish()
@@ -32,5 +29,5 @@ s2.react([Events.wheelInstalled], s1, (_, event) => {
 s1.react([Events.wheelsDone], s3, () => { return s3.make()})
 
 // Check that the original machine is a correct implementation. A prerequisite for reusing it.
-const checkProjResult = checkComposedProjection([WheelInstalationProtocol.protocol], WheelInstalationProtocol.subscriptions, WheelInstalationProtocol.wheelInstallerRole, wheelInstaller.createJSONForAnalysis(s0))
+const checkProjResult = checkComposedProjection([WheelInstallationProtocol.protocol], WheelInstallationProtocol.subscriptions, WheelInstallationProtocol.wheelInstallerRole, wheelInstaller.createJSONForAnalysis(s0))
 if (checkProjResult.type == 'ERROR') throw new Error(checkProjResult.errors.join(", \n"))

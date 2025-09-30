@@ -8,7 +8,7 @@ export const carBodyChecker = Composition.makeMachine(SteelPressProtocol.carBody
 export const s0 = carBodyChecker
     .designState('s0')
     .withPayload<PartsPayload>()
-    .command(SteelPressProtocol.cmdCarBodyDone, [Events.carBody], (ctx) => {
+    .command(SteelPressProtocol.cmdCheckCarBody, [Events.carBody], (ctx) => {
         if (ctx.self.parts.some(part => part === "loadBed")) {
             return [Events.carBody.make({ shape: "truck" })]
         } else {

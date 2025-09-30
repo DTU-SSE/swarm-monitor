@@ -1,10 +1,10 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, WheelInstalationProtocol } from '../../protocol.js'
+import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, WheelInstallationProtocol } from '../../protocol.js'
 import { s0, s1, s2, wheelInstaller } from '../../machines/wheel_installation_protocol/wheel_installer.js'
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [wheelInstallerAdapted, s0Adapted] = Composition.adaptMachine(WheelInstalationProtocol.wheelInstallerRole, carFactoryProtocol, 4, subsCarFactory, [wheelInstaller, s0], true).data!
+const [wheelInstallerAdapted, s0Adapted] = Composition.adaptMachine(WheelInstallationProtocol.wheelInstallerRole, carFactoryProtocol, 4, subsCarFactory, [wheelInstaller, s0], true).data!
 
 // Run the adapted machine
 async function main() {
@@ -21,10 +21,8 @@ async function main() {
           console.log()
           const shape = stateAfterTimeOut.payload.shape
           const numWheels = stateAfterTimeOut.payload.numWheels
-          if (  shape === "truck" && numWheels == 6 ||
-                shape === "sedan" && numWheels == 4) {
-            stateAfterTimeOut?.cast().commands()?.wheelsDone()
-          } else {
+          if (  shape === "truck" && numWheels < 6 ||
+                shape === "sedan" && numWheels < 4) {
             stateAfterTimeOut?.cast().commands()?.pickUpWheel()
           }
         }

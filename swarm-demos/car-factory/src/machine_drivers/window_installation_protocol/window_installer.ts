@@ -1,10 +1,10 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, WindowInstalationProtocol } from '../../protocol.js'
+import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, WindowInstallationProtocol } from '../../protocol.js'
 import { s0, s1, s2, windowInstaller } from '../../machines/window_installation_protocol/window_installer.js'
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [windowInstallerAdapted, s0Adapted] = Composition.adaptMachine(WindowInstalationProtocol.windowInstallerRole, carFactoryProtocol, 5, subsCarFactory, [windowInstaller, s0], true).data!
+const [windowInstallerAdapted, s0Adapted] = Composition.adaptMachine(WindowInstallationProtocol.windowInstallerRole, carFactoryProtocol, 5, subsCarFactory, [windowInstaller, s0], true).data!
 
 // Run the adapted machine
 async function main() {
@@ -21,10 +21,8 @@ async function main() {
           console.log()
           const shape = stateAfterTimeOut.payload.shape
           const numWindows = stateAfterTimeOut.payload.numWindows
-          if (  shape === "truck" && numWindows == 3 ||
-                shape === "sedan" && numWindows == 4) {
-            stateAfterTimeOut?.cast().commands()?.windowsDone()
-          } else {
+          if (  shape === "truck" && numWindows < 3 ||
+                shape === "sedan" && numWindows < 4) {
             stateAfterTimeOut?.cast().commands()?.pickUpWindow()
           }
         }
