@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from '../../protocol.js'
+import { Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, getArgs, manifestFromArgs } from '../../protocol.js'
 import { s0, s1, stamp } from '../../machines/steel_press_protocol/stamp.js';
 
 // Car parts that the stamp can produce
@@ -24,8 +24,9 @@ const [stampAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.st
 
 // Run the adapted machine
 async function main() {
-  const app = await Actyx.of(manifest)
-  const tags = Composition.tagWithEntityId('car-factory')
+  const argv = getArgs()
+  const app = await Actyx.of(manifestFromArgs(argv))
+  const tags = Composition.tagWithEntityId(argv.displayName)
   const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, stampAdapted)
   printState(stampAdapted.machineName, s0Adapted.mechanism.name, undefined)
 

@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, NUMBER_OF_CAR_PARTS } from '../../protocol.js'
+import { Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, NUMBER_OF_CAR_PARTS, getArgs, manifestFromArgs } from '../../protocol.js'
 import chalk from 'chalk';
 import { s0, steelTransport } from '../../machines/steel_press_protocol/steel_transport.js';
 
@@ -9,8 +9,9 @@ const [steelTransportAdapted, s0Adapted] = Composition.adaptMachine(SteelPressPr
 
 // Run the adapted machine
 async function main() {
-  const app = await Actyx.of(manifest)
-  const tags = Composition.tagWithEntityId('car-factory')
+  const argv = getArgs()
+  const app = await Actyx.of(manifestFromArgs(argv))
+  const tags = Composition.tagWithEntityId(argv.displayName)
   const initialPayload = { steelRollsDelivered: 0 }
   const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, steelTransportAdapted)
   printState(steelTransportAdapted.machineName, s0Adapted.mechanism.name, initialPayload)

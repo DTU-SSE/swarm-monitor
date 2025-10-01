@@ -2,10 +2,12 @@
 import { MachineEvent, SwarmProtocol } from '@actyx/machine-runner'
 import { type SwarmProtocolType, type Subscriptions, type Result, type DataResult, overapproxWFSubscriptions, checkComposedSwarmProtocol, type InterfacingProtocols, composeProtocols} from '@actyx/machine-check'
 import chalk from "chalk";
-
+import yargs from 'yargs'
+import { hideBin } from 'yargs/helpers'
+import { type AppManifest } from '@actyx/sdk';
 export const manifest = {
   appId: 'com.example.car-factory',
-  displayName: 'Car Factory',
+  displayName: 'car-factory',
   version: '1.0.0',
 }
 
@@ -345,3 +347,36 @@ export const printState = (machineName: string, stateName: string, statePayload:
 const composeProtocolsResult = composeProtocols(carFactoryProtocol)
 if (composeProtocolsResult.type === 'ERROR') throw new Error(composeProtocolsResult.errors.join(", \n"))
 //console.log(JSON.stringify(composeProtocolsResult.data, null, 2))
+
+export const getArgs = () => {
+    const argv = yargs(hideBin(process.argv))
+            .option("displayName", {
+              alias: "n",
+              type: "string",
+              description: "Display name of application",
+              default: "car-factory"
+            })
+            .option("appId", {
+              alias: "i",
+              type: "string",
+              description: "ID of application",
+              default: "com.example.car-factory"
+            })
+            .option("appVersion", {
+              alias: "av",
+              type: "string",
+              description: "Version of application",
+              default: "1.0.0"
+            })
+            .parseSync();
+    return argv
+}
+
+type Argv = {
+  displayName: string;
+  appId: string;
+  appVersion: string;
+}
+export const manifestFromArgs = (argv: Argv): AppManifest => {
+  return { appId: argv.appId, displayName: argv.displayName, version: argv.appVersion}
+}

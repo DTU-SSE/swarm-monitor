@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, PaintShopProtocol } from '../../protocol.js'
+import { Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, PaintShopProtocol, getArgs, manifestFromArgs } from '../../protocol.js'
 import { painter, s0, s1 } from '../../machines/paint_shop_protocol/painter.js';
 
 // A car can have one of these colors
@@ -11,8 +11,9 @@ const [painterAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.p
 
 // Run the adapted machine
 async function main() {
-  const app = await Actyx.of(manifest)
-  const tags = Composition.tagWithEntityId('car-factory')
+  const argv = getArgs()
+  const app = await Actyx.of(manifestFromArgs(argv))
+  const tags = Composition.tagWithEntityId(argv.displayName)
   const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, painterAdapted)
   printState(painterAdapted.machineName, s0Adapted.mechanism.name, undefined)
 

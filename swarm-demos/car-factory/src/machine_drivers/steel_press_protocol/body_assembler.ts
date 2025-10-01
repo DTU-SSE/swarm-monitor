@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol } from '../../protocol.js'
+import { Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, getArgs, manifestFromArgs } from '../../protocol.js'
 import { bodyAssembler, s0, s1, s2 } from '../../machines/steel_press_protocol/body_assembler.js';
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
@@ -8,8 +8,9 @@ const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressPro
 
 // Run the adapted machine
 async function main() {
-  const app = await Actyx.of(manifest)
-  const tags = Composition.tagWithEntityId('car-factory')
+  const argv = getArgs()
+  const app = await Actyx.of(manifestFromArgs(argv))
+  const tags = Composition.tagWithEntityId(argv.displayName)
   const initialPayload = { parts: [] }
   const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, bodyAssemblerAdapted)
   printState(bodyAssemblerAdapted.machineName, s0Adapted.mechanism.name, initialPayload)

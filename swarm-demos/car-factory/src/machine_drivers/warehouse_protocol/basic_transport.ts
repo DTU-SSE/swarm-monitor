@@ -1,6 +1,6 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
-import { manifest, Composition, carFactoryProtocol, subsCarFactory, printState, WarehouseProtocol, getRandomInt } from '../../protocol.js'
+import { Composition, carFactoryProtocol, subsCarFactory, printState, WarehouseProtocol, getRandomInt, getArgs, manifestFromArgs } from '../../protocol.js'
 import { randomUUID } from 'crypto';
 import { s0, s1, s2, s4, s5, transport, type Score } from '../../machines/warehouse_protocol/transport.js';
 
@@ -9,8 +9,9 @@ const [transportAdapted, s0Adapted] = Composition.adaptMachine(WarehouseProtocol
 
 // Run the adapted machine
 async function main() {
-  const app = await Actyx.of(manifest)
-  const tags = Composition.tagWithEntityId('car-factory')
+  const argv = getArgs()
+  const app = await Actyx.of(manifestFromArgs(argv))
+  const tags = Composition.tagWithEntityId(argv.displayName)
   const initialPayload = { id: randomUUID().slice(0, 8) }
   const bestTransport = (scores: Score[]) => scores.reduce((best, current) => current.delay <= best.delay ? current : best).transportId
   const machine = createMachineRunnerBT(app, tags, s0Adapted, initialPayload, transportAdapted)
