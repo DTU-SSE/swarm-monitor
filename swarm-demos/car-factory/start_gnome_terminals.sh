@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 # from ChatGPT
-# Usage: bash start_gnome_terminals.sh N "command [args]"
-# Example: bash start_gnome_terminals.sh 3 "htop"
+# 
+# Usage: bash start_gnome_terminals.sh N 
+# Example: bash start_gnome_terminals.sh 3
 
-if [ $# -lt 2 ]; then
-  echo "Usage: $0 N \"command [args]\""
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 N"
   exit 1
 fi
 
 N=$1
-shift
-CMD="$@"
+CMD="./start_machines.sh"
 
 for ((i=1; i<=N; i++)); do
-  gnome-terminal --maximize -- bash -c "$CMD; exec bash"
+  session_id="session${i}" 
+  gnome-terminal --maximize -- bash -c "$CMD ${session_id}; exec bash"
 done
