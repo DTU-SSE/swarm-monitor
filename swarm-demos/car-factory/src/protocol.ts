@@ -10,7 +10,7 @@ export const manifest = {
   displayName: 'car-factory',
   version: '1.0.0',
 }
-
+// ctrl + shift + l :DDDD
 export type SteelPartsPayload = { part: string }
 export type PartialCarBodyPayload = { parts: string[] }
 export type CarBodyPayload = { shape: string }
