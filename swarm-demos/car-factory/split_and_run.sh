@@ -6,7 +6,7 @@ split_and_run() {
     local cmds=("$@")
     local cmds_len=${#cmds[@]}
     #echo "CMDS LEN: $cmds_len"
-    tmux new-window -n demo-window "${cmds[0]}"
+    tmux -L "$session" new-window -n demo-window "${cmds[0]}"
     # number of commands invoked
     local n=1
     # number of 'split rounds' -- number of times we have visited all panes and split them
@@ -26,16 +26,16 @@ split_and_run() {
             if ((n >= cmds_len)); then
                 break
             fi
-            tmux select-pane -t "%$i"
-            tmux split-window "$split" "${cmds[n]}"
+            tmux -L "$session" select-pane -t "%$i"
+            tmux -L "$session" split-window "$split" "${cmds[n]}"
             ((n=n+1))
             done
         ((n_split_rounds=n_split_rounds+1))
     done
 
-    tmux select-layout -t "$session" tiled
-    tmux attach-session -t $session
-    tmux select-window demo-window
+    tmux -L "$session" select-layout -t "$session" tiled
+    tmux -L "$session" attach-session -t $session
+    tmux -L "$session" select-window demo-window
 }
 
 
@@ -66,9 +66,9 @@ shift
 #fi
 # Sketchy because ax could be some other program.... but we assume that it is called ax anyway when running it...
 if pgrep ax; then
-    tmux new-session -d -s "$session"
+    tmux -L "$session" new-session -d -s "$session"
 else
-    tmux new-session -d -s "$session" "$CMD_START_AX"
+    tmux -L "$session" new-session -d -s "$session" "$CMD_START_AX"
 fi
 #tmux new-session -d -s "$session" "$CMD_START_AX"
 split_and_run "$@"
