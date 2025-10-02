@@ -25,6 +25,8 @@
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",
     "prestart-forwarder": "npm run compile-proto",
     "start-forwarder": "node dist/src/forwarder.js",
+    "start-spawner": "node dist/src/spawner.js",
+    "start-spawner-silent": "node dist/src/spawner_silent.js",
     "start-machine-spawner": "npx tsx src/spawn_machines.tsx"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "ink": "^6.3.1",
     "ink-spinner": "^5.0.0",
     "lodash.camelcase": "^4.3.0",
+    "ora": "^9.0.0",
     "react": "^19.2.0",
     "yargs": "^18.0.0"
   }

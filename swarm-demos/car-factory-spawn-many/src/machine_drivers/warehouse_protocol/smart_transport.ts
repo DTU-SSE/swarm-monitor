@@ -20,14 +20,14 @@ async function main() {
     if (state.isLike(s1)) {
       const auctionState = state.cast()
       if (!auctionState.payload.scores.find((score) => score.transportId === auctionState.payload.id)) {
-        console.log()
-        auctionState.commands()?.bid(getRandomInt(1, 50))
+        auctionState.commands()?.bid(getRandomInt(1, 200))
+      } else {
         setTimeout(() => {
               const stateAfterTimeOut = machine.get()
               if (stateAfterTimeOut?.isLike(s1)) {
                   stateAfterTimeOut?.cast().commands()?.select(bestTransport(stateAfterTimeOut.payload.scores))
               }
-        }, 3000)
+        }, 1000)
       }
     } else if (state.isLike(s2)) {
       // Break out of loop if this transport did not win the auction
