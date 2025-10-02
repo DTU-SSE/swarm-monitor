@@ -1,7 +1,7 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunnerBT } from '@actyx/machine-runner'
 import { Composition, carFactoryProtocol, subsCarFactory, printState, getRandomInt, SteelPressProtocol, getArgs, manifestFromArgs } from '../../protocol.js'
-import { bodyAssembler, s0, s1, s2 } from '../../machines/steel_press_protocol/body_assembler.js';
+import { bodyAssembler, s0, s2 } from '../../machines/steel_press_protocol/body_assembler.js';
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
 const [bodyAssemblerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.bodyAssemblerRole, carFactoryProtocol, 0, subsCarFactory, [bodyAssembler, s0], true).data!
@@ -16,7 +16,7 @@ async function main() {
   printState(bodyAssemblerAdapted.machineName, s0Adapted.mechanism.name, initialPayload)
 
   for await (const state of machine) {
-    if (state.isLike(s1)) {
+    if (state.isLike(s2)) {
       setTimeout(() => {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s2)) {

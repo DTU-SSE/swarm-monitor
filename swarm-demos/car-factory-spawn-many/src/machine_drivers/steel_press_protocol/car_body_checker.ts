@@ -16,16 +16,10 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s0)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s0)) {
-          const currentState = state.cast()
-          if (currentState.payload.parts.length == NUMBER_OF_CAR_PARTS) {
-            stateAfterTimeOut?.cast().commands()?.carBodyDone()
-          }
-
-        }
-      }, 1000)
+      const currentState = state.cast()
+      if (currentState.payload.parts.length == NUMBER_OF_CAR_PARTS) {
+        state.cast().commands()?.carBodyDone()
+      }
     }
     if (state.isFinal()) {
       break

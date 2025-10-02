@@ -33,19 +33,9 @@ async function main() {
       // Break out of loop if this transport did not win the auction
       const IamWinner = state.payload.id === state.payload.winner
       if (!IamWinner) { break }
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s2)) {
-          stateAfterTimeOut?.cast().commands()?.smartPickup()
-        }
-      }, 1000)
+      state.cast().commands()?.smartPickup()
     } else if (state.isLike(s5)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s5)) {
-          stateAfterTimeOut?.cast().commands()?.handover()
-        }
-      }, 1000)
+      state.cast().commands()?.handover()
     }
     if (state.isFinal()) {
       break

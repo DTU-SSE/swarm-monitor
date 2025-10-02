@@ -25,7 +25,7 @@
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",
     "prestart-forwarder": "npm run compile-proto",
     "start-forwarder": "node dist/src/forwarder.js",
-    "start-machine-spawner": "node dist/src/spawn_machines.js"
+    "start-machine-spawner": "npx tsx src/spawn_machines.tsx"
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.11.1",

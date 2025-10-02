@@ -15,12 +15,7 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s2)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s2)) {
-          stateAfterTimeOut?.cast().commands()?.giveGuidance()
-        }
-      }, 1000)
+      state.cast().commands()?.giveGuidance()
     }
     if (state.isFinal()) {
       break

@@ -15,24 +15,15 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s1)) {
-          const shape = stateAfterTimeOut.payload.shape
-          const numWindows = stateAfterTimeOut.payload.numWindows
-          if (  shape === "truck" && numWindows < 3 ||
-                shape === "sedan" && numWindows < 4) {
-            stateAfterTimeOut?.cast().commands()?.pickUpWindow()
-          }
-        }
-      }, 1000)
+      const currentState = state.cast()
+      const shape = currentState.payload.shape
+      const numWindows = currentState.payload.numWindows
+      if (shape === "truck" && numWindows < 3 ||
+          shape === "sedan" && numWindows < 4) {
+        currentState.commands()?.pickUpWindow()
+      }
     } else if (state.isLike(s2)) {
-        setTimeout(() => {
-            const stateAfterTimeOut = machine.get()
-            if (stateAfterTimeOut?.isLike(s2)) {
-                stateAfterTimeOut?.cast().commands()?.installWindow()
-            }
-        }, 1000)
+      state.cast().commands()?.installWindow()
     }
     if (state.isFinal()) {
       break

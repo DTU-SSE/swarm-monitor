@@ -16,12 +16,10 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s0)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s0) && state.cast().payload.steelRollsDelivered < NUMBER_OF_CAR_PARTS) {
-          stateAfterTimeOut?.cast().commands()?.pickUpSteelRoll()
-        }
-      }, 1000)
+      const currentState = state.cast()
+      if (currentState.payload.steelRollsDelivered < NUMBER_OF_CAR_PARTS) {
+        currentState.commands()?.pickUpSteelRoll()
+      }
     }
     if (state.isFinal()) {
       break

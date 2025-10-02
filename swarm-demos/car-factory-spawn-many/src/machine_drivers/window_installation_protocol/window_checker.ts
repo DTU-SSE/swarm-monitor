@@ -15,17 +15,13 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s1)) {
-          const shape = stateAfterTimeOut.payload.shape
-          const numWindows = stateAfterTimeOut.payload.numWindows
-          if (  shape === "truck" && numWindows == 3 ||
-                shape === "sedan" && numWindows == 4) {
-            stateAfterTimeOut?.cast().commands()?.windowsDone()
-          }
-        }
-      }, 1000)
+      const currentState = state.cast()
+      const shape = currentState.payload.shape
+      const numWindows = currentState.payload.numWindows
+      if (shape === "truck" && numWindows == 3 ||
+          shape === "sedan" && numWindows == 4) {
+        currentState.commands()?.windowsDone()
+      }
     }
     if (state.isFinal()) {
       break

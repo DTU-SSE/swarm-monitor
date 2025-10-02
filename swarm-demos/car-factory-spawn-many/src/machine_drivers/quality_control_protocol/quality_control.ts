@@ -15,14 +15,10 @@ async function main() {
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s1)
-            && stateAfterTimeOut?.payload.wheelsChecked
-            && stateAfterTimeOut?.payload.windowsChecked) {
-          stateAfterTimeOut?.cast().commands()?.checkCar()
-        }
-      }, 1000)
+      if (state.payload.wheelsChecked
+        && state.payload.windowsChecked) {
+        state.cast().commands()?.checkCar()
+      }
     }
     if (state.isFinal()) {
       break

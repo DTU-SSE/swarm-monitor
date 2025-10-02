@@ -22,36 +22,21 @@ async function main() {
       if (!auctionState.payload.scores.find((score) => score.transportId === auctionState.payload.id)) {
         auctionState.commands()?.bid(getRandomInt(1, 50))
         setTimeout(() => {
-              const stateAfterTimeOut = machine.get()
-              if (stateAfterTimeOut?.isLike(s1)) {
-                  stateAfterTimeOut?.cast().commands()?.select(bestTransport(stateAfterTimeOut.payload.scores))
-              }
+          const stateAfterTimeOut = machine.get()
+          if (stateAfterTimeOut?.isLike(s1)) {
+            stateAfterTimeOut?.cast().commands()?.select(bestTransport(stateAfterTimeOut.payload.scores))
+          }
         }, 3000)
       }
     } else if (state.isLike(s2)) {
       // Break out of loop if this transport did not win the auction
       const IamWinner = state.payload.id === state.payload.winner
       if (!IamWinner) { break }
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s2)) {
-          stateAfterTimeOut?.cast().commands()?.needGuidance()
-        }
-      }, 1000)
+      state.cast().commands()?.needGuidance()
     } else if (state.isLike(s4)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s4)) {
-          stateAfterTimeOut?.cast().commands()?.basicPickup()
-        }
-      }, 1000)
+      state.cast().commands()?.basicPickup()
     } else if (state.isLike(s5)) {
-      setTimeout(() => {
-        const stateAfterTimeOut = machine.get()
-        if (stateAfterTimeOut?.isLike(s5)) {
-          stateAfterTimeOut?.cast().commands()?.handover()
-        }
-      }, 1000)
+      state.cast().commands()?.handover()
     }
     if (state.isFinal()) {
       break
