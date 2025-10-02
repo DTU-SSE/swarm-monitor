@@ -36,6 +36,9 @@ async function main() {
             }
         }, 1000)
     }
+    if (state.isFinal()) {
+      break
+    }
   }
   app.dispose()
 }
