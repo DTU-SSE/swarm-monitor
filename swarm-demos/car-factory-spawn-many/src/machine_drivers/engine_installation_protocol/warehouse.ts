@@ -4,7 +4,7 @@ import { Composition, carFactoryProtocol, subsCarFactory, printState, EngineInst
 import { s0, s1, s2, warehouse } from '../../machines/engine_installation_protocol/warehouse.js'
 
 // Adapted machine. Adapting here has no effect. Except that we can make a verbose machine.
-const [warehouseAdapted, s0Adapted] = Composition.adaptMachine(EngineInstallationProtocol.warehouseRole, carFactoryProtocol, 2, subsCarFactory, [warehouse, s0], true).data!
+const [warehouseAdapted, s0Adapted] = Composition.adaptMachine(EngineInstallationProtocol.warehouseRole, carFactoryProtocol, 2, subsCarFactory, [warehouse, s0]).data!
 
 // Run the adapted machine
 async function main() {
@@ -19,7 +19,6 @@ async function main() {
       setTimeout(() => {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s1)) {
-          console.log()
           stateAfterTimeOut?.cast().commands()?.request()
         }
       }, 1000)
@@ -27,7 +26,6 @@ async function main() {
       setTimeout(() => {
         const stateAfterTimeOut = machine.get()
         if (stateAfterTimeOut?.isLike(s2)) {
-          console.log()
           stateAfterTimeOut?.cast().commands()?.deliver()
         }
       }, 1000)
