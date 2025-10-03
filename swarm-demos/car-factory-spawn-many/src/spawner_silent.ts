@@ -19,22 +19,22 @@ async function main() {
     let terminatedCount = 0;
     const displayName = `car-factory`
     const appId = `com.example.${displayName}`
-    const commandsAsObject = { "start-steel-transport": "dist/src/machine_drivers/steel_press_protocol/steel_transport.js",
-    "start-stamp": "dist/src/machine_drivers/steel_press_protocol/stamp.js",
-    "start-body-assembler": "dist/src/machine_drivers/steel_press_protocol/body_assembler.js",
-    "start-car-body-checker": "dist/src/machine_drivers/steel_press_protocol/car_body_checker.js",
-    "start-painter": "dist/src/machine_drivers/paint_shop_protocol/painter.js",
-    "start-basic-transport": "dist/src/machine_drivers/warehouse_protocol/basic_transport.js",
-    "start-smart-transport": "dist/src/machine_drivers/warehouse_protocol/smart_transport.js",
-    "start-base-station": "dist/src/machine_drivers/warehouse_protocol/base_station.js",
-    "start-engine-installer": "dist/src/machine_drivers/engine_installation_protocol/engine_installer.js",
-    "start-engine-checker": "dist/src/machine_drivers/engine_installation_protocol/engine_checker.js",
-    "start-warehouse": "dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
-    "start-wheel-installer": "dist/src/machine_drivers/wheel_installation_protocol/wheel_installer.js",
-    "start-wheel-checker": "dist/src/machine_drivers/wheel_installation_protocol/wheel_checker.js",
-    "start-window-installer": "dist/src/machine_drivers/window_installation_protocol/window_installer.js",
-    "start-window-checker": "dist/src/machine_drivers/window_installation_protocol/window_checker.js",
-    "start-quality-control": "dist/src/machine_drivers/quality_control_protocol/quality_control.js" }
+    const commandsAsObject = { "start-steel-transport": "dist/src/machine_drivers/steel_press_protocol/run_steel_transport.js",
+    "start-stamp": "dist/src/machine_drivers/steel_press_protocol/run_stamp.js",
+    "start-body-assembler": "dist/src/machine_drivers/steel_press_protocol/run_body_assembler.js",
+    "start-car-body-checker": "dist/src/machine_drivers/steel_press_protocol/run_car_body_checker.js",
+    "start-painter": "dist/src/machine_drivers/paint_shop_protocol/run_painter.js",
+    "start-basic-transport": "dist/src/machine_drivers/warehouse_protocol/run_basic_transport.js",
+    "start-smart-transport": "dist/src/machine_drivers/warehouse_protocol/run_smart_transport.js",
+    "start-base-station": "dist/src/machine_drivers/warehouse_protocol/run_base_station.js",
+    "start-engine-installer": "dist/src/machine_drivers/engine_installation_protocol/run_engine_installer.js",
+    "start-engine-checker": "dist/src/machine_drivers/engine_installation_protocol/run_engine_checker.js",
+    "start-warehouse": "dist/src/machine_drivers/engine_installation_protocol/run_warehouse.js",
+    "start-wheel-installer": "dist/src/machine_drivers/wheel_installation_protocol/run_wheel_installer.js",
+    "start-wheel-checker": "dist/src/machine_drivers/wheel_installation_protocol/run_wheel_checker.js",
+    "start-window-installer": "dist/src/machine_drivers/window_installation_protocol/run_window_installer.js",
+    "start-window-checker": "dist/src/machine_drivers/window_installation_protocol/run_window_checker.js",
+    "start-quality-control": "dist/src/machine_drivers/quality_control_protocol/run_quality_control.js" }
 
     const commands = [
         [commandsAsObject["start-steel-transport"]],

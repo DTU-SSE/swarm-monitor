@@ -27,11 +27,13 @@
     "start-forwarder": "node dist/src/forwarder.js",
     "start-spawner": "node dist/src/spawner.js",
     "start-spawner-silent": "node dist/src/spawner_silent.js",
+    "start-spawner-silent-multiple-per-process": "node dist/src/spawner_silent_multiple_machines_per_process.js",
     "start-machine-spawner": "npx tsx src/spawn_machines.tsx"
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.11.1",
     "@protobuf-ts/runtime": "^2.11.1",
+    "@types/async": "^3.2.25",
     "@types/lodash.camelcase": "^4.3.9",
     "@types/node": "^24.6.2",
     "@types/react": "^19.2.0",
@@ -43,6 +45,7 @@
     "@actyx/machine-check": "file:../../machines/machine-check",
     "@actyx/machine-runner": "file:../../machines/machine-runner",
     "@actyx/sdk": "^0.5.10",
+    "async": "^3.2.6",
     "chalk": "^5.6.0",
     "execa": "^9.6.0",
     "ink": "^6.3.1",

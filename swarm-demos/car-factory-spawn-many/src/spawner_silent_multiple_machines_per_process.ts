@@ -1,16 +1,6 @@
 import { execa } from "execa";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-/* import { main as steelTransportMain } from "./machine_drivers/steel_press_protocol/steel_transport.js";
-import { main as stampMain } from "./machine_drivers/steel_press_protocol/stamp.js";
-import { main as bodyAssemblerMain } from "./machine_drivers/steel_press_protocol/body_assembler.js";
-import { main as carBodyChecker } from "./machine_drivers/steel_press_protocol/car_body_checker.js";
-import { main as painterMain } from "./machine_drivers/paint_shop_protocol/painter.js";
-import { main as warehouseMain } from "./machine_drivers/engine_installation_protocol/warehouse.js";
-import { main as engineCheckerMain } from "./machine_drivers/steel_press_protocol/stamp.js";
-import { main as bodyAssemblerMain } from "./machine_drivers/steel_press_protocol/body_assembler.js";
-import { main as carBodyChecker } from "./machine_drivers/steel_press_protocol/car_body_checker.js";
-import { main as painerMain } from "./machine_drivers/paint_shop_protocol/painter.js"; */
 
 async function main() {
     // Parse args
@@ -28,7 +18,7 @@ async function main() {
     let terminatedCount = 0;
     const displayName = `car-factory`
     const appId = `com.example.${displayName}`
-    const commandsAsObject = {
+    /* const commandsAsObject = {
         "start-steel-transport": "dist/src/machine_drivers/steel_press_protocol/steel_transport.js",
         "start-stamp": "dist/src/machine_drivers/steel_press_protocol/stamp.js",
         "start-body-assembler": "dist/src/machine_drivers/steel_press_protocol/body_assembler.js",
@@ -63,18 +53,23 @@ async function main() {
         [commandsAsObject["start-wheel-checker"]],
         [commandsAsObject["start-window-installer"]],
         [commandsAsObject["start-window-checker"]],
-        [commandsAsObject["start-quality-control"]],
-    ].map(array => array.concat([`--`, `-n`, `${displayName}`, `-i`, `${appId}`]));
+        [commandsAsObject["start-quality-control"]], */
+    const first_half = "dist/src/machine_drivers/run_first_half.js"
+    const second_half = "dist/src/machine_drivers/run_second_half.js"
+
+    const commands = [[first_half], [second_half]];//[[`--`, `-n`, `${displayName}`, `-i`, `${appId}`]];
 
     const processes: ReturnType<typeof execa>[] = [];
+    // Each time we execute a command we start 8 machines
 
+    const quotient = Math.floor(N / 8)
     // Spawn processes
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i < quotient; i++) {
         const p = execa(`node`, commands[i % commands.length], {
             stdout: "ignore",
             stderr: "ignore",
         });
-        console.log(`Spawned process ${i}`)
+        console.log(`Spawned process ${i * 8}`)
 
         processes.push(p);
     }
@@ -83,7 +78,7 @@ async function main() {
     for (const p of processes) {
         p.then(() => {
             terminatedCount++;
-            console.log(`Terminated count: ${terminatedCount}`)
+            console.log(`Terminated count: ${terminatedCount * 8}`)
         }).catch((err) => {
             console.log(`Process failed: ${err}`);
         });
