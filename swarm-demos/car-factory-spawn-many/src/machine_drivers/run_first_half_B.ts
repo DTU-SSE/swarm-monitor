@@ -6,7 +6,7 @@ import { main as painterMain } from "./paint_shop_protocol/painter.js";
 import { main as engineInstallerMain } from "./engine_installation_protocol/engine_installer.js";
 import { main as warehouseMain } from "./engine_installation_protocol/warehouse.js";
 import { main as engineCheckerMain } from "./engine_installation_protocol/engine_checker.js";
-import { runAsyncFunctionsA, runAsyncFunctionsB } from "./call_async_functions.js";
+import { runAsyncFunctionsB } from "./call_async_functions.js";
 
 const mainFunctions = [
     steelTransportMain,
@@ -19,4 +19,4 @@ const mainFunctions = [
     engineCheckerMain
 ]
 
-runAsyncFunctionsA(mainFunctions, 8)
+runAsyncFunctionsB(mainFunctions)

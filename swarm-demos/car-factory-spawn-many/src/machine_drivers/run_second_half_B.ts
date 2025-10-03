@@ -7,7 +7,7 @@ import { main as windowInstallerMain } from "./window_installation_protocol/wind
 import { main as windowCheckerMain } from "./window_installation_protocol/window_checker.js";
 import { main as qualityControlMain } from "./quality_control_protocol/quality_control.js";
 
-import { runAsyncFunctionsA, runAsyncFunctionsB } from "./call_async_functions.js";
+import { runAsyncFunctionsB } from "./call_async_functions.js";
 
 const mainFunctions = [
     baseStationMain,
@@ -20,4 +20,4 @@ const mainFunctions = [
     qualityControlMain
 ]
 
-runAsyncFunctionsA(mainFunctions, 8)
+runAsyncFunctionsB(mainFunctions)

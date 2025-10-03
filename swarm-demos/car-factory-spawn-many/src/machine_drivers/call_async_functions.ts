@@ -13,3 +13,16 @@ export async function runAsyncFunctionsA(functions: (() => Promise<void>)[], con
 export async function runAsyncFunctionsB(functions: (() => Promise<void>)[]): Promise<void> {
     return Promise.all(functions.map(fun => fun())).then()
 }
+
+/*
+export type AORB = "a" | "a"
+
+export async function runAsyncFunctions(functions: (() => Promise<void>)[], aOrB: AORB, concurrency?: number): Promise<void> {
+    if (aOrB === "a" && concurrency) {
+        runAsyncFunctionsA(functions, concurrency)
+    } else if (aOrB === "b") {
+        runAsyncFunctionsB(functions)
+    } else {
+        throw Error
+    }
+} */

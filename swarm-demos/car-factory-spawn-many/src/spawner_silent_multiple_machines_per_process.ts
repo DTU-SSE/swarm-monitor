@@ -11,6 +11,12 @@ async function main() {
             demandOption: true,
             describe: "Number of processes to spawn",
         })
+        .option("choiceAorB", {
+            alias: "c",
+            type: "string",
+            demandOption: true,
+            describe: "Use async.queue() (a) with 8 concurrent workers or Promise.all() (b)"
+        })
         .strict()
         .parse();
 
@@ -18,46 +24,13 @@ async function main() {
     let terminatedCount = 0;
     const displayName = `car-factory`
     const appId = `com.example.${displayName}`
-    /* const commandsAsObject = {
-        "start-steel-transport": "dist/src/machine_drivers/steel_press_protocol/steel_transport.js",
-        "start-stamp": "dist/src/machine_drivers/steel_press_protocol/stamp.js",
-        "start-body-assembler": "dist/src/machine_drivers/steel_press_protocol/body_assembler.js",
-        "start-car-body-checker": "dist/src/machine_drivers/steel_press_protocol/car_body_checker.js",
-        "start-painter": "dist/src/machine_drivers/paint_shop_protocol/painter.js",
-        "start-basic-transport": "dist/src/machine_drivers/warehouse_protocol/basic_transport.js",
-        "start-smart-transport": "dist/src/machine_drivers/warehouse_protocol/smart_transport.js",
-        "start-base-station": "dist/src/machine_drivers/warehouse_protocol/base_station.js",
-        "start-engine-installer": "dist/src/machine_drivers/engine_installation_protocol/engine_installer.js",
-        "start-engine-checker": "dist/src/machine_drivers/engine_installation_protocol/engine_checker.js",
-        "start-warehouse": "dist/src/machine_drivers/engine_installation_protocol/warehouse.js",
-        "start-wheel-installer": "dist/src/machine_drivers/wheel_installation_protocol/wheel_installer.js",
-        "start-wheel-checker": "dist/src/machine_drivers/wheel_installation_protocol/wheel_checker.js",
-        "start-window-installer": "dist/src/machine_drivers/window_installation_protocol/window_installer.js",
-        "start-window-checker": "dist/src/machine_drivers/window_installation_protocol/window_checker.js",
-        "start-quality-control": "dist/src/machine_drivers/quality_control_protocol/quality_control.js"
-    }
-
-    const commands = [
-        [commandsAsObject["start-steel-transport"]],
-        [commandsAsObject["start-stamp"]],
-        [commandsAsObject["start-body-assembler"]],
-        [commandsAsObject["start-car-body-checker"]],
-        [commandsAsObject["start-painter"]],
-        [commandsAsObject["start-basic-transport"]],
-        [commandsAsObject["start-smart-transport"]],
-        [commandsAsObject["start-base-station"]],
-        [commandsAsObject["start-engine-installer"]],
-        [commandsAsObject["start-engine-checker"]],
-        [commandsAsObject["start-warehouse"]],
-        [commandsAsObject["start-wheel-installer"]],
-        [commandsAsObject["start-wheel-checker"]],
-        [commandsAsObject["start-window-installer"]],
-        [commandsAsObject["start-window-checker"]],
-        [commandsAsObject["start-quality-control"]], */
-    const first_half = "dist/src/machine_drivers/run_first_half.js"
-    const second_half = "dist/src/machine_drivers/run_second_half.js"
-
-    const commands = [[first_half], [second_half]];//[[`--`, `-n`, `${displayName}`, `-i`, `${appId}`]];
+    const first_half_a = "dist/src/machine_drivers/run_first_half_A.js"
+    const second_half_a = "dist/src/machine_drivers/run_second_half_A.js"
+    const first_half_b = "dist/src/machine_drivers/run_first_half_B.js"
+    const second_half_b = "dist/src/machine_drivers/run_second_half_B.js"
+    const commands = argv.choiceAorB === "a" ? [[first_half_a], [second_half_a]]
+        : argv.choiceAorB === "b" ? [[first_half_b], [second_half_b]] : undefined
+    if (!commands) { throw Error(`Invalid argument ${argv.choiceAorB} given`)}
 
     const processes: ReturnType<typeof execa>[] = [];
     // Each time we execute a command we start 8 machines
