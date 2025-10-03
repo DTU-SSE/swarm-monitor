@@ -8,7 +8,7 @@ import { s0, s1, s2, s5, transport, type Score } from '../../machines/warehouse_
 const [transportAdapted, s0Adapted] = Composition.adaptMachine(WarehouseProtocol.transportRole, carFactoryProtocol, 3, subsCarFactory, [transport, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -45,4 +45,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

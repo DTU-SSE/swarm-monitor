@@ -10,7 +10,7 @@ const colors = ["red", "blue", "green"]
 const [painterAdapted, s0Adapted] = Composition.adaptMachine(PaintShopProtocol.painterRole, carFactoryProtocol, 1, subsCarFactory, [painter, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -27,4 +27,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

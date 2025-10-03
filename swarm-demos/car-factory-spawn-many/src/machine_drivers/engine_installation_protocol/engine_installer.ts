@@ -7,7 +7,7 @@ import { engineInstaller, s0, s1, s3 } from '../../machines/engine_installation_
 const [engineInstallerAdapted, s0Adapted] = Composition.adaptMachine(EngineInstallationProtocol.engineInstallerRole, carFactoryProtocol, 2, subsCarFactory, [engineInstaller, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -26,4 +26,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

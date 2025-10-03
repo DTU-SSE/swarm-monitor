@@ -7,7 +7,7 @@ import { s0, s1, s2, windowInstaller } from '../../machines/window_installation_
 const [windowInstallerAdapted, s0Adapted] = Composition.adaptMachine(WindowInstallationProtocol.windowInstallerRole, carFactoryProtocol, 5, subsCarFactory, [windowInstaller, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -32,4 +32,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

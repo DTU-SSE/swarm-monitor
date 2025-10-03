@@ -7,7 +7,7 @@ import { carBodyChecker, s0 } from '../../machines/steel_press_protocol/car_body
 const [carBodyCheckerAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.carBodyCheckerRole, carFactoryProtocol, 0, subsCarFactory, [carBodyChecker, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -28,4 +28,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

@@ -7,7 +7,7 @@ import { s0, steelTransport } from '../../machines/steel_press_protocol/steel_tr
 const [steelTransportAdapted, s0Adapted] = Composition.adaptMachine(SteelPressProtocol.steelTransportRole, carFactoryProtocol, 0, subsCarFactory, [steelTransport, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -28,4 +28,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

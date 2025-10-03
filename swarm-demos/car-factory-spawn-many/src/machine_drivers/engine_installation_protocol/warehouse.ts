@@ -7,12 +7,11 @@ import { s0, s1, s2, warehouse } from '../../machines/engine_installation_protoc
 const [warehouseAdapted, s0Adapted] = Composition.adaptMachine(EngineInstallationProtocol.warehouseRole, carFactoryProtocol, 2, subsCarFactory, [warehouse, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
   const machine = createMachineRunnerBT(app, tags, s0Adapted, undefined, warehouseAdapted)
-  printState(warehouseAdapted.machineName, s0Adapted.mechanism.name, undefined)
 
   for await (const state of machine) {
     if (state.isLike(s1)) {
@@ -27,4 +26,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

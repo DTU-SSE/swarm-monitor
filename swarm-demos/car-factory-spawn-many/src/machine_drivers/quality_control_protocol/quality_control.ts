@@ -7,7 +7,7 @@ import { qualityControl, s0, s1 } from '../../machines/quality_control_protocol/
 const [qualityControlAdapted, s0Adapted] = Composition.adaptMachine(QualityControlProtocol.qualityControlRole, carFactoryProtocol, 6, subsCarFactory, [qualityControl, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -27,4 +27,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()

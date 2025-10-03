@@ -7,7 +7,7 @@ import { s0, s1, s2, wheelInstaller } from '../../machines/wheel_installation_pr
 const [wheelInstallerAdapted, s0Adapted] = Composition.adaptMachine(WheelInstallationProtocol.wheelInstallerRole, carFactoryProtocol, 4, subsCarFactory, [wheelInstaller, s0]).data!
 
 // Run the adapted machine
-async function main() {
+export async function main() {
   const argv = getArgs()
   const app = await Actyx.of(manifestFromArgs(argv))
   const tags = Composition.tagWithEntityId(argv.displayName)
@@ -32,4 +32,4 @@ async function main() {
   app.dispose()
 }
 
-main()
+//main()
