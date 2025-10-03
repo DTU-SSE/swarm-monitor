@@ -5,7 +5,6 @@ import { main as carBodyChecker } from "./steel_press_protocol/car_body_checker.
 import { main as painterMain } from "./paint_shop_protocol/painter.js";
 import { main as engineInstallerMain } from "./engine_installation_protocol/engine_installer.js";
 import { main as warehouseMain } from "./engine_installation_protocol/warehouse.js";
-import { main as engineCheckerMain } from "./engine_installation_protocol/engine_checker.js";
 import { runAsyncFunctionsA } from "./call_async_functions.js";
 
 const mainFunctions = [
@@ -15,8 +14,7 @@ const mainFunctions = [
     carBodyChecker,
     painterMain,
     engineInstallerMain,
-    warehouseMain,
-    engineCheckerMain
+    warehouseMain
 ]
 
 runAsyncFunctionsA(mainFunctions, 8)
