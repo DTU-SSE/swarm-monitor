@@ -32,26 +32,34 @@ async function main() {
         : argv.choiceAorB === "b" ? [[first_half_b], [second_half_b]] : undefined
     if (!commands) { throw Error(`Invalid argument ${argv.choiceAorB} given`)}
 
+    const transporterCommand = "dist/src/machine_drivers/run_two_transporters_B.js"
+
     const processes: ReturnType<typeof execa>[] = [];
     // Each time we execute a command we start 8 machines
 
-    const quotient = Math.floor(N / 8)
+    const quotient = Math.floor(N / 7)
     // Spawn processes
     for (let i = 0; i < quotient; i++) {
         const p = execa(`node`, commands[i % commands.length], {
             stdout: "ignore",
             stderr: "ignore",
         });
-        console.log(`Spawned process ${i * 8}`)
-
+         console.log(`Spawned process ${i}/${Math.floor(N / 7) + 2}`)
         processes.push(p);
     }
+    processes.push(execa(`node`, [transporterCommand], {
+        stdout: "ignore",
+        stderr: "ignore",
+    }));
+
+    console.log(`Spawned process ${Math.floor(N / 7) + 2}/${Math.floor(N / 7) + 2}`)
+
 
     // Update termination spinner as processes exit
     for (const p of processes) {
         p.then(() => {
             terminatedCount++;
-            console.log(`Terminated count: ${terminatedCount * 8}`)
+            console.log(`Terminated count: ${terminatedCount}/${Math.floor(N / 7) + 2}`)
         }).catch((err) => {
             console.log(`Process failed: ${err}`);
         });

@@ -1,3 +1,4 @@
+import { main as engineCheckerMain } from "./engine_installation_protocol/engine_checker.js";
 import { main as baseStationMain } from "./warehouse_protocol/base_station.js";
 import { main as smartTransportMain } from "./warehouse_protocol/smart_transport.js";
 import { main as basicTransportMain } from "./warehouse_protocol/basic_transport.js";
@@ -11,13 +12,14 @@ import { runAsyncFunctionsB } from "./call_async_functions.js";
 
 const mainFunctions = [
     baseStationMain,
-    smartTransportMain,
-    basicTransportMain,
+    //smartTransportMain,
+    //basicTransportMain,
     wheelInstallerMain,
     wheelCheckerMain,
     windowInstallerMain,
     windowCheckerMain,
-    qualityControlMain
+    qualityControlMain,
+    engineCheckerMain
 ]
 
 runAsyncFunctionsB(mainFunctions)
