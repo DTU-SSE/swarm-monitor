@@ -65,11 +65,32 @@ export interface SteelRoll {
  */
 export interface SteelParts {
     /**
-     * @generated from protobuf field: car_factory_messages.Meta meta = 1
+     * @generated from protobuf field: string part = 1
+     */
+    part: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 2
      */
     meta?: Meta;
     /**
-     * @generated from protobuf field: string lbj = 2
+     * @generated from protobuf field: string lbj = 3
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.PartialCarBody
+ */
+export interface PartialCarBody {
+    /**
+     * @generated from protobuf field: repeated string parts = 1
+     */
+    parts: string[];
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 2
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 3
      */
     lbj: string;
 }
@@ -87,6 +108,490 @@ export interface CarBody {
     meta?: Meta;
     /**
      * @generated from protobuf field: string lbj = 3
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.PaintedCarBody
+ */
+export interface PaintedCarBody {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.ItemRequest
+ */
+export interface ItemRequest {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.Bid
+ */
+export interface Bid {
+    /**
+     * @generated from protobuf field: string transport_id = 1
+     */
+    transportId: string;
+    /**
+     * @generated from protobuf field: double delay = 2
+     */
+    delay: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.Selected
+ */
+export interface Selected {
+    /**
+     * @generated from protobuf field: string winner_transport = 1
+     */
+    winnerTransport: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 2
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 3
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.ReqGuidance
+ */
+export interface ReqGuidance {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.GiveGuidance
+ */
+export interface GiveGuidance {
+    /**
+     * @generated from protobuf field: repeated string directions = 1
+     */
+    directions: string[];
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 2
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 3
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.ItemPickupBasic
+ */
+export interface ItemPickupBasic {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.ItemPickupSmart
+ */
+export interface ItemPickupSmart {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.Handover
+ */
+export interface Handover {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.ItemDeliver
+ */
+export interface ItemDeliver {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.RequestEngine
+ */
+export interface RequestEngine {
+    /**
+     * @generated from protobuf field: string item = 1
+     */
+    item: string;
+    /**
+     * @generated from protobuf field: string to = 2
+     */
+    to: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 3
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 4
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.EngineInstalled
+ */
+export interface EngineInstalled {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 4
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 5
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.EngineChecked
+ */
+export interface EngineChecked {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 4
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 5
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.WheelPickup
+ */
+export interface WheelPickup {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_wheels = 4
+     */
+    numWheels: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.WheelInstalled
+ */
+export interface WheelInstalled {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_wheels = 4
+     */
+    numWheels: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.AllWheelsInstalled
+ */
+export interface AllWheelsInstalled {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_wheels = 4
+     */
+    numWheels: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.WindowPickup
+ */
+export interface WindowPickup {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_windows = 4
+     */
+    numWindows: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.WindowInstalled
+ */
+export interface WindowInstalled {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_windows = 4
+     */
+    numWindows: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.AllWindowsInstalled
+ */
+export interface AllWindowsInstalled {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_windows = 4
+     */
+    numWindows: number;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 5
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 6
+     */
+    lbj: string;
+}
+/**
+ * @generated from protobuf message car_factory_messages.FinishedCar
+ */
+export interface FinishedCar {
+    /**
+     * @generated from protobuf field: string shape = 1
+     */
+    shape: string;
+    /**
+     * @generated from protobuf field: string color = 2
+     */
+    color: string;
+    /**
+     * @generated from protobuf field: string engine = 3
+     */
+    engine: string;
+    /**
+     * @generated from protobuf field: double num_wheels = 4
+     */
+    numWheels: number;
+    /**
+     * @generated from protobuf field: double num_windows = 5
+     */
+    numWindows: number;
+    /**
+     * @generated from protobuf field: bool is_ok = 6
+     */
+    isOk: boolean;
+    /**
+     * @generated from protobuf field: car_factory_messages.Meta meta = 7
+     */
+    meta?: Meta;
+    /**
+     * @generated from protobuf field: string lbj = 8
      */
     lbj: string;
 }
@@ -110,11 +615,137 @@ export interface Event {
          */
         steelParts: SteelParts;
     } | {
+        oneofKind: "partialCarBody";
+        /**
+         * @generated from protobuf field: car_factory_messages.PartialCarBody partial_car_body = 3
+         */
+        partialCarBody: PartialCarBody;
+    } | {
         oneofKind: "carBody";
         /**
-         * @generated from protobuf field: car_factory_messages.CarBody car_body = 3
+         * @generated from protobuf field: car_factory_messages.CarBody car_body = 4
          */
         carBody: CarBody;
+    } | {
+        oneofKind: "paintedCarBody";
+        /**
+         * @generated from protobuf field: car_factory_messages.PaintedCarBody painted_car_body = 5
+         */
+        paintedCarBody: PaintedCarBody;
+    } | {
+        oneofKind: "itemRequest";
+        /**
+         * @generated from protobuf field: car_factory_messages.ItemRequest item_request = 6
+         */
+        itemRequest: ItemRequest;
+    } | {
+        oneofKind: "bid";
+        /**
+         * @generated from protobuf field: car_factory_messages.Bid bid = 7
+         */
+        bid: Bid;
+    } | {
+        oneofKind: "selected";
+        /**
+         * @generated from protobuf field: car_factory_messages.Selected selected = 8
+         */
+        selected: Selected;
+    } | {
+        oneofKind: "reqGuidance";
+        /**
+         * @generated from protobuf field: car_factory_messages.ReqGuidance req_guidance = 9
+         */
+        reqGuidance: ReqGuidance;
+    } | {
+        oneofKind: "giveGuidance";
+        /**
+         * @generated from protobuf field: car_factory_messages.GiveGuidance give_guidance = 10
+         */
+        giveGuidance: GiveGuidance;
+    } | {
+        oneofKind: "itemPickupBasic";
+        /**
+         * @generated from protobuf field: car_factory_messages.ItemPickupBasic item_pickup_basic = 11
+         */
+        itemPickupBasic: ItemPickupBasic;
+    } | {
+        oneofKind: "itemPickupSmart";
+        /**
+         * @generated from protobuf field: car_factory_messages.ItemPickupSmart item_pickup_smart = 12
+         */
+        itemPickupSmart: ItemPickupSmart;
+    } | {
+        oneofKind: "handover";
+        /**
+         * @generated from protobuf field: car_factory_messages.Handover handover = 13
+         */
+        handover: Handover;
+    } | {
+        oneofKind: "itemDeliver";
+        /**
+         * @generated from protobuf field: car_factory_messages.ItemDeliver item_deliver = 14
+         */
+        itemDeliver: ItemDeliver;
+    } | {
+        oneofKind: "requestEngine";
+        /**
+         * @generated from protobuf field: car_factory_messages.RequestEngine request_engine = 15
+         */
+        requestEngine: RequestEngine;
+    } | {
+        oneofKind: "engineInstalled";
+        /**
+         * @generated from protobuf field: car_factory_messages.EngineInstalled engine_installed = 16
+         */
+        engineInstalled: EngineInstalled;
+    } | {
+        oneofKind: "engineChecked";
+        /**
+         * @generated from protobuf field: car_factory_messages.EngineChecked engine_checked = 17
+         */
+        engineChecked: EngineChecked;
+    } | {
+        oneofKind: "wheelPickup";
+        /**
+         * @generated from protobuf field: car_factory_messages.WheelPickup wheel_pickup = 18
+         */
+        wheelPickup: WheelPickup;
+    } | {
+        oneofKind: "wheelInstalled";
+        /**
+         * @generated from protobuf field: car_factory_messages.WheelInstalled wheel_installed = 19
+         */
+        wheelInstalled: WheelInstalled;
+    } | {
+        oneofKind: "allWheelsInstalled";
+        /**
+         * @generated from protobuf field: car_factory_messages.AllWheelsInstalled all_wheels_installed = 20
+         */
+        allWheelsInstalled: AllWheelsInstalled;
+    } | {
+        oneofKind: "windowPickup";
+        /**
+         * @generated from protobuf field: car_factory_messages.WindowPickup window_pickup = 21
+         */
+        windowPickup: WindowPickup;
+    } | {
+        oneofKind: "windowInstalled";
+        /**
+         * @generated from protobuf field: car_factory_messages.WindowInstalled window_installed = 22
+         */
+        windowInstalled: WindowInstalled;
+    } | {
+        oneofKind: "allWindowsInstalled";
+        /**
+         * @generated from protobuf field: car_factory_messages.AllWindowsInstalled all_windows_installed = 23
+         */
+        allWindowsInstalled: AllWindowsInstalled;
+    } | {
+        oneofKind: "finishedCar";
+        /**
+         * @generated from protobuf field: car_factory_messages.FinishedCar finished_car = 24
+         */
+        finishedCar: FinishedCar;
     } | {
         oneofKind: undefined;
     };
@@ -280,12 +911,14 @@ export const SteelRoll = new SteelRoll$Type();
 class SteelParts$Type extends MessageType<SteelParts> {
     constructor() {
         super("car_factory_messages.SteelParts", [
-            { no: 1, name: "meta", kind: "message", T: () => Meta },
-            { no: 2, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "part", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "meta", kind: "message", T: () => Meta },
+            { no: 3, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value?: PartialMessage<SteelParts>): SteelParts {
         const message = globalThis.Object.create((this.messagePrototype!));
+        message.part = "";
         message.lbj = "";
         if (value !== undefined)
             reflectionMergePartial<SteelParts>(this, message, value);
@@ -296,10 +929,13 @@ class SteelParts$Type extends MessageType<SteelParts> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* car_factory_messages.Meta meta */ 1:
+                case /* string part */ 1:
+                    message.part = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 2:
                     message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
                     break;
-                case /* string lbj */ 2:
+                case /* string lbj */ 3:
                     message.lbj = reader.string();
                     break;
                 default:
@@ -314,12 +950,15 @@ class SteelParts$Type extends MessageType<SteelParts> {
         return message;
     }
     internalBinaryWrite(message: SteelParts, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* car_factory_messages.Meta meta = 1; */
+        /* string part = 1; */
+        if (message.part !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.part);
+        /* car_factory_messages.Meta meta = 2; */
         if (message.meta)
-            Meta.internalBinaryWrite(message.meta, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
-        /* string lbj = 2; */
+            Meta.internalBinaryWrite(message.meta, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 3; */
         if (message.lbj !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.lbj);
+            writer.tag(3, WireType.LengthDelimited).string(message.lbj);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -330,6 +969,68 @@ class SteelParts$Type extends MessageType<SteelParts> {
  * @generated MessageType for protobuf message car_factory_messages.SteelParts
  */
 export const SteelParts = new SteelParts$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class PartialCarBody$Type extends MessageType<PartialCarBody> {
+    constructor() {
+        super("car_factory_messages.PartialCarBody", [
+            { no: 1, name: "parts", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "meta", kind: "message", T: () => Meta },
+            { no: 3, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<PartialCarBody>): PartialCarBody {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.parts = [];
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<PartialCarBody>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PartialCarBody): PartialCarBody {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated string parts */ 1:
+                    message.parts.push(reader.string());
+                    break;
+                case /* car_factory_messages.Meta meta */ 2:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 3:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: PartialCarBody, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated string parts = 1; */
+        for (let i = 0; i < message.parts.length; i++)
+            writer.tag(1, WireType.LengthDelimited).string(message.parts[i]);
+        /* car_factory_messages.Meta meta = 2; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 3; */
+        if (message.lbj !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.PartialCarBody
+ */
+export const PartialCarBody = new PartialCarBody$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class CarBody$Type extends MessageType<CarBody> {
     constructor() {
@@ -393,12 +1094,1561 @@ class CarBody$Type extends MessageType<CarBody> {
  */
 export const CarBody = new CarBody$Type();
 // @generated message type with reflection information, may provide speed optimized methods
+class PaintedCarBody$Type extends MessageType<PaintedCarBody> {
+    constructor() {
+        super("car_factory_messages.PaintedCarBody", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<PaintedCarBody>): PaintedCarBody {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<PaintedCarBody>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PaintedCarBody): PaintedCarBody {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: PaintedCarBody, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.PaintedCarBody
+ */
+export const PaintedCarBody = new PaintedCarBody$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ItemRequest$Type extends MessageType<ItemRequest> {
+    constructor() {
+        super("car_factory_messages.ItemRequest", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ItemRequest>): ItemRequest {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<ItemRequest>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ItemRequest): ItemRequest {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ItemRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.ItemRequest
+ */
+export const ItemRequest = new ItemRequest$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Bid$Type extends MessageType<Bid> {
+    constructor() {
+        super("car_factory_messages.Bid", [
+            { no: 1, name: "transport_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "delay", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Bid>): Bid {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.transportId = "";
+        message.delay = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<Bid>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Bid): Bid {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string transport_id */ 1:
+                    message.transportId = reader.string();
+                    break;
+                case /* double delay */ 2:
+                    message.delay = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Bid, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string transport_id = 1; */
+        if (message.transportId !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.transportId);
+        /* double delay = 2; */
+        if (message.delay !== 0)
+            writer.tag(2, WireType.Bit64).double(message.delay);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.Bid
+ */
+export const Bid = new Bid$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Selected$Type extends MessageType<Selected> {
+    constructor() {
+        super("car_factory_messages.Selected", [
+            { no: 1, name: "winner_transport", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "meta", kind: "message", T: () => Meta },
+            { no: 3, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Selected>): Selected {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.winnerTransport = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<Selected>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Selected): Selected {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string winner_transport */ 1:
+                    message.winnerTransport = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 2:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 3:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Selected, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string winner_transport = 1; */
+        if (message.winnerTransport !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.winnerTransport);
+        /* car_factory_messages.Meta meta = 2; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 3; */
+        if (message.lbj !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.Selected
+ */
+export const Selected = new Selected$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ReqGuidance$Type extends MessageType<ReqGuidance> {
+    constructor() {
+        super("car_factory_messages.ReqGuidance", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ReqGuidance>): ReqGuidance {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<ReqGuidance>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ReqGuidance): ReqGuidance {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ReqGuidance, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.ReqGuidance
+ */
+export const ReqGuidance = new ReqGuidance$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class GiveGuidance$Type extends MessageType<GiveGuidance> {
+    constructor() {
+        super("car_factory_messages.GiveGuidance", [
+            { no: 1, name: "directions", kind: "scalar", repeat: 2 /*RepeatType.UNPACKED*/, T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "meta", kind: "message", T: () => Meta },
+            { no: 3, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<GiveGuidance>): GiveGuidance {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.directions = [];
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<GiveGuidance>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GiveGuidance): GiveGuidance {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* repeated string directions */ 1:
+                    message.directions.push(reader.string());
+                    break;
+                case /* car_factory_messages.Meta meta */ 2:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 3:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: GiveGuidance, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* repeated string directions = 1; */
+        for (let i = 0; i < message.directions.length; i++)
+            writer.tag(1, WireType.LengthDelimited).string(message.directions[i]);
+        /* car_factory_messages.Meta meta = 2; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 3; */
+        if (message.lbj !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.GiveGuidance
+ */
+export const GiveGuidance = new GiveGuidance$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ItemPickupBasic$Type extends MessageType<ItemPickupBasic> {
+    constructor() {
+        super("car_factory_messages.ItemPickupBasic", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ItemPickupBasic>): ItemPickupBasic {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<ItemPickupBasic>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ItemPickupBasic): ItemPickupBasic {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ItemPickupBasic, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.ItemPickupBasic
+ */
+export const ItemPickupBasic = new ItemPickupBasic$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ItemPickupSmart$Type extends MessageType<ItemPickupSmart> {
+    constructor() {
+        super("car_factory_messages.ItemPickupSmart", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ItemPickupSmart>): ItemPickupSmart {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<ItemPickupSmart>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ItemPickupSmart): ItemPickupSmart {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ItemPickupSmart, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.ItemPickupSmart
+ */
+export const ItemPickupSmart = new ItemPickupSmart$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class Handover$Type extends MessageType<Handover> {
+    constructor() {
+        super("car_factory_messages.Handover", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<Handover>): Handover {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<Handover>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Handover): Handover {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: Handover, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.Handover
+ */
+export const Handover = new Handover$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ItemDeliver$Type extends MessageType<ItemDeliver> {
+    constructor() {
+        super("car_factory_messages.ItemDeliver", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ItemDeliver>): ItemDeliver {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<ItemDeliver>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ItemDeliver): ItemDeliver {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ItemDeliver, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.ItemDeliver
+ */
+export const ItemDeliver = new ItemDeliver$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class RequestEngine$Type extends MessageType<RequestEngine> {
+    constructor() {
+        super("car_factory_messages.RequestEngine", [
+            { no: 1, name: "item", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "to", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "meta", kind: "message", T: () => Meta },
+            { no: 4, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<RequestEngine>): RequestEngine {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.item = "";
+        message.to = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<RequestEngine>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: RequestEngine): RequestEngine {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string item */ 1:
+                    message.item = reader.string();
+                    break;
+                case /* string to */ 2:
+                    message.to = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 3:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 4:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: RequestEngine, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string item = 1; */
+        if (message.item !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.item);
+        /* string to = 2; */
+        if (message.to !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.to);
+        /* car_factory_messages.Meta meta = 3; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 4; */
+        if (message.lbj !== "")
+            writer.tag(4, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.RequestEngine
+ */
+export const RequestEngine = new RequestEngine$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class EngineInstalled$Type extends MessageType<EngineInstalled> {
+    constructor() {
+        super("car_factory_messages.EngineInstalled", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "meta", kind: "message", T: () => Meta },
+            { no: 5, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<EngineInstalled>): EngineInstalled {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<EngineInstalled>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: EngineInstalled): EngineInstalled {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 4:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 5:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: EngineInstalled, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* car_factory_messages.Meta meta = 4; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 5; */
+        if (message.lbj !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.EngineInstalled
+ */
+export const EngineInstalled = new EngineInstalled$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class EngineChecked$Type extends MessageType<EngineChecked> {
+    constructor() {
+        super("car_factory_messages.EngineChecked", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "meta", kind: "message", T: () => Meta },
+            { no: 5, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<EngineChecked>): EngineChecked {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<EngineChecked>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: EngineChecked): EngineChecked {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* car_factory_messages.Meta meta */ 4:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 5:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: EngineChecked, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* car_factory_messages.Meta meta = 4; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 5; */
+        if (message.lbj !== "")
+            writer.tag(5, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.EngineChecked
+ */
+export const EngineChecked = new EngineChecked$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class WheelPickup$Type extends MessageType<WheelPickup> {
+    constructor() {
+        super("car_factory_messages.WheelPickup", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_wheels", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<WheelPickup>): WheelPickup {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWheels = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<WheelPickup>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: WheelPickup): WheelPickup {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_wheels */ 4:
+                    message.numWheels = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: WheelPickup, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_wheels = 4; */
+        if (message.numWheels !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWheels);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.WheelPickup
+ */
+export const WheelPickup = new WheelPickup$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class WheelInstalled$Type extends MessageType<WheelInstalled> {
+    constructor() {
+        super("car_factory_messages.WheelInstalled", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_wheels", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<WheelInstalled>): WheelInstalled {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWheels = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<WheelInstalled>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: WheelInstalled): WheelInstalled {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_wheels */ 4:
+                    message.numWheels = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: WheelInstalled, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_wheels = 4; */
+        if (message.numWheels !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWheels);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.WheelInstalled
+ */
+export const WheelInstalled = new WheelInstalled$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class AllWheelsInstalled$Type extends MessageType<AllWheelsInstalled> {
+    constructor() {
+        super("car_factory_messages.AllWheelsInstalled", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_wheels", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<AllWheelsInstalled>): AllWheelsInstalled {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWheels = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<AllWheelsInstalled>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AllWheelsInstalled): AllWheelsInstalled {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_wheels */ 4:
+                    message.numWheels = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: AllWheelsInstalled, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_wheels = 4; */
+        if (message.numWheels !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWheels);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.AllWheelsInstalled
+ */
+export const AllWheelsInstalled = new AllWheelsInstalled$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class WindowPickup$Type extends MessageType<WindowPickup> {
+    constructor() {
+        super("car_factory_messages.WindowPickup", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_windows", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<WindowPickup>): WindowPickup {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWindows = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<WindowPickup>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: WindowPickup): WindowPickup {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_windows */ 4:
+                    message.numWindows = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: WindowPickup, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_windows = 4; */
+        if (message.numWindows !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWindows);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.WindowPickup
+ */
+export const WindowPickup = new WindowPickup$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class WindowInstalled$Type extends MessageType<WindowInstalled> {
+    constructor() {
+        super("car_factory_messages.WindowInstalled", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_windows", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<WindowInstalled>): WindowInstalled {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWindows = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<WindowInstalled>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: WindowInstalled): WindowInstalled {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_windows */ 4:
+                    message.numWindows = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: WindowInstalled, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_windows = 4; */
+        if (message.numWindows !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWindows);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.WindowInstalled
+ */
+export const WindowInstalled = new WindowInstalled$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class AllWindowsInstalled$Type extends MessageType<AllWindowsInstalled> {
+    constructor() {
+        super("car_factory_messages.AllWindowsInstalled", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_windows", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "meta", kind: "message", T: () => Meta },
+            { no: 6, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<AllWindowsInstalled>): AllWindowsInstalled {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWindows = 0;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<AllWindowsInstalled>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AllWindowsInstalled): AllWindowsInstalled {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_windows */ 4:
+                    message.numWindows = reader.double();
+                    break;
+                case /* car_factory_messages.Meta meta */ 5:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 6:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: AllWindowsInstalled, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_windows = 4; */
+        if (message.numWindows !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWindows);
+        /* car_factory_messages.Meta meta = 5; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 6; */
+        if (message.lbj !== "")
+            writer.tag(6, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.AllWindowsInstalled
+ */
+export const AllWindowsInstalled = new AllWindowsInstalled$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class FinishedCar$Type extends MessageType<FinishedCar> {
+    constructor() {
+        super("car_factory_messages.FinishedCar", [
+            { no: 1, name: "shape", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 2, name: "color", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 3, name: "engine", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
+            { no: 4, name: "num_wheels", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 5, name: "num_windows", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
+            { no: 6, name: "is_ok", kind: "scalar", T: 8 /*ScalarType.BOOL*/ },
+            { no: 7, name: "meta", kind: "message", T: () => Meta },
+            { no: 8, name: "lbj", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<FinishedCar>): FinishedCar {
+        const message = globalThis.Object.create((this.messagePrototype!));
+        message.shape = "";
+        message.color = "";
+        message.engine = "";
+        message.numWheels = 0;
+        message.numWindows = 0;
+        message.isOk = false;
+        message.lbj = "";
+        if (value !== undefined)
+            reflectionMergePartial<FinishedCar>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: FinishedCar): FinishedCar {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string shape */ 1:
+                    message.shape = reader.string();
+                    break;
+                case /* string color */ 2:
+                    message.color = reader.string();
+                    break;
+                case /* string engine */ 3:
+                    message.engine = reader.string();
+                    break;
+                case /* double num_wheels */ 4:
+                    message.numWheels = reader.double();
+                    break;
+                case /* double num_windows */ 5:
+                    message.numWindows = reader.double();
+                    break;
+                case /* bool is_ok */ 6:
+                    message.isOk = reader.bool();
+                    break;
+                case /* car_factory_messages.Meta meta */ 7:
+                    message.meta = Meta.internalBinaryRead(reader, reader.uint32(), options, message.meta);
+                    break;
+                case /* string lbj */ 8:
+                    message.lbj = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: FinishedCar, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string shape = 1; */
+        if (message.shape !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.shape);
+        /* string color = 2; */
+        if (message.color !== "")
+            writer.tag(2, WireType.LengthDelimited).string(message.color);
+        /* string engine = 3; */
+        if (message.engine !== "")
+            writer.tag(3, WireType.LengthDelimited).string(message.engine);
+        /* double num_wheels = 4; */
+        if (message.numWheels !== 0)
+            writer.tag(4, WireType.Bit64).double(message.numWheels);
+        /* double num_windows = 5; */
+        if (message.numWindows !== 0)
+            writer.tag(5, WireType.Bit64).double(message.numWindows);
+        /* bool is_ok = 6; */
+        if (message.isOk !== false)
+            writer.tag(6, WireType.Varint).bool(message.isOk);
+        /* car_factory_messages.Meta meta = 7; */
+        if (message.meta)
+            Meta.internalBinaryWrite(message.meta, writer.tag(7, WireType.LengthDelimited).fork(), options).join();
+        /* string lbj = 8; */
+        if (message.lbj !== "")
+            writer.tag(8, WireType.LengthDelimited).string(message.lbj);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message car_factory_messages.FinishedCar
+ */
+export const FinishedCar = new FinishedCar$Type();
+// @generated message type with reflection information, may provide speed optimized methods
 class Event$Type extends MessageType<Event> {
     constructor() {
         super("car_factory_messages.Event", [
             { no: 1, name: "steel_roll", kind: "message", oneof: "sealedValue", T: () => SteelRoll },
             { no: 2, name: "steel_parts", kind: "message", oneof: "sealedValue", T: () => SteelParts },
-            { no: 3, name: "car_body", kind: "message", oneof: "sealedValue", T: () => CarBody }
+            { no: 3, name: "partial_car_body", kind: "message", oneof: "sealedValue", T: () => PartialCarBody },
+            { no: 4, name: "car_body", kind: "message", oneof: "sealedValue", T: () => CarBody },
+            { no: 5, name: "painted_car_body", kind: "message", oneof: "sealedValue", T: () => PaintedCarBody },
+            { no: 6, name: "item_request", kind: "message", oneof: "sealedValue", T: () => ItemRequest },
+            { no: 7, name: "bid", kind: "message", oneof: "sealedValue", T: () => Bid },
+            { no: 8, name: "selected", kind: "message", oneof: "sealedValue", T: () => Selected },
+            { no: 9, name: "req_guidance", kind: "message", oneof: "sealedValue", T: () => ReqGuidance },
+            { no: 10, name: "give_guidance", kind: "message", oneof: "sealedValue", T: () => GiveGuidance },
+            { no: 11, name: "item_pickup_basic", kind: "message", oneof: "sealedValue", T: () => ItemPickupBasic },
+            { no: 12, name: "item_pickup_smart", kind: "message", oneof: "sealedValue", T: () => ItemPickupSmart },
+            { no: 13, name: "handover", kind: "message", oneof: "sealedValue", T: () => Handover },
+            { no: 14, name: "item_deliver", kind: "message", oneof: "sealedValue", T: () => ItemDeliver },
+            { no: 15, name: "request_engine", kind: "message", oneof: "sealedValue", T: () => RequestEngine },
+            { no: 16, name: "engine_installed", kind: "message", oneof: "sealedValue", T: () => EngineInstalled },
+            { no: 17, name: "engine_checked", kind: "message", oneof: "sealedValue", T: () => EngineChecked },
+            { no: 18, name: "wheel_pickup", kind: "message", oneof: "sealedValue", T: () => WheelPickup },
+            { no: 19, name: "wheel_installed", kind: "message", oneof: "sealedValue", T: () => WheelInstalled },
+            { no: 20, name: "all_wheels_installed", kind: "message", oneof: "sealedValue", T: () => AllWheelsInstalled },
+            { no: 21, name: "window_pickup", kind: "message", oneof: "sealedValue", T: () => WindowPickup },
+            { no: 22, name: "window_installed", kind: "message", oneof: "sealedValue", T: () => WindowInstalled },
+            { no: 23, name: "all_windows_installed", kind: "message", oneof: "sealedValue", T: () => AllWindowsInstalled },
+            { no: 24, name: "finished_car", kind: "message", oneof: "sealedValue", T: () => FinishedCar }
         ]);
     }
     create(value?: PartialMessage<Event>): Event {
@@ -425,10 +2675,136 @@ class Event$Type extends MessageType<Event> {
                         steelParts: SteelParts.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).steelParts)
                     };
                     break;
-                case /* car_factory_messages.CarBody car_body */ 3:
+                case /* car_factory_messages.PartialCarBody partial_car_body */ 3:
+                    message.sealedValue = {
+                        oneofKind: "partialCarBody",
+                        partialCarBody: PartialCarBody.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).partialCarBody)
+                    };
+                    break;
+                case /* car_factory_messages.CarBody car_body */ 4:
                     message.sealedValue = {
                         oneofKind: "carBody",
                         carBody: CarBody.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).carBody)
+                    };
+                    break;
+                case /* car_factory_messages.PaintedCarBody painted_car_body */ 5:
+                    message.sealedValue = {
+                        oneofKind: "paintedCarBody",
+                        paintedCarBody: PaintedCarBody.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).paintedCarBody)
+                    };
+                    break;
+                case /* car_factory_messages.ItemRequest item_request */ 6:
+                    message.sealedValue = {
+                        oneofKind: "itemRequest",
+                        itemRequest: ItemRequest.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).itemRequest)
+                    };
+                    break;
+                case /* car_factory_messages.Bid bid */ 7:
+                    message.sealedValue = {
+                        oneofKind: "bid",
+                        bid: Bid.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).bid)
+                    };
+                    break;
+                case /* car_factory_messages.Selected selected */ 8:
+                    message.sealedValue = {
+                        oneofKind: "selected",
+                        selected: Selected.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).selected)
+                    };
+                    break;
+                case /* car_factory_messages.ReqGuidance req_guidance */ 9:
+                    message.sealedValue = {
+                        oneofKind: "reqGuidance",
+                        reqGuidance: ReqGuidance.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).reqGuidance)
+                    };
+                    break;
+                case /* car_factory_messages.GiveGuidance give_guidance */ 10:
+                    message.sealedValue = {
+                        oneofKind: "giveGuidance",
+                        giveGuidance: GiveGuidance.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).giveGuidance)
+                    };
+                    break;
+                case /* car_factory_messages.ItemPickupBasic item_pickup_basic */ 11:
+                    message.sealedValue = {
+                        oneofKind: "itemPickupBasic",
+                        itemPickupBasic: ItemPickupBasic.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).itemPickupBasic)
+                    };
+                    break;
+                case /* car_factory_messages.ItemPickupSmart item_pickup_smart */ 12:
+                    message.sealedValue = {
+                        oneofKind: "itemPickupSmart",
+                        itemPickupSmart: ItemPickupSmart.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).itemPickupSmart)
+                    };
+                    break;
+                case /* car_factory_messages.Handover handover */ 13:
+                    message.sealedValue = {
+                        oneofKind: "handover",
+                        handover: Handover.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).handover)
+                    };
+                    break;
+                case /* car_factory_messages.ItemDeliver item_deliver */ 14:
+                    message.sealedValue = {
+                        oneofKind: "itemDeliver",
+                        itemDeliver: ItemDeliver.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).itemDeliver)
+                    };
+                    break;
+                case /* car_factory_messages.RequestEngine request_engine */ 15:
+                    message.sealedValue = {
+                        oneofKind: "requestEngine",
+                        requestEngine: RequestEngine.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).requestEngine)
+                    };
+                    break;
+                case /* car_factory_messages.EngineInstalled engine_installed */ 16:
+                    message.sealedValue = {
+                        oneofKind: "engineInstalled",
+                        engineInstalled: EngineInstalled.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).engineInstalled)
+                    };
+                    break;
+                case /* car_factory_messages.EngineChecked engine_checked */ 17:
+                    message.sealedValue = {
+                        oneofKind: "engineChecked",
+                        engineChecked: EngineChecked.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).engineChecked)
+                    };
+                    break;
+                case /* car_factory_messages.WheelPickup wheel_pickup */ 18:
+                    message.sealedValue = {
+                        oneofKind: "wheelPickup",
+                        wheelPickup: WheelPickup.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).wheelPickup)
+                    };
+                    break;
+                case /* car_factory_messages.WheelInstalled wheel_installed */ 19:
+                    message.sealedValue = {
+                        oneofKind: "wheelInstalled",
+                        wheelInstalled: WheelInstalled.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).wheelInstalled)
+                    };
+                    break;
+                case /* car_factory_messages.AllWheelsInstalled all_wheels_installed */ 20:
+                    message.sealedValue = {
+                        oneofKind: "allWheelsInstalled",
+                        allWheelsInstalled: AllWheelsInstalled.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).allWheelsInstalled)
+                    };
+                    break;
+                case /* car_factory_messages.WindowPickup window_pickup */ 21:
+                    message.sealedValue = {
+                        oneofKind: "windowPickup",
+                        windowPickup: WindowPickup.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).windowPickup)
+                    };
+                    break;
+                case /* car_factory_messages.WindowInstalled window_installed */ 22:
+                    message.sealedValue = {
+                        oneofKind: "windowInstalled",
+                        windowInstalled: WindowInstalled.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).windowInstalled)
+                    };
+                    break;
+                case /* car_factory_messages.AllWindowsInstalled all_windows_installed */ 23:
+                    message.sealedValue = {
+                        oneofKind: "allWindowsInstalled",
+                        allWindowsInstalled: AllWindowsInstalled.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).allWindowsInstalled)
+                    };
+                    break;
+                case /* car_factory_messages.FinishedCar finished_car */ 24:
+                    message.sealedValue = {
+                        oneofKind: "finishedCar",
+                        finishedCar: FinishedCar.internalBinaryRead(reader, reader.uint32(), options, (message.sealedValue as any).finishedCar)
                     };
                     break;
                 default:
@@ -449,9 +2825,72 @@ class Event$Type extends MessageType<Event> {
         /* car_factory_messages.SteelParts steel_parts = 2; */
         if (message.sealedValue.oneofKind === "steelParts")
             SteelParts.internalBinaryWrite(message.sealedValue.steelParts, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
-        /* car_factory_messages.CarBody car_body = 3; */
+        /* car_factory_messages.PartialCarBody partial_car_body = 3; */
+        if (message.sealedValue.oneofKind === "partialCarBody")
+            PartialCarBody.internalBinaryWrite(message.sealedValue.partialCarBody, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.CarBody car_body = 4; */
         if (message.sealedValue.oneofKind === "carBody")
-            CarBody.internalBinaryWrite(message.sealedValue.carBody, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+            CarBody.internalBinaryWrite(message.sealedValue.carBody, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.PaintedCarBody painted_car_body = 5; */
+        if (message.sealedValue.oneofKind === "paintedCarBody")
+            PaintedCarBody.internalBinaryWrite(message.sealedValue.paintedCarBody, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.ItemRequest item_request = 6; */
+        if (message.sealedValue.oneofKind === "itemRequest")
+            ItemRequest.internalBinaryWrite(message.sealedValue.itemRequest, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.Bid bid = 7; */
+        if (message.sealedValue.oneofKind === "bid")
+            Bid.internalBinaryWrite(message.sealedValue.bid, writer.tag(7, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.Selected selected = 8; */
+        if (message.sealedValue.oneofKind === "selected")
+            Selected.internalBinaryWrite(message.sealedValue.selected, writer.tag(8, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.ReqGuidance req_guidance = 9; */
+        if (message.sealedValue.oneofKind === "reqGuidance")
+            ReqGuidance.internalBinaryWrite(message.sealedValue.reqGuidance, writer.tag(9, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.GiveGuidance give_guidance = 10; */
+        if (message.sealedValue.oneofKind === "giveGuidance")
+            GiveGuidance.internalBinaryWrite(message.sealedValue.giveGuidance, writer.tag(10, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.ItemPickupBasic item_pickup_basic = 11; */
+        if (message.sealedValue.oneofKind === "itemPickupBasic")
+            ItemPickupBasic.internalBinaryWrite(message.sealedValue.itemPickupBasic, writer.tag(11, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.ItemPickupSmart item_pickup_smart = 12; */
+        if (message.sealedValue.oneofKind === "itemPickupSmart")
+            ItemPickupSmart.internalBinaryWrite(message.sealedValue.itemPickupSmart, writer.tag(12, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.Handover handover = 13; */
+        if (message.sealedValue.oneofKind === "handover")
+            Handover.internalBinaryWrite(message.sealedValue.handover, writer.tag(13, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.ItemDeliver item_deliver = 14; */
+        if (message.sealedValue.oneofKind === "itemDeliver")
+            ItemDeliver.internalBinaryWrite(message.sealedValue.itemDeliver, writer.tag(14, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.RequestEngine request_engine = 15; */
+        if (message.sealedValue.oneofKind === "requestEngine")
+            RequestEngine.internalBinaryWrite(message.sealedValue.requestEngine, writer.tag(15, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.EngineInstalled engine_installed = 16; */
+        if (message.sealedValue.oneofKind === "engineInstalled")
+            EngineInstalled.internalBinaryWrite(message.sealedValue.engineInstalled, writer.tag(16, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.EngineChecked engine_checked = 17; */
+        if (message.sealedValue.oneofKind === "engineChecked")
+            EngineChecked.internalBinaryWrite(message.sealedValue.engineChecked, writer.tag(17, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.WheelPickup wheel_pickup = 18; */
+        if (message.sealedValue.oneofKind === "wheelPickup")
+            WheelPickup.internalBinaryWrite(message.sealedValue.wheelPickup, writer.tag(18, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.WheelInstalled wheel_installed = 19; */
+        if (message.sealedValue.oneofKind === "wheelInstalled")
+            WheelInstalled.internalBinaryWrite(message.sealedValue.wheelInstalled, writer.tag(19, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.AllWheelsInstalled all_wheels_installed = 20; */
+        if (message.sealedValue.oneofKind === "allWheelsInstalled")
+            AllWheelsInstalled.internalBinaryWrite(message.sealedValue.allWheelsInstalled, writer.tag(20, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.WindowPickup window_pickup = 21; */
+        if (message.sealedValue.oneofKind === "windowPickup")
+            WindowPickup.internalBinaryWrite(message.sealedValue.windowPickup, writer.tag(21, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.WindowInstalled window_installed = 22; */
+        if (message.sealedValue.oneofKind === "windowInstalled")
+            WindowInstalled.internalBinaryWrite(message.sealedValue.windowInstalled, writer.tag(22, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.AllWindowsInstalled all_windows_installed = 23; */
+        if (message.sealedValue.oneofKind === "allWindowsInstalled")
+            AllWindowsInstalled.internalBinaryWrite(message.sealedValue.allWindowsInstalled, writer.tag(23, WireType.LengthDelimited).fork(), options).join();
+        /* car_factory_messages.FinishedCar finished_car = 24; */
+        if (message.sealedValue.oneofKind === "finishedCar")
+            FinishedCar.internalBinaryWrite(message.sealedValue.finishedCar, writer.tag(24, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

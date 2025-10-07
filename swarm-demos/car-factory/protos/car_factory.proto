@@ -22,8 +22,16 @@ message SteelRoll {
 
 message SteelParts {
 
-    Meta meta = 1;
-    string lbj = 2;
+    string part = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message PartialCarBody {
+
+    repeated string parts = 1;
+    Meta meta = 2;
+    string lbj = 3;
 }
 
 message CarBody {
@@ -33,12 +41,209 @@ message CarBody {
     string lbj = 3;
 }
 
+message PaintedCarBody {
+
+    string shape = 1;
+    string color = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message ItemRequest {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message Bid {
+
+    string transport_id = 1;
+    double delay = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message Selected {
+
+    string winner_transport = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message ReqGuidance {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message GiveGuidance {
+
+    repeated string directions = 1;
+    Meta meta = 2;
+    string lbj = 3;
+}
+
+message ItemPickupBasic {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message ItemPickupSmart {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message Handover {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message ItemDeliver {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message RequestEngine {
+
+    string item = 1;
+    string to = 2;
+    Meta meta = 3;
+    string lbj = 4;
+}
+
+message EngineInstalled {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    Meta meta = 4;
+    string lbj = 5;
+}
+
+message EngineChecked {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    Meta meta = 4;
+    string lbj = 5;
+}
+
+message WheelPickup {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_wheels = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message WheelInstalled {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_wheels = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message AllWheelsInstalled {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_wheels = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message WindowPickup {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_windows = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message WindowInstalled {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_windows = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message AllWindowsInstalled {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_windows = 4;
+    Meta meta = 5;
+    string lbj = 6;
+}
+
+message FinishedCar {
+
+    string shape = 1;
+    string color = 2;
+    string engine = 3;
+    double num_wheels = 4;
+    double num_windows = 5;
+    bool is_ok = 6;
+    Meta meta = 7;
+    string lbj = 8;
+}
+
 message Event {
 
     oneof sealed_value {
 
         SteelRoll steel_roll = 1;
         SteelParts steel_parts = 2;
-        CarBody car_body = 3;
+        PartialCarBody partial_car_body = 3;
+        CarBody car_body = 4;
+        PaintedCarBody painted_car_body = 5;
+        ItemRequest item_request = 6;
+        Bid bid = 7;
+        Selected selected = 8;
+        ReqGuidance req_guidance = 9;
+        GiveGuidance give_guidance = 10;
+        ItemPickupBasic item_pickup_basic = 11;
+        ItemPickupSmart item_pickup_smart = 12;
+        Handover handover = 13;
+        ItemDeliver item_deliver = 14;
+        RequestEngine request_engine = 15;
+        EngineInstalled engine_installed = 16;
+        EngineChecked engine_checked = 17;
+        WheelPickup wheel_pickup = 18;
+        WheelInstalled wheel_installed = 19;
+        AllWheelsInstalled all_wheels_installed = 20;
+        WindowPickup window_pickup = 21;
+        WindowInstalled window_installed = 22;
+        AllWindowsInstalled all_windows_installed = 23;
+        FinishedCar finished_car = 24;
     }
 }

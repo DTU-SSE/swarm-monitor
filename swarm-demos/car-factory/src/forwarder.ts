@@ -1,4 +1,4 @@
-import { manifest, Composition, Events } from "./protocol.js";
+import { Composition, Events } from "./protocol.js";
 import { Event } from "./generated/car_factory.js";
 import { Actyx, ActyxEvent } from "@actyx/sdk";
 import type { EventSubscription } from "@actyx/sdk";
@@ -29,8 +29,8 @@ async function main() {
               default: 9999,
             })
             .parseAsync();
-    const app = await Actyx.of(manifest);
-    const tags = Composition.tagWithEntityId("car-factory");
+    const app = await Actyx.of({appId:"com.example.car-factory.session1",displayName:"car-factory-session1",version:"1.0.0"});
+    const tags = Composition.tagWithEntityId("car-factory-session1");
     const eventSubscriptions: EventSubscription = { query: tags };
     const HOST = `${argv.address}`;
     const PORT = argv.port;
