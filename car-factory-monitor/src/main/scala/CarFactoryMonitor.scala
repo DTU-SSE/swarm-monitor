@@ -31,6 +31,8 @@ import car_factory_messages.car_factory.FinishedCar
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
+import java.net.{ServerSocket, Socket}
+import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.Future
@@ -72,7 +74,51 @@ def printMetaInner(meta: Option[Meta]) = meta match
     println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
   case None => ()
 
+// TCP version
 def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
+  val (monitorFut, monitorRef) = monitor(algorithm).start()
+  val socket                   = new ServerSocket()
+  socket.bind(new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port))
+
+  println(
+    s"${Console.GREEN}🚀 Car factory Monitor ready and listening on ${host}:${port} 📦${Console.RESET}"
+  )
+  receiveLoop(socket, monitorFut, monitorRef)
+
+@tailrec
+def receiveLoop(
+    socket: ServerSocket,
+    monitorFut: Future[Unit],
+    monitorRef: ActorRef[Event]
+): Unit =
+  // Accept a client (blocking). Do this for EACH forwarded event...
+  val clientSocket = socket.accept()
+  receiveMessage(clientSocket, monitorFut, monitorRef)
+
+  // FIXME
+  // Tail-recursive call to continue receiving
+  receiveLoop(socket, monitorFut, monitorRef)
+
+def receiveMessage(
+    socket: Socket,
+    monitorFut: Future[Unit],
+    monitorRef: ActorRef[Event]
+): Unit =
+  val inputStream = socket.getInputStream()
+  val bufferSize = 4096
+  val buffer = new Array[Byte](bufferSize)
+  val bytesRead = inputStream.read(buffer)
+
+  if (bytesRead != -1) {
+    val data = buffer.take(bytesRead)
+    val event = EventMessage.parseFrom(data).toEvent
+    monitorRef ! event
+  }
+
+  socket.close()
+
+// UDP version
+/* def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
   val (monitorFut, monitorRef) = monitor(algorithm).start()
   val socket                   = new DatagramSocket(port, java.net.InetAddress.getByName(host))
 
@@ -103,4 +149,4 @@ def receiveLoop(
 
   // FIXME
   // Tail-recursive call to continue receiving
-  receiveLoop(socket, monitorFut, monitorRef)
+  receiveLoop(socket, monitorFut, monitorRef) */
