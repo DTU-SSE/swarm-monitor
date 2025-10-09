@@ -6,12 +6,13 @@ import java.net.DatagramSocket
 import java.net.{ServerSocket, Socket}
 import java.io.{BufferedReader, InputStreamReader, PrintWriter}
 import scala.annotation.tailrec
-import scala.concurrent.Await
 import scala.concurrent.Future
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import notifications.ActyxEventNotification
+import requests.{ActyxEventRequest, ActyxEventReply}
 import pt.unl.fct.di.novasys.babel.core.GenericProtocol
 import java.util.Properties
 import scala.compiletime.uninitialized
@@ -27,15 +28,27 @@ class CarFactoryMonitor
   private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) = monitor(CarFactoryMonitor.algorithm).start()
 
   override def init(properties: Properties): Unit =
-    println("HEHEHEHE FROM CARFACTORYMONITOR INIT")
-    subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
-    println("HEHEHEHE FROM CARFACTORYMONITOR INIT 2")
+    //subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
+    registerRequestHandler(ActyxEventRequest.requestId, onActyxEventRequest)
+
     
 
+  // Called when receiving an ActyxEventRequest
+  private def onActyxEventRequest(actyxEventRequest: ActyxEventRequest, sourceProto: Short): Unit = 
+    println("HEHEHEHE FROM CARFACTORYMONITOR 3")
+    val event = EventMessage.parseFrom(actyxEventRequest.payload).toEvent
+    monitorRef ! event
+    //val f = Future { monitorRef ! event }
+    /* f.onComplete {
+        case _ => sendReply(new ActyxEventReply, ActyxEventAdaptor.protoId)
+      } */
+    //Await.result(f, Duration.Inf)
+    println("WHAT")
+    sendReply(new ActyxEventReply, ActyxEventAdaptor.protoId)
 
   // Called when receiving an ActyxEventNotification
   private def onActyxEventNotification(actyxEventNotification: ActyxEventNotification, sourceProto: Short): Unit = 
-    println("HEHEHEHE FROM CARFACTORYMONITOR 3")
+    println("HEHEHEHE FROM CARFACTORYMONITOR 4")
     val event = EventMessage.parseFrom(actyxEventNotification.payload).toEvent
     monitorRef ! event
 

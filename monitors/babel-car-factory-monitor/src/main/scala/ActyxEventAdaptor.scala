@@ -10,17 +10,18 @@ import java.net.InetAddress
 import utils.NetworkingUtilities
 import scala.compiletime.uninitialized
 import scala.annotation.tailrec
-import java.util.concurrent.Executors
+import requests.{ActyxEventRequest, ActyxEventReply}
+/* import java.util.concurrent.Executors
 import scala.concurrent.Await
 import scala.concurrent.blocking
 import scala.concurrent.duration.Duration
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Success
-import scala.util.Failure
+import scala.util.Failure */
 
-implicit val ec: ExecutionContext =
-  ExecutionContext.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor())
+/* implicit val ec: ExecutionContext =
+  ExecutionContext.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor()) */
 
 class ActyxEventAdaptor
     extends GenericProtocol(
@@ -33,6 +34,7 @@ class ActyxEventAdaptor
     new Array[Byte](ActyxEventAdaptor.bufferSize)
 
   override def init(properties: Properties): Unit =
+    registerReplyHandler(ActyxEventReply.replyId, onActyxEventReply)
     socket = createDatagramSocket(properties) match
       case Some(socket) => socket
       case None         => return
@@ -42,21 +44,13 @@ class ActyxEventAdaptor
           .getLocalAddress()
           .getHostAddress()}:${socket.getLocalPort()} 📦${Console.RESET}"
     )
-    val future = receivePackets()
-    Await.result(future, Duration.Inf)
-    /*
-    future.onComplete {
-        case Success(_) => println("Finished receiving packets")
-        case Failure(exception) => println(s"Receiving failed: ${exception.getMessage}")
-    }
-    sys.addShutdownHook {
-        println("Closing socket...")
-        socket.close()
-        //ec.shutdown()
-    }
+    receivePacket()
 
-    // Keep JVM alive without blocking
-    Future.never.foreach(_ => ()) */
+  // Called when receiving an ActyxEventReply. Would be nicer to have it work with notification though. This seems weird.
+  private def onActyxEventReply(actyxEventReply: ActyxEventReply, sourceProto: Short): Unit =
+    println("Hi from onActyxEventReply")
+    receivePacket()
+    println("Hi from onActyxEventReply 2")
 
   private def createDatagramSocket(
       properties: Properties
@@ -82,14 +76,15 @@ class ActyxEventAdaptor
       case None => None
 
   //@tailrec
-  private def receivePackets(): Future[Unit] =//(using ec: ExecutionContext): Future[Unit] =
+  private def receivePacket(): Unit =
     if socket.isClosed then 
-        //Future.successful((println("Socket closed.")))
-        Future.unit
+        println("Socket is closed")
+        ()
     else
         val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
         // Receive a packet (blocking)
-        /* socket.receive(packet)
+        println("Waiting for packet")
+        socket.receive(packet)
         // extract payload from packet, remove any trailing 0s
         val data = java.util.Arrays.copyOfRange(
         packet.getData,
@@ -97,35 +92,10 @@ class ActyxEventAdaptor
         packet.getOffset + packet.getLength
         )
         //println(s"Received: ${data}")
-        triggerNotification(new ActyxEventNotification(data))
-        receivePackets() */
-        // Receive a packet (non-blocking)
-        val receiveFuture = Future(blocking(socket.receive(packet)))
-        receiveFuture
-            .map { _ => 
-                // extract payload from packet, remove any trailing 0s
-                val data = java.util.Arrays.copyOfRange(
-                    packet.getData,
-                    packet.getOffset,
-                    packet.getOffset + packet.getLength
-                )
-                println(s"Received: ${data}")
-                triggerNotification(new ActyxEventNotification(data))
-            }
-            .recover { case e => println(s"Receive failed: ${e.getMessage}") }
-            // Wait for next packet
-            .flatMap(_ => receivePackets())
-        /* val future = Future {
-            socket.receive(packet)
-            val data = java.util.Arrays.copyOfRange(
-                    packet.getData,
-                    packet.getOffset,
-                    packet.getOffset + packet.getLength
-            )
-            println(s"Received: ${data}")
-            triggerNotification(new ActyxEventNotification(data))
-        }
-        future.flatMap(_ => receivePackets()) */
+        //triggerNotification(new ActyxEventNotification(data))
+        sendRequest(new ActyxEventRequest(data), CarFactoryMonitor.protoId);
+
+        //receivePackets()
 
 object ActyxEventAdaptor:
   val protoName: String = "ActyxEventAdaptor"
