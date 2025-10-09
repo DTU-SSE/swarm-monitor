@@ -75,7 +75,7 @@ def printMetaInner(meta: Option[Meta]) = meta match
   case None => ()
 
 // TCP version
-def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
+/* def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
   val (monitorFut, monitorRef) = monitor(algorithm).start()
   val socket                   = new ServerSocket()
   socket.bind(new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port))
@@ -115,10 +115,10 @@ def receiveMessage(
     monitorRef ! event
   }
 
-  socket.close()
+  socket.close() */
 
 // UDP version
-/* def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
+def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
   val (monitorFut, monitorRef) = monitor(algorithm).start()
   val socket                   = new DatagramSocket(port, java.net.InetAddress.getByName(host))
 
@@ -149,4 +149,4 @@ def receiveLoop(
 
   // FIXME
   // Tail-recursive call to continue receiving
-  receiveLoop(socket, monitorFut, monitorRef) */
+  receiveLoop(socket, monitorFut, monitorRef)
