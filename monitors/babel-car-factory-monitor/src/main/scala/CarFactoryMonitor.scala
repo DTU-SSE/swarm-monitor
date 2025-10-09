@@ -28,30 +28,12 @@ class CarFactoryMonitor
   private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) = monitor(CarFactoryMonitor.algorithm).start()
 
   override def init(properties: Properties): Unit =
-    //subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
-    registerRequestHandler(ActyxEventRequest.requestId, onActyxEventRequest)
-
-    
-
-  // Called when receiving an ActyxEventRequest
-  private def onActyxEventRequest(actyxEventRequest: ActyxEventRequest, sourceProto: Short): Unit = 
-    println("HEHEHEHE FROM CARFACTORYMONITOR 3")
-    val event = EventMessage.parseFrom(actyxEventRequest.payload).toEvent
-    monitorRef ! event
-    //val f = Future { monitorRef ! event }
-    /* f.onComplete {
-        case _ => sendReply(new ActyxEventReply, ActyxEventAdaptor.protoId)
-      } */
-    //Await.result(f, Duration.Inf)
-    println("WHAT")
-    sendReply(new ActyxEventReply, ActyxEventAdaptor.protoId)
+    subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
 
   // Called when receiving an ActyxEventNotification
   private def onActyxEventNotification(actyxEventNotification: ActyxEventNotification, sourceProto: Short): Unit = 
-    println("HEHEHEHE FROM CARFACTORYMONITOR 4")
     val event = EventMessage.parseFrom(actyxEventNotification.payload).toEvent
     monitorRef ! event
-
 
   def monitor(algorithm: MatchingAlgorithm) =
     Actor[Event, Unit] {
@@ -96,69 +78,3 @@ object CarFactoryMonitor:
   val protoId: Short = 102
   val logger: Logger = LogManager.getLogger(CarFactoryMonitor)
   val algorithm: MatchingAlgorithm = MatchingAlgorithm.WhileLazyAlgorithm
-
-/* def monitor(algorithm: MatchingAlgorithm) =
-  Actor[Event, Unit] {
-    receive { (self: ActorRef[Event]) =>
-      {
-        case SteelParts(part, meta, _, _) =>
-          println(
-            s"${Console.BLUE}${Console.UNDERLINED}Matched messages: SteelParts(part = $part, ...)${Console.RESET}\n"
-          )
-          Continue
-        case CarBody(shape1, meta1, lbj1, _)
-             &:& PaintedCarBody(shape2, color2, meta2, lbj2, _) if shape1 == shape2 =>
-          println(
-            s"${Console.BLUE}${Console.UNDERLINED}Matched messages: CarBody(shape = $shape1, ...), PaintedCarBody(shape = $shape2, color = $color2, ...)${Console.RESET}\n"
-          )
-          Continue
-        case FinishedCar(_, _, _, _, _, _, meta, _, _) =>
-          println(
-            s"${Console.RED}${Console.UNDERLINED}Matched messages: FinishedCar(...)${Console.RESET}\n"
-          )
-          println(
-            s"${Console.RED}${Console.UNDERLINED}Shutting down monitor actor...${Console.RESET}"
-          )
-          Stop(())
-      }
-    }(algorithm)
-  }
-
-def printMetaInner(meta: Option[Meta]) = meta match
-  case Some(value) =>
-    println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
-  case None => ()
-
-// UDP version
-def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
-  val (monitorFut, monitorRef) = monitor(algorithm).start()
-  val socket                   = new DatagramSocket(port, java.net.InetAddress.getByName(host))
-
-  println(
-    s"${Console.GREEN}🚀 Car factory Monitor ready and listening on ${host}:${port} 📦${Console.RESET}"
-  )
-  receiveLoop(socket, monitorFut, monitorRef)
-
-@tailrec
-def receiveLoop(
-    socket: DatagramSocket,
-    monitorFut: Future[Unit],
-    monitorRef: ActorRef[Event]
-): Unit =
-  val bufferSize = 4096
-  val packet     = new DatagramPacket(new Array[Byte](bufferSize), bufferSize)
-  // Receive a packet (blocking)
-  socket.receive(packet)
-  // extract payload from packet, remove any trailing 0s
-  val data = java.util.Arrays.copyOfRange(
-    packet.getData,
-    packet.getOffset,
-    packet.getOffset + packet.getLength
-  )
-
-  val event = EventMessage.parseFrom(data).toEvent
-  monitorRef ! event
-
-  // FIXME
-  // Tail-recursive call to continue receiving
-  receiveLoop(socket, monitorFut, monitorRef) */

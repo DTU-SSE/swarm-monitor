@@ -10,7 +10,7 @@ import java.net.InetAddress
 import utils.NetworkingUtilities
 import scala.compiletime.uninitialized
 import scala.annotation.tailrec
-import requests.{ActyxEventRequest, ActyxEventReply}
+//import requests.{ActyxEventRequest, ActyxEventReply}
 /* import java.util.concurrent.Executors
 import scala.concurrent.Await
 import scala.concurrent.blocking
@@ -34,7 +34,6 @@ class ActyxEventAdaptor
     new Array[Byte](ActyxEventAdaptor.bufferSize)
 
   override def init(properties: Properties): Unit =
-    registerReplyHandler(ActyxEventReply.replyId, onActyxEventReply)
     socket = createDatagramSocket(properties) match
       case Some(socket) => socket
       case None         => return
@@ -44,13 +43,8 @@ class ActyxEventAdaptor
           .getLocalAddress()
           .getHostAddress()}:${socket.getLocalPort()} 📦${Console.RESET}"
     )
-    receivePacket()
-
-  // Called when receiving an ActyxEventReply. Would be nicer to have it work with notification though. This seems weird.
-  private def onActyxEventReply(actyxEventReply: ActyxEventReply, sourceProto: Short): Unit =
-    println("Hi from onActyxEventReply")
-    receivePacket()
-    println("Hi from onActyxEventReply 2")
+    //receivePacket()
+    new Thread(() => receivePacket()).start()
 
   private def createDatagramSocket(
       properties: Properties
@@ -74,16 +68,14 @@ class ActyxEventAdaptor
       case Some(addresss) =>
         Some(DatagramSocket(port, InetAddress.getByName(addresss)))
       case None => None
-
-  //@tailrec
+  
+  @tailrec
   private def receivePacket(): Unit =
     if socket.isClosed then 
-        println("Socket is closed")
         ()
     else
         val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
         // Receive a packet (blocking)
-        println("Waiting for packet")
         socket.receive(packet)
         // extract payload from packet, remove any trailing 0s
         val data = java.util.Arrays.copyOfRange(
@@ -91,11 +83,8 @@ class ActyxEventAdaptor
         packet.getOffset,
         packet.getOffset + packet.getLength
         )
-        //println(s"Received: ${data}")
-        //triggerNotification(new ActyxEventNotification(data))
-        sendRequest(new ActyxEventRequest(data), CarFactoryMonitor.protoId);
-
-        //receivePackets()
+        triggerNotification(new ActyxEventNotification(data))
+        receivePacket()
 
 object ActyxEventAdaptor:
   val protoName: String = "ActyxEventAdaptor"

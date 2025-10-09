@@ -50,7 +50,7 @@ object Main:
     ParserForMethods(this).runOrExit(args) */
 
   val logger: Logger = LogManager.getLogger(getClass)
-
+  @main
   def main(args: Array[String]): Unit =
     val babel: Babel = Babel.getInstance
 
@@ -65,4 +65,5 @@ object Main:
     carFactoryMonitor.init(properties)
     actyxEventAdaptor.init(properties)
 
-    babel.start
+    babel.start()
+    Thread.sleep(Long.MaxValue)
