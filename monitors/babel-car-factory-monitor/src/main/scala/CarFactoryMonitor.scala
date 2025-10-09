@@ -1,33 +1,5 @@
-package car_factory_monitor
-
 import join_actors.api.*
-import car_factory_messages.car_factory.Event
-import car_factory_messages.car_factory.EventMessage
-import car_factory_messages.car_factory.Meta
-import car_factory_messages.car_factory.SteelRoll
-import car_factory_messages.car_factory.SteelParts
-import car_factory_messages.car_factory.PartialCarBody
-import car_factory_messages.car_factory.CarBody
-import car_factory_messages.car_factory.PaintedCarBody
-import car_factory_messages.car_factory.ItemRequest
-import car_factory_messages.car_factory.Bid
-import car_factory_messages.car_factory.Selected
-import car_factory_messages.car_factory.ReqGuidance
-import car_factory_messages.car_factory.GiveGuidance
-import car_factory_messages.car_factory.ItemPickupBasic
-import car_factory_messages.car_factory.ItemPickupSmart
-import car_factory_messages.car_factory.Handover
-import car_factory_messages.car_factory.ItemDeliver
-import car_factory_messages.car_factory.RequestEngine
-import car_factory_messages.car_factory.EngineInstalled
-import car_factory_messages.car_factory.EngineChecked
-import car_factory_messages.car_factory.WheelPickup
-import car_factory_messages.car_factory.WheelInstalled
-import car_factory_messages.car_factory.AllWheelsInstalled
-import car_factory_messages.car_factory.WindowPickup
-import car_factory_messages.car_factory.WindowInstalled
-import car_factory_messages.car_factory.AllWindowsInstalled
-import car_factory_messages.car_factory.FinishedCar
+import car_factory_messages.car_factory.*
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -37,8 +9,82 @@ import scala.annotation.tailrec
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
+import notifications.ActyxEventNotification
+import pt.unl.fct.di.novasys.babel.core.GenericProtocol
+import java.util.Properties
+import scala.compiletime.uninitialized
 
-def monitor(algorithm: MatchingAlgorithm) =
+class CarFactoryMonitor
+    extends GenericProtocol(
+      CarFactoryMonitor.protoName,
+      CarFactoryMonitor.protoId
+    ):
+
+  //private var monitorFut: Future[Unit] = uninitialized
+  //private var monitorRef: ActorRef[Event] = uninitialized
+  private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) = monitor(CarFactoryMonitor.algorithm).start()
+
+  override def init(properties: Properties): Unit =
+    println("HEHEHEHE FROM CARFACTORYMONITOR INIT")
+    subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
+    println("HEHEHEHE FROM CARFACTORYMONITOR INIT 2")
+    
+
+
+  // Called when receiving an ActyxEventNotification
+  private def onActyxEventNotification(actyxEventNotification: ActyxEventNotification, sourceProto: Short): Unit = 
+    println("HEHEHEHE FROM CARFACTORYMONITOR 3")
+    val event = EventMessage.parseFrom(actyxEventNotification.payload).toEvent
+    monitorRef ! event
+
+
+  def monitor(algorithm: MatchingAlgorithm) =
+    Actor[Event, Unit] {
+      receive { (self: ActorRef[Event]) =>
+        {
+          case SteelRoll(meta, _, _) =>
+            println(
+              s"${Console.BLUE}${Console.UNDERLINED}Matched messages: SteelRoll(...)${Console.RESET}\n"
+            )
+            Continue
+          case SteelParts(part, meta, _, _) =>
+            println(
+              s"${Console.BLUE}${Console.UNDERLINED}Matched messages: SteelParts(part = $part, ...)${Console.RESET}\n"
+            )
+            Continue
+          case CarBody(shape1, meta1, lbj1, _)
+              &:& PaintedCarBody(shape2, color2, meta2, lbj2, _) if shape1 == shape2 =>
+            println(
+              s"${Console.BLUE}${Console.UNDERLINED}Matched messages: CarBody(shape = $shape1, ...), PaintedCarBody(shape = $shape2, color = $color2, ...)${Console.RESET}\n"
+            )
+            Continue
+          case FinishedCar(_, _, _, _, _, _, meta, _, _) =>
+            println(
+              s"${Console.RED}${Console.UNDERLINED}Matched messages: FinishedCar(...)${Console.RESET}\n"
+            )
+            println(
+              s"${Console.RED}${Console.UNDERLINED}Shutting down monitor actor...${Console.RESET}"
+            )
+            Stop(())
+        }
+      }(algorithm)
+    }
+
+  def printMetaInner(meta: Option[Meta]) = meta match
+    case Some(value) =>
+      println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
+    case None => ()
+
+
+object CarFactoryMonitor:
+  val protoName: String = "CarFactoryMonitor"
+  val protoId: Short = 102
+  val logger: Logger = LogManager.getLogger(CarFactoryMonitor)
+  val algorithm: MatchingAlgorithm = MatchingAlgorithm.WhileLazyAlgorithm
+
+/* def monitor(algorithm: MatchingAlgorithm) =
   Actor[Event, Unit] {
     receive { (self: ActorRef[Event]) =>
       {
@@ -47,20 +93,16 @@ def monitor(algorithm: MatchingAlgorithm) =
             s"${Console.BLUE}${Console.UNDERLINED}Matched messages: SteelParts(part = $part, ...)${Console.RESET}\n"
           )
           Continue
-        //Some(_, _, _, _, _, eventId1, _, _, _)
         case CarBody(shape1, meta1, lbj1, _)
              &:& PaintedCarBody(shape2, color2, meta2, lbj2, _) if shape1 == shape2 =>
           println(
             s"${Console.BLUE}${Console.UNDERLINED}Matched messages: CarBody(shape = $shape1, ...), PaintedCarBody(shape = $shape2, color = $color2, ...)${Console.RESET}\n"
           )
-          //printMetaInner(meta1)
-          //printMetaInner(meta2)
           Continue
         case FinishedCar(_, _, _, _, _, _, meta, _, _) =>
           println(
             s"${Console.RED}${Console.UNDERLINED}Matched messages: FinishedCar(...)${Console.RESET}\n"
           )
-          //printMetaInner(meta)
           println(
             s"${Console.RED}${Console.UNDERLINED}Shutting down monitor actor...${Console.RESET}"
           )
@@ -73,49 +115,6 @@ def printMetaInner(meta: Option[Meta]) = meta match
   case Some(value) =>
     println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
   case None => ()
-
-// TCP version
-/* def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
-  val (monitorFut, monitorRef) = monitor(algorithm).start()
-  val socket                   = new ServerSocket()
-  socket.bind(new java.net.InetSocketAddress(java.net.InetAddress.getByName(host), port))
-
-  println(
-    s"${Console.GREEN}🚀 Car factory Monitor ready and listening on ${host}:${port} 📦${Console.RESET}"
-  )
-  receiveLoop(socket, monitorFut, monitorRef)
-
-@tailrec
-def receiveLoop(
-    socket: ServerSocket,
-    monitorFut: Future[Unit],
-    monitorRef: ActorRef[Event]
-): Unit =
-  // Accept a client (blocking). Do this for EACH forwarded event...
-  val clientSocket = socket.accept()
-  receiveMessage(clientSocket, monitorFut, monitorRef)
-
-  // FIXME
-  // Tail-recursive call to continue receiving
-  receiveLoop(socket, monitorFut, monitorRef)
-
-def receiveMessage(
-    socket: Socket,
-    monitorFut: Future[Unit],
-    monitorRef: ActorRef[Event]
-): Unit =
-  val inputStream = socket.getInputStream()
-  val bufferSize = 4096
-  val buffer = new Array[Byte](bufferSize)
-  val bytesRead = inputStream.read(buffer)
-
-  if (bytesRead != -1) {
-    val data = buffer.take(bytesRead)
-    val event = EventMessage.parseFrom(data).toEvent
-    monitorRef ! event
-  }
-
-  socket.close() */
 
 // UDP version
 def runCarFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
@@ -149,4 +148,4 @@ def receiveLoop(
 
   // FIXME
   // Tail-recursive call to continue receiving
-  receiveLoop(socket, monitorFut, monitorRef)
+  receiveLoop(socket, monitorFut, monitorRef) */

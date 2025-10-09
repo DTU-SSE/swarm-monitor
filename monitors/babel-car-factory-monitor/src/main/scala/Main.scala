@@ -1,5 +1,5 @@
 import join_actors.api.*
-import car_factory_monitor.runCarFactoryMonitor
+//import car_factory_monitor.runCarFactoryMonitor
 
 import mainargs.Flag
 import mainargs.ParserForClass
@@ -51,15 +51,18 @@ object Main:
 
   val logger: Logger = LogManager.getLogger(getClass)
 
-  def main(args: Array[String]): Unit = 
+  def main(args: Array[String]): Unit =
     val babel: Babel = Babel.getInstance
-    
+
     val properties: Properties = Babel.loadConfig(args, null)
-    
+
+    val carFactoryMonitor: CarFactoryMonitor = new CarFactoryMonitor
     val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor
     
+    babel.registerProtocol(carFactoryMonitor)
     babel.registerProtocol(actyxEventAdaptor)
 
+    carFactoryMonitor.init(properties)
     actyxEventAdaptor.init(properties)
 
     babel.start
