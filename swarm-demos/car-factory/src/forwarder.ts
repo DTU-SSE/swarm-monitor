@@ -9,15 +9,15 @@ import { hideBin } from "yargs/helpers";
 import camelCase from "lodash.camelcase";
 
 // UDP version
-/* function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
+function forward(e: ActyxEvent<{type: string}>, socket: dgram.Socket) {
     const {type, ...ePayload} = e.payload
     const msg = JSON.parse(`{"sealedValue": { "oneofKind": "${camelCase(type)}", "${camelCase(type)}": ${JSON.stringify({...ePayload, meta: e.meta})}}}`)
     console.log("Sending: ", msg)
     socket.send(Event.toBinary(msg))
-} */
+}
 
 // TCP version sets up a new connection for EACH event...
-function forward(e: ActyxEvent<{type: string}>, host: string, port: number) {
+/* function forward(e: ActyxEvent<{type: string}>, host: string, port: number) {
     const socket = new net.Socket();
     socket.connect(port, host, () => {
         const {type, ...ePayload} = e.payload
@@ -31,7 +31,7 @@ function forward(e: ActyxEvent<{type: string}>, host: string, port: number) {
     socket.on("error", (err) => {
         console.error(`Socket error: ${err.message}`);
     });
-}
+} */
 
 
 async function main() {
@@ -56,7 +56,7 @@ async function main() {
     const PORT = argv.port;
 
     // UDP version
-    /* const socket = dgram.createSocket("udp4");
+    const socket = dgram.createSocket("udp4");
     socket.connect(PORT, HOST, () => {
         console.log(`Connected to ${HOST}:${PORT}`);
     });
@@ -65,10 +65,10 @@ async function main() {
     });
     socket.on("error", (err) => {
         console.error(`Socket error: ${err.message}`);
-    }); */
+    });
 
     app.subscribe(eventSubscriptions, (e: ActyxEvent) => {
-        forward(e as ActyxEvent<{type: string}>, HOST, PORT);
+        forward(e as ActyxEvent<{type: string}>, socket);
     });
 }
 main()
