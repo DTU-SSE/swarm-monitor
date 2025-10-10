@@ -52,6 +52,5 @@ object Main:
 
     babel.start()
 
-    //Thread.currentThread().join()
     Await.ready(stopSignal.future, Duration.Inf)
     executor.shutdown()

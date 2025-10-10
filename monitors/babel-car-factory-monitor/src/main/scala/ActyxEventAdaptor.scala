@@ -83,7 +83,7 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
           triggerNotification(new ActyxEventNotification(data))
 
           receivePacket()
-    }//(using ec)
+    }
 
 object ActyxEventAdaptor:
   val protoName: String = "ActyxEventAdaptor"
