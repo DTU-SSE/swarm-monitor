@@ -12,7 +12,6 @@ import scala.concurrent.duration.Duration
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import notifications.{ActyxEventNotification, StopReceivingNotification}
-import requests.{ActyxEventRequest, ActyxEventReply}
 import pt.unl.fct.di.novasys.babel.core.GenericProtocol
 import java.util.Properties
 import scala.compiletime.uninitialized
