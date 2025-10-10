@@ -1,6 +1,6 @@
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import notifications.ActyxEventNotification
+import notifications.{ActyxEventNotification, StopReceivingNotification}
 import pt.unl.fct.di.novasys.babel.core.GenericProtocol
 import pt.unl.fct.di.novasys.babel.exceptions.HandlerRegistrationException
 import pt.unl.fct.di.novasys.network.data.Host
@@ -38,6 +38,8 @@ class ActyxEventAdaptor
       case Some(socket) => socket
       case None         => return
 
+    subscribeNotification(StopReceivingNotification.notificationId, onStopReceivingNotification)
+
     println(
       s"${Console.GREEN}🚀 Actyx Event Adaptor ready and listening on ${socket
           .getLocalAddress()
@@ -45,6 +47,10 @@ class ActyxEventAdaptor
     )
     //receivePacket()
     new Thread(() => receivePacket()).start()
+
+  private def onStopReceivingNotification(stopReceivingNotification: StopReceivingNotification, sourceProto: Short): Unit =
+    println("Closing socket")
+    socket.close
 
   private def createDatagramSocket(
       properties: Properties
@@ -68,10 +74,10 @@ class ActyxEventAdaptor
       case Some(addresss) =>
         Some(DatagramSocket(port, InetAddress.getByName(addresss)))
       case None => None
-  
+
   @tailrec
   private def receivePacket(): Unit =
-    if socket.isClosed then 
+    if socket.isClosed then
         ()
     else
         val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
