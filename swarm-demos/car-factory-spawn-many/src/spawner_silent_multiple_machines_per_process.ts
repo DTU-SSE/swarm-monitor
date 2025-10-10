@@ -15,7 +15,7 @@ async function main() {
             alias: "c",
             type: "string",
             demandOption: true,
-            describe: "Use async.queue() (a) with 8 concurrent workers or Promise.all() (b)"
+            describe: "Use async.queue() with 8 concurrent workers (a) or Promise.all() (b)"
         })
         .strict()
         .parse();
@@ -48,7 +48,7 @@ async function main() {
             stderr: "ignore",
         });
         machinesSpawned = machinesSpawned + 7
-        console.log(`Spawned process ${i}/${totalNumProcesses}. Total number of machines spawned: ${machinesSpawned}`)
+        console.log(`Spawned process ${i+1}/${totalNumProcesses}. Total number of machines spawned: ${machinesSpawned}`)
         processes.push(p);
     }
     processes.push(execa(`node`, [transporterCommand], {
