@@ -24,7 +24,12 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
     new Array[Byte](ActyxEventAdaptor.bufferSize)
 
   override def init(properties: Properties): Unit =
-    subscribeNotification(StopReceivingNotification.notificationId, onStopReceivingNotification)
+
+    subscribeNotification(
+      StopReceivingNotification.notificationId,
+      onStopReceivingNotification
+    )
+
     socket = createDatagramSocket(properties) match
       case Some(socket) => socket
       case None         => return
@@ -37,10 +42,13 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
 
     receivePacket()
 
-  private def onStopReceivingNotification(stopReceivingNotification: StopReceivingNotification, sourceProto: Short): Unit =
+  // Called when receiving an StopReceivingNotification, emitted by the car factory monitor when it Stop()s
+  private def onStopReceivingNotification(
+      stopReceivingNotification: StopReceivingNotification,
+      sourceProto: Short
+  ): Unit =
     stopSignal.success(())
     socket.close
-    //executor.shutdown
 
   private def createDatagramSocket(
       properties: Properties
@@ -67,22 +75,21 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
 
   private def receivePacket(): Unit =
     Future {
-      if stopSignal.isCompleted then
-          ()
+      if stopSignal.isCompleted then ()
       else
-          val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
+        val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
 
-          socket.receive(packet)
+        socket.receive(packet)
 
-          val data = java.util.Arrays.copyOfRange(
+        val data = java.util.Arrays.copyOfRange(
           packet.getData,
           packet.getOffset,
           packet.getOffset + packet.getLength
-          )
+        )
 
-          triggerNotification(new ActyxEventNotification(data))
+        triggerNotification(new ActyxEventNotification(data))
 
-          receivePacket()
+        receivePacket()
     }
 
 object ActyxEventAdaptor:

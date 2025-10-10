@@ -22,18 +22,20 @@ import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise, ExecutionContext}
 
-
 object Main:
 
   val logger: Logger = LogManager.getLogger(getClass)
 
   def main(args: Array[String]): Unit =
 
-    val executor = Executors.newFixedThreadPool(1, r => {
-    val t = new Thread(r)
-      t.setDaemon(false)
-      t
-    })
+    val executor = Executors.newFixedThreadPool(
+      1,
+      r => {
+        val t = new Thread(r)
+        t.setDaemon(false)
+        t
+      }
+    )
     val ec: ExecutionContext = ExecutionContext.fromExecutor(executor)
     val stopSignal = Promise[Unit]()
 

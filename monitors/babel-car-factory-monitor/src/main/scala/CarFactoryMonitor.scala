@@ -23,16 +23,24 @@ class CarFactoryMonitor
       CarFactoryMonitor.protoId
     ):
 
-  private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) = monitor(CarFactoryMonitor.algorithm).start()
+  private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) =
+    monitor(CarFactoryMonitor.algorithm).start()
 
   override def init(properties: Properties): Unit =
-    subscribeNotification(ActyxEventNotification.notificationId, onActyxEventNotification)
+    subscribeNotification(
+      ActyxEventNotification.notificationId,
+      onActyxEventNotification
+    )
 
   // Called when receiving an ActyxEventNotification
-  private def onActyxEventNotification(actyxEventNotification: ActyxEventNotification, sourceProto: Short): Unit =
+  private def onActyxEventNotification(
+      actyxEventNotification: ActyxEventNotification,
+      sourceProto: Short
+  ): Unit =
     val event = EventMessage.parseFrom(actyxEventNotification.payload).toEvent
     monitorRef ! event
 
+  // Match actyx events against join patterns
   def monitor(algorithm: MatchingAlgorithm) =
     Actor[Event, Unit] {
       receive { (self: ActorRef[Event]) =>
@@ -48,7 +56,8 @@ class CarFactoryMonitor
             )
             Continue
           case CarBody(shape1, meta1, lbj1, _)
-              &:& PaintedCarBody(shape2, color2, meta2, lbj2, _) if shape1 == shape2 =>
+              &:& PaintedCarBody(shape2, color2, meta2, lbj2, _)
+              if shape1 == shape2 =>
             println(
               s"${Console.BLUE}${Console.UNDERLINED}Matched messages: CarBody(shape = $shape1, ...), PaintedCarBody(shape = $shape2, color = $color2, ...)${Console.RESET}\n"
             )
@@ -68,9 +77,10 @@ class CarFactoryMonitor
 
   def printMetaInner(meta: Option[Meta]) = meta match
     case Some(value) =>
-      println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
+      println(
+        s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}"
+      )
     case None => ()
-
 
 object CarFactoryMonitor:
   val protoName: String = "CarFactoryMonitor"
