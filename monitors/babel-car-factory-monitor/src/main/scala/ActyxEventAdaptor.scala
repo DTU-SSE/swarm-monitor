@@ -10,10 +10,6 @@ import java.net.InetAddress
 import utils.NetworkingUtilities
 import scala.compiletime.uninitialized
 import scala.annotation.tailrec
-import akka.actor._
-import akka.io.{IO, Udp}
-import akka.util.ByteString
-import java.net.InetSocketAddress
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
@@ -42,30 +38,24 @@ class ActyxEventAdaptor
 
   override def init(properties: Properties): Unit =
     subscribeNotification(StopReceivingNotification.notificationId, onStopReceivingNotification)
-    /* socket = createDatagramSocket(properties) match
+    socket = createDatagramSocket(properties) match
       case Some(socket) => socket
-      case None         => return */
-    val system = ActorSystem("udpServerSystem")
-    val actorRef: ActorRef = createUdpServer(properties, system) match
-      case Some(actorRef) => actorRef
-      case None           => return
-    /* println(
+      case None         => return
+
+    println(
       s"${Console.GREEN}🚀 Actyx Event Adaptor ready and listening on ${socket
           .getLocalAddress()
           .getHostAddress()}:${socket.getLocalPort()} 📦${Console.RESET}"
-    ) */
-    /* CoordinatedShutdown(system).addJvmShutdownHook {
-      println("Shutting down UDP server...")
-      system.terminate()
-    } */
+    )
+
     sys.addShutdownHook {
       println("Shutting down UDP server...")
-      system.terminate()
+      socket.close
     }
 
-    Await.result(system.whenTerminated, Duration.Inf)
+    //Await.result(system.whenTerminated, Duration.Inf)
     //receivePacket()
-    //new Thread(() => receivePacket()).start()
+    new Thread(() => receivePacket()).start()
 
   private def onStopReceivingNotification(stopReceivingNotification: StopReceivingNotification, sourceProto: Short): Unit =
     println("Closing socket")
@@ -94,44 +84,6 @@ class ActyxEventAdaptor
         Some(DatagramSocket(port, InetAddress.getByName(address)))
       case None => None
 
-  private def createUdpServer(
-      properties: Properties,
-      system: ActorSystem
-  ): Option[ActorRef] =
-    val port: Int =
-      if properties.containsKey("port") then
-        properties
-          .getProperty("port")
-          .toIntOption
-          .getOrElse(ActyxEventAdaptor.defaultPort)
-      else ActyxEventAdaptor.defaultPort
-
-    val addressString =
-      if properties.containsKey("interface") then
-        NetworkingUtilities.getAddress(properties.getProperty("interface"))
-      else if properties.containsKey("address") then
-        Some(properties.getProperty("address"))
-      else NetworkingUtilities.getAddress("eth0")
-
-    addressString match
-      case Some(address) =>
-            Some(createActor(system, port, address))
-      case None => None
-
-  def createActor(system: ActorSystem, port: Int, address: String): ActorRef =
-    val receiver = system.actorOf(Props(new Actor {
-      def receive: Receive = {
-        case Udp.Bound(local) =>
-          println(s"UDP server bound to $local")
-        case Udp.Received(data, sender) =>
-          triggerNotification(new ActyxEventNotification(data.toArray))
-      }
-    }))
-
-    val udpManager = IO(Udp)(system)
-    udpManager ! Udp.Bind(receiver, new InetSocketAddress(address, port))
-    receiver
-
   @tailrec
   private def receivePacket(): Unit =
     if socket.isClosed then
@@ -155,20 +107,3 @@ object ActyxEventAdaptor:
   val defaultPort: Int = 9999
   val bufferSize: Int = 4096
   val logger: Logger = LogManager.getLogger(ActyxEventAdaptor)
-
-/* object UdpServer:
-
-  def createUdpServer(system: ActorSystem, port: Int, address: String): ActorRef =
-    val receiver = system.actorOf(Props(new Actor {
-      def receive: Receive = {
-        case Udp.Bound(local) =>
-          println(s"UDP server bound to $local")
-        case Udp.Received(data, sender) =>
-          println(s"Received from $sender: ${data.utf8String.trim}")
-          triggerNotification(new ActyxEventNotification(data.toArray))
-      }
-    }))
-
-    val udpManager = IO(Udp)(system)
-    udpManager ! Udp.Bind(receiver, new InetSocketAddress(address, port))
-    receiver */

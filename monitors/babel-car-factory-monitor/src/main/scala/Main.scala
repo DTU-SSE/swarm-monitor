@@ -66,4 +66,4 @@ object Main:
     actyxEventAdaptor.init(properties)
 
     babel.start()
-    //Thread.sleep(Long.MaxValue)
+    Thread.sleep(Long.MaxValue)

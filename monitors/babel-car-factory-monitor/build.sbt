@@ -24,9 +24,6 @@ lazy val root = project
     libraryDependencies += "org.scalatest"                %% "scalatest-funsuite" % scalaTestVersion % Test,
     libraryDependencies += "pt.unl.fct.di.novasys.babel"  %  "babel-core"         % "[1.0.0,)",
     libraryDependencies += "pt.unl.fct.di.novasys"        %  "network-layer"      % "2.0.43",
-    libraryDependencies += "org.apache.logging.log4j"     % "log4j-slf4j2-impl"   % "2.25.2",
-    libraryDependencies += "org.apache.logging.log4j"     % "log4j-api"           % "2.25.2",
     libraryDependencies += "org.apache.logging.log4j"     %  "log4j-core"         % "2.25.2",
-    libraryDependencies += "io.netty"                     %  "netty-buffer"       % "4.2.6.Final",
-    libraryDependencies += "com.typesafe.akka"            %% "akka-actor-typed"   % "2.8.3"
+    libraryDependencies += "io.netty"                     %  "netty-buffer"       % "4.2.6.Final"
 )
