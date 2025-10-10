@@ -129,17 +129,16 @@ class CollectingVisitor implements ASTVisitor {
       throw new Error(`Type alias ${node.getName()} does not have a type node`);
     }
   }
+}
 
-  // Returns a cleaned copy of constructed EventSpec
-  //  type definitions not used in messages are removed such that we can generate a message type for all type aliases that have an object type
-  //  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
-  //  type aliases denoting primitive types are replaced by these primitive types.
-  cleanEventSpec(): EventSpec {
-    const eventSpec = replacePrimitiveTypeVarsEventSpec(this.eventSpec)
-    const namesInUse = usedNames(eventSpec)
-    return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
-  }
-
+// Returns a cleaned copy of constructed EventSpec
+//  type definitions not used in messages are removed such that we can generate a message type for all type aliases that have an object type
+//  variables are replaced by their values if they have a primitive type -- nope consider relevance of this later then do
+//  type aliases denoting primitive types are replaced by these primitive types.
+function cleanEventSpec(dirtyEventSpec: EventSpec): EventSpec {
+  const eventSpec = replacePrimitiveTypeVarsEventSpec(dirtyEventSpec)
+  const namesInUse = usedNames(eventSpec)
+  return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))}
 }
 
 // Construct an event spec and return it.
@@ -154,10 +153,5 @@ export function extractTypesFromFile(filePath: string): EventSpec {
 
 // Construct an event spec, 'clean' it, and return it.
 export function extractTypesFromFileCleaned(filePath: string): EventSpec {
-  const project = new Project();
-  const sourceFile = project.addSourceFileAtPath(filePath);
-  const visitor = new CollectingVisitor();
-  traverse(sourceFile, visitor)
-
-  return visitor.cleanEventSpec();
+  return cleanEventSpec(extractTypesFromFile(filePath))
 }

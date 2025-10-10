@@ -1,6 +1,7 @@
 import { manifest, Composition, Events } from "./protocol";
 import { Event } from "./generated/warehouse";
-import { Actyx, ActyxEvent, EventSubscription } from "@actyx/sdk";
+import { Actyx, ActyxEvent } from "@actyx/sdk";
+import type { EventSubscription } from "@actyx/sdk";
 import * as dgram from "dgram";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
