@@ -18,6 +18,10 @@ import pt.unl.fct.di.novasys.babel.exceptions.ProtocolAlreadyExistsException;
 import java.io.IOException;
 import java.util.Properties;
 
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future, Promise, ExecutionContext}
+
+
 object Main:
   /* @main
   case class CommonRunConfig(
@@ -55,9 +59,10 @@ object Main:
     val babel: Babel = Babel.getInstance
 
     val properties: Properties = Babel.loadConfig(args, null)
+    val stopSignal = Promise[Unit]()
 
     val carFactoryMonitor: CarFactoryMonitor = new CarFactoryMonitor
-    val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor
+    val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor(stopSignal)
 
     babel.registerProtocol(carFactoryMonitor)
     babel.registerProtocol(actyxEventAdaptor)
@@ -66,4 +71,5 @@ object Main:
     actyxEventAdaptor.init(properties)
 
     babel.start()
-    Thread.sleep(Long.MaxValue)
+
+    Await.ready(stopSignal.future, Duration.Inf)

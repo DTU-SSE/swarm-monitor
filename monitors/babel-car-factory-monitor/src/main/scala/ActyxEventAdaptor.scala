@@ -10,23 +10,13 @@ import java.net.InetAddress
 import utils.NetworkingUtilities
 import scala.compiletime.uninitialized
 import scala.annotation.tailrec
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import java.util.concurrent.Executors
+import scala.concurrent.{Future, ExecutionContext, Promise}
 
-//import requests.{ActyxEventRequest, ActyxEventReply}
-/* import java.util.concurrent.Executors
-import scala.concurrent.Await
-import scala.concurrent.blocking
-import scala.concurrent.duration.Duration
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.util.Success
-import scala.util.Failure */
+implicit val ec: ExecutionContext =
+  ExecutionContext.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor())
 
-/* implicit val ec: ExecutionContext =
-  ExecutionContext.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor()) */
-
-class ActyxEventAdaptor
+class ActyxEventAdaptor(stopSignal: Promise[Unit])
     extends GenericProtocol(
       ActyxEventAdaptor.protoName,
       ActyxEventAdaptor.protoId
@@ -48,18 +38,10 @@ class ActyxEventAdaptor
           .getHostAddress()}:${socket.getLocalPort()} 📦${Console.RESET}"
     )
 
-    sys.addShutdownHook {
-      println("Shutting down UDP server...")
-      socket.close
-    }
-
-    //Await.result(system.whenTerminated, Duration.Inf)
-    //receivePacket()
-    new Thread(() => receivePacket()).start()
+    receivePacket()
 
   private def onStopReceivingNotification(stopReceivingNotification: StopReceivingNotification, sourceProto: Short): Unit =
-    println("Closing socket")
-    socket.close
+    stopSignal.success(())
 
   private def createDatagramSocket(
       properties: Properties
@@ -84,22 +66,25 @@ class ActyxEventAdaptor
         Some(DatagramSocket(port, InetAddress.getByName(address)))
       case None => None
 
-  @tailrec
   private def receivePacket(): Unit =
-    if socket.isClosed then
-        ()
-    else
-        val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
-        // Receive a packet (blocking)
-        socket.receive(packet)
-        // extract payload from packet, remove any trailing 0s
-        val data = java.util.Arrays.copyOfRange(
-        packet.getData,
-        packet.getOffset,
-        packet.getOffset + packet.getLength
-        )
-        triggerNotification(new ActyxEventNotification(data))
-        receivePacket()
+    Future {
+      if stopSignal.isCompleted then
+          ()
+      else
+          val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
+
+          socket.receive(packet)
+
+          val data = java.util.Arrays.copyOfRange(
+          packet.getData,
+          packet.getOffset,
+          packet.getOffset + packet.getLength
+          )
+
+          triggerNotification(new ActyxEventNotification(data))
+
+          receivePacket()
+    }
 
 object ActyxEventAdaptor:
   val protoName: String = "ActyxEventAdaptor"
