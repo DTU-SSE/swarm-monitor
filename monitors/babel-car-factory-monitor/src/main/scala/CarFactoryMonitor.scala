@@ -23,8 +23,6 @@ class CarFactoryMonitor
       CarFactoryMonitor.protoId
     ):
 
-  //private var monitorFut: Future[Unit] = uninitialized
-  //private var monitorRef: ActorRef[Event] = uninitialized
   private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) = monitor(CarFactoryMonitor.algorithm).start()
 
   override def init(properties: Properties): Unit =

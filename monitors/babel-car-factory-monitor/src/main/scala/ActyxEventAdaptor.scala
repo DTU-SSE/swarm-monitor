@@ -13,8 +13,14 @@ import scala.annotation.tailrec
 import java.util.concurrent.Executors
 import scala.concurrent.{Future, ExecutionContext, Promise}
 
-implicit val ec: ExecutionContext =
-  ExecutionContext.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor())
+
+val executor = Executors.newFixedThreadPool(1, r => {
+  val t = new Thread(r)
+  t.setDaemon(false)
+  t
+})
+implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(executor)
+
 
 class ActyxEventAdaptor(stopSignal: Promise[Unit])
     extends GenericProtocol(
@@ -42,6 +48,8 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])
 
   private def onStopReceivingNotification(stopReceivingNotification: StopReceivingNotification, sourceProto: Short): Unit =
     stopSignal.success(())
+    socket.close
+    executor.shutdown
 
   private def createDatagramSocket(
       properties: Properties
