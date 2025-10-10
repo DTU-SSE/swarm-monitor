@@ -58,7 +58,7 @@ object Main:
 
     val carFactoryMonitor: CarFactoryMonitor = new CarFactoryMonitor
     val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor
-    
+
     babel.registerProtocol(carFactoryMonitor)
     babel.registerProtocol(actyxEventAdaptor)
 
@@ -66,4 +66,4 @@ object Main:
     actyxEventAdaptor.init(properties)
 
     babel.start()
-    Thread.sleep(Long.MaxValue)
+    //Thread.sleep(Long.MaxValue)
