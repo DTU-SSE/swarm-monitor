@@ -1,6 +1,8 @@
-import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration } from "ts-morph";
-import type { EventSpec } from "./types.js";
+import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, SourceFile } from "ts-morph";
+import * as tsMorph from "ts-morph"
+import { serializeTypeInfo, type EventSpec, type PropertyInfo, type TypeInfo, type TypeVariables } from "./types.js";
 import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
+import { TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js";
 
 // Visitor interface
 interface ASTVisitor {
@@ -32,6 +34,61 @@ function basicVisit(node: Node, prepend: string = '') {
   node.forEachChild(child => {
     basicVisit(child, prepend + '  * ');
   });
+}
+
+const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
+  const inner = (t: tsMorph.Type, visited: Set<string>): TypeInfo => {
+    if (visited.has(t.getText())) {
+      return { type: TYPEINFO_TYPES.REFERENCE, asString: t.getText() }
+    }
+    if (t.isArray()) {
+      return { type: TYPEINFO_TYPES.ARRAY, asString: t.getText(), elementType: inner(t.getArrayElementTypeOrThrow(), visited) }
+    }
+    // We lose some information here. type t = true, will be represented as a boolean and not the narrower literal true, only differ in asString.
+    // We do this because a union myUnion = boolean | number gets expanded as true | false | number
+    if (t.isBoolean() || t.isBooleanLiteral()) {
+      return { type: TYPEINFO_TYPES.BOOLEAN, asString: t.getText() }
+    }
+    if (t.isNumber()) {
+      return { type: TYPEINFO_TYPES.NUMBER, asString: t.getText() }
+    }
+    if (t.isObject()) {
+      visited.add(t.getText())
+      const mapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
+        return { propertyName: symbol.getName(), propertyType: inner(symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)}
+      }
+      return { type: "object1", asString: t.getText(), properties: t.getProperties().map(mapper)}
+    }
+    if (t.isString()) {
+      return { type: TYPEINFO_TYPES.STRING, asString: t.getText() }
+    }
+    if (t.isUnion()) {
+      const mapper = (unionTypeMember: tsMorph.Type): TypeInfo => inner(unionTypeMember, visited)
+      let members = t.getUnionTypes().map(mapper)
+
+      // We do this because a union myUnion = boolean | number gets expanded as true | false | number
+      const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
+      const predicateFalseLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "false"
+      if (members.some(predicateTrueLiteral) && members.some(predicateFalseLiteral)) {
+        members = members.filter(t => !(predicateTrueLiteral(t) || predicateFalseLiteral(t)))
+        members.push({ type: TYPEINFO_TYPES.BOOLEAN, asString: TYPEINFO_TYPES.BOOLEAN })
+      }
+      return { type: TYPEINFO_TYPES.UNION, asString: t.getText(), members: members}
+    }
+    throw Error()
+  }
+
+  return inner(t, new Set())
+}
+
+const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
+  return new Map(
+      sourceFile
+      .getTypeAliases()
+      .map(typeAliasDeclaration =>
+        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType())]
+      )
+    )
 }
 
 // Traverse an ast constructing an EventSpec. Hardcoded to work with a file defining events using MachineEvent.design(...)
@@ -154,4 +211,15 @@ export function extractTypesFromFile(filePath: string): EventSpec {
 // Construct an event spec, 'clean' it, and return it.
 export function extractTypesFromFileCleaned(filePath: string): EventSpec {
   return cleanEventSpec(extractTypesFromFile(filePath))
+}
+
+export function visitTypes(filePath: string): void {
+  const project = new Project();
+  const sourceFile = project.addSourceFileAtPath(filePath);
+  console.log("GOT THE FOLLOWING TYPES: ")
+  const typesss = visitTypeAliasDeclarations(sourceFile)
+  for (const [key, value] of typesss) {
+    console.log(`Typename: ${key}`)
+    console.log(`Type: ${JSON.stringify(serializeTypeInfo(value), null, 2)}`)
+  }
 }

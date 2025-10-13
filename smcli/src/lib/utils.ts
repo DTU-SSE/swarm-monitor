@@ -155,6 +155,8 @@ function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVari
             return { ...typeInfo, members: typeInfo.members.map(m => replacePrimitiveTypeVarsTypeInfo(m, typeVars)) }
         case TYPEINFO_TYPES.OBJECT:
             return { ...typeInfo, properties: typeInfo.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
+        case "object1":
+            return { ...typeInfo, properties: typeInfo.properties.map((p) => {return {propertyName: p.propertyName, propertyType: replacePrimitiveTypeVarsTypeInfo(p.propertyType, typeVars)} }) }
     }
 }
 

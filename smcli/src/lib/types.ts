@@ -3,8 +3,10 @@ import { TYPEINFO_TYPES, TYPEINFO_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
 
+export type TypeKind = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES]
+
 // Our own intermediate representation of TypeScript types.
-export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType;
+export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType | ObjectType1;
 
 export type BooleanType = { type: typeof TYPEINFO_TYPES.BOOLEAN, asString: string };
 export type NumberType = { type: typeof TYPEINFO_TYPES.NUMBER, asString: string };
@@ -13,6 +15,9 @@ export type ReferenceType = { type: typeof TYPEINFO_TYPES.REFERENCE, asString: s
 export type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, elementType: TypeInfo };
 export type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
 export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
+// USE THE TYPE BELOW INSTEAD
+export type PropertyInfo = { propertyName: string, propertyType: TypeInfo }
+export type ObjectType1 = { type: "object1", asString: string, properties: PropertyInfo[] };
 
 // Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
 export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
@@ -54,7 +59,9 @@ export function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
       return { type: typeInfo.type, asString: typeInfo.asString, members: typeInfo.members.map(m => serializeTypeInfo(m)) }
     case 'object':
       return { type: typeInfo.type, asString: typeInfo.asString, properties: typeInfo.properties.map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfo(typeInfo)]) }
-  }
+    case 'object1':
+      return { type: typeInfo.type, asString: typeInfo.asString, properties: typeInfo.properties.map((p) => [p.propertyName, serializeTypeInfo(p.propertyType)]) }
+    }
 }
 
 function serializeEvent(event: Event): Serializable {

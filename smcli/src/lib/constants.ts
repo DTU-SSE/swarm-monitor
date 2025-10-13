@@ -6,7 +6,9 @@ export const TYPEINFO_TYPES = {
     REFERENCE: "reference",
     ARRAY: "array",
     UNION: "union",
-    OBJECT: "object"
+    OBJECT: "object",
+    TUPLE: "tuple",
+    UNKNOWN: "unknown"
 } as const;
 
 export const TYPEINFO_NAMES = {

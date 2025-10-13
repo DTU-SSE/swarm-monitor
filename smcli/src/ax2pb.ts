@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { generateProtoBufMsgDefs } from "./lib/protobuf_codegen.js";
 import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
-import { extractTypesFromFileCleaned } from "./lib/extract_types.js";
+import { extractTypesFromFileCleaned, visitTypes } from "./lib/extract_types.js";
 import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
@@ -22,6 +22,7 @@ export const ax2pb = new Command("ax2pb")
     .option("-c, --compile", "Adds compilation of generated .proto to 'scripts' package.json")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
+        visitTypes(path.resolve(process.cwd(), file))
         generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
         spinnerSuccess()
         if (options.compile) {
