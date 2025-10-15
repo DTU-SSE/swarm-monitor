@@ -1,8 +1,8 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, SourceFile } from "ts-morph";
 import * as tsMorph from "ts-morph"
-import { serializeTypeInfo, type EventSpec, type PropertyInfo, type TypeInfo, type TypeVariables } from "./types.js";
+import { none, serializeTypeInfo, some, type EventSpec, type Option, type PropertyInfo, type TypeInfo, type TypeVariables } from "./types.js";
 import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
-import { TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js";
+import { TYPEINFO_NAMES, TYPEINFO_TYPES, MACHINE_RUNNER_NAMES } from "./constants.js";
 
 // Visitor interface
 interface ASTVisitor {
@@ -75,7 +75,8 @@ const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
       }
       return { type: TYPEINFO_TYPES.UNION, asString: t.getText(), members: members}
     }
-    throw Error()
+    // TODO: remaining cases: e.g. tuples, intersections. Consider using options to not crash when encountering something not implemented
+    throw Error(`Support for ${t.getText()} not implemented`)
   }
 
   return inner(t, new Set())
@@ -89,6 +90,54 @@ const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
         [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType())]
       )
     )
+}
+
+const visitVariableDeclarations = (sourceFile: SourceFile): Event[] => {
+
+
+  throw Error
+}
+
+type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: Node }
+
+function isEventDefinition(nodeInfo: DefinitionNodeInfo): boolean {
+    return (nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
+      && MACHINE_RUNNER_NAMES.EVENT_DEFINITION_FUNCTIONS.some(eventDefFunction => eventDefFunction === nodeInfo.definitionNodeText))
+}
+
+function isEventDesign(nodeInfo: DefinitionNodeInfo): boolean {
+    return nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
+      && nodeInfo.definitionNodeText === MACHINE_RUNNER_NAMES.EVENT_DESIGN_FUNCTION
+}
+
+// Assumes one definition
+function definitionNodeInfo(node: Node): Option<DefinitionNodeInfo> {
+    switch (node.getKind()) {
+        case SyntaxKind.PropertyAccessExpression:
+            const definitionNodesProperty = (node as tsMorph.PropertyAccessExpression).getNameNode().getDefinitionNodes()
+            if (definitionNodesProperty.length > 0) {
+                // Assume just one definition
+                const definitionNode = definitionNodesProperty[0]
+                return definitionNode
+                  ? some({ sourceFile: definitionNode.getSourceFile().getFilePath(), definitionNodeText: definitionNode.getText(), definitionNode })
+                  : none
+            }
+            return none
+        case SyntaxKind.Identifier:
+            const definitionNodesIdentifier = (node as tsMorph.Identifier).getDefinitionNodes()
+            if (definitionNodesIdentifier.length > 0) {
+                // Assume just one definition
+                const definitionNode = definitionNodesIdentifier[0]
+                return definitionNode
+                  ? some({ sourceFile: definitionNode.getSourceFile().getFilePath(), definitionNodeText: definitionNode.getText(), definitionNode })
+                  : none
+            }
+            return none
+        default:
+          console.log(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
+          return none
+          //throw Error(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
+    }
 }
 
 // Traverse an ast constructing an EventSpec. Hardcoded to work with a file defining events using MachineEvent.design(...)
