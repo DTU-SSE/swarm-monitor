@@ -68,6 +68,8 @@ function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.OBJECT:
             return true
+        case TYPEINFO_TYPES.OBJECT1:
+            return true
         case TYPEINFO_TYPES.UNION:
             return typeInfo.members.every(m => isPayloadType(m, typeVars))
         case TYPEINFO_TYPES.REFERENCE:
@@ -155,7 +157,7 @@ function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVari
             return { ...typeInfo, members: typeInfo.members.map(m => replacePrimitiveTypeVarsTypeInfo(m, typeVars)) }
         case TYPEINFO_TYPES.OBJECT:
             return { ...typeInfo, properties: typeInfo.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
-        case "object1":
+        case TYPEINFO_TYPES.OBJECT1:
             return { ...typeInfo, properties: typeInfo.properties.map((p) => {return {propertyName: p.propertyName, propertyType: replacePrimitiveTypeVarsTypeInfo(p.propertyType, typeVars)} }) }
     }
 }
