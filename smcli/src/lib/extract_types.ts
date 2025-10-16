@@ -103,63 +103,33 @@ const visitVariableDeclarations = (sourceFile: SourceFile, typeVariables: TypeVa
     .map(variableDeclaration => machineEventDefinition(variableDeclaration, typeVariables))
     .filter(o => isSome(o))
     .map(o => getValue(o))
-  /* //console.log("Visiting top-level variable declarations")
-  const events = variableDeclarations
-      .map(variableDeclaration => machineEventDefinition(variableDeclaration))
-      .filter(o => isSome(o))
-      .map(o => getValue(o))
-  //console.log("top level done")
-  //const modules = sourceFile.getModules()
-  const modules = sourceFile.getDescendantsOfKind(SyntaxKind.ModuleDeclaration)
-  for (const m of modules) {
-    //console.log(`Visiting variable declarations of ${m.getName()}`)
-    for (const vDecl of m.getVariableDeclarations()) {
-      machineEventDefinition(vDecl)
-    }
-  }
-  return events */
 }
 
 const machineEventDefinition = (node: VariableDeclaration, typeVariables: TypeVariables): Option<Event> => {
-  ////console.log("-----")
-  const enclosingModule = getEnclosingModule(node).map(m => m.getName()).join(".")
-  ////console.log(`Name of variable: ${enclosingModule.length ? enclosingModule + "." + node.getName() : node.getName()}`)
-  ////console.log(`Kind of initializer: ${node.getInitializer()!.getKindName()}`)
-  ////console.log("Basic visitting initializer")
-  //basicVisit(node.getInitializer()!)
   const maybeEventType = extractEventTypeFromDesign(node.getInitializer()!)
-  ////console.log(`Trying to get event type: ${isSome(maybeEventType) ? getValue(maybeEventType).getText() : "Not an event type"}`)
   if (isSome(maybeEventType)) {
     const optionPayloadType = extractPayloadTypeFromDesign(node.getInitializer()!, typeVariables)
     const eventTypeName = getEventTypeName(getValue(maybeEventType))
-    //console.log(eventTypeName)
     return isSome(optionPayloadType)
       ? some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: getValue(optionPayloadType) })
       : some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITHOUT_PAYLOAD })
   }
-
-  //const enclosingModule = getEnclosingModule(node)
-  ////console.log(`Enclosing module: ${enclosingModule.map(m => m.getName()).join(".")}`)
-  ////console.log("-----")
   return none
 }
 
 // Events are defined using MachineEvent.design('event type')...
-  // Extract 'event type'
+// Extract 'event type'
 const getEventTypeName = (node: Node): string => {
-  //console.log("in getEventTypeName syntaxkind is: ", node.getKindName())
+  // TODO: other cases e.g. property access?
   if (node.getKind() === SyntaxKind.StringLiteral) {
     return node.getText().replace(/['"]/g, '')
   } else if (node.getKind() === SyntaxKind.Identifier) {
-    const thing = definitionNodeInfo(node)
-    if (isSome(thing)) {
-      //console.log("HEY trying to get event type name: ", getValue(thing).definitionNodeText)
-      //console.log("HEY trying to get event type name: ", getValue(thing).definitionNode.getKindName())
-      const initializer = (getValue(thing).definitionNode as VariableDeclaration).getInitializer()
+    const optionDefinitionNode = definitionNodeInfo(node)
+    if (isSome(optionDefinitionNode)) {
+      const initializer = (getValue(optionDefinitionNode).definitionNode as VariableDeclaration).getInitializer()
       if (initializer) {
         return getEventTypeName(initializer)
       }
-      ////console.log("HEY trying to get event type name: ", (getValue(thing).definitionNode as VariableDeclaration).getInitializer()?.getText())
     }
   }
   throw new Error(`Event type name not found in arguments of call expression: ${node.getText()}`);
@@ -214,9 +184,8 @@ function definitionNodeInfo(node: Node): Option<DefinitionNodeInfo> {
             }
             return none
         default:
-          //console.log(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
+          console.log(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
           return none
-          //throw Error(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
     }
 }
 
@@ -227,8 +196,6 @@ function extractEventTypeFromDesign(node: Node): Option<Node> {
           if (isSome(definitionNodeProperty) && isEventDefinition(getValue(definitionNodeProperty))) {
               // At this point we have an expression MachineEvent.design('myEventType').( withoutPayload() + withPayload<...>() + withZod<...>() )
               // Recurse wit the 'MachineEvent.design('myEventType')' bit of this expression
-              //console.log("isEventDefinition and node is: ", node.getText())
-              ////console.log("Type args????", (node as tsMorph.PropertyAccessExpression).get)
               return extractEventTypeFromDesign((node as tsMorph.PropertyAccessExpression).getExpression())
           }
           // Entered if e.g. event is defined in a namespace Events and we have
@@ -246,16 +213,10 @@ function extractEventTypeFromDesign(node: Node): Option<Node> {
           // Do this by resolving files. Should be somewhere in Runner.
           const expr = (node as CallExpression).getExpression()
           const callInfoOption = definitionNodeInfo(expr)
-          //console.log(`In CallExpression node.getExpression is: ${expr.getText()}`)
-          //console.log(`In CallExpression node is: ${node.getText()}`)
-          ////console.log((node as CallExpression).getTypeArguments())
           if (isSome(callInfoOption) && isEventDesign(getValue(callInfoOption))) {
               // Assume there will be exactly one arguments: a string naming the event type
               return some((node as CallExpression).getArguments()[0]!)
-          } /* else if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
-            //console.log("BOing")
-            //console.log("Type args?? ", (node as CallExpression).getTypeArguments().map(ta => ta.getText()))
-          } */
+          }
           return extractEventTypeFromDesign(expr)
   }
 
@@ -263,61 +224,15 @@ function extractEventTypeFromDesign(node: Node): Option<Node> {
 }
 
 function extractPayloadTypeFromDesign(node: Node, typeVariables: TypeVariables): Option<PayloadType> {
-  //console.log(`Hello from extract payload type`)
-    if (node.getKind() === SyntaxKind.CallExpression) {
+  if (node.getKind() === SyntaxKind.CallExpression) {
     const expr = (node as CallExpression).getExpression()
     const callInfoOption = definitionNodeInfo(expr)
-    //console.log(`In CallExpression node.getExpression is: ${expr.getText()}`)
-    //console.log(`In CallExpression node is: ${node.getText()}`)
-    ////console.log((node as CallExpression).getTypeArguments())
     if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
       const typeArguments = (node as CallExpression).getTypeArguments()
       return typeArguments.length > 0
         ? some(typeNodeToPayloadType(typeArguments[0]!, typeVariables))
         : none
-      ////console.log("BOing")
-      ////console.log("Type args?? ", (node as CallExpression).getTypeArguments().map(ta => ta.getText()))
-      ////console.log((node as CallExpression).getTypeArguments().length)
-      //typeNodeToPayloadType(node.getTypeArguments()[0]!, this.eventSpec.typeVariables)
     }
-    //return extractPayloadTypeFromDesign(expr, ++number)
-    /* switch (node.getKind()) {
-        case SyntaxKind.PropertyAccessExpression:
-            const definitionNodeProperty = definitionNodeInfo(node)
-            if (isSome(definitionNodeProperty) && isEventDefinition(getValue(definitionNodeProperty))) {
-                // At this point we have an expression MachineEvent.design('myEventType').( withoutPayload() + withPayload<...>() + withZod<...>() )
-                // Recurse wit the 'MachineEvent.design('myEventType')' bit of this expression
-                //console.log("isEventDefinition and node is: ", node.getText())
-                ////console.log("Type args????", (node as tsMorph.PropertyAccessExpression).get)
-                return extractPayloadTypeFromDesign((node as tsMorph.PropertyAccessExpression).getExpression(), ++number)
-            }
-            // Entered if e.g. event is defined in a namespace Events and we have
-            // Events.myEvent --> getNamenameNode() returns the myEvent bit of this expression.
-            return extractPayloadTypeFromDesign((node as tsMorph.PropertyAccessExpression).getNameNode(), ++number)
-        case SyntaxKind.Identifier:
-            const definitionNodes = (node as tsMorph.Identifier).getDefinitionNodes()
-            // Assume there is just one definition of this name. At defnitionNodes[0]
-            return definitionNodes.length > 0 ? extractPayloadTypeFromDesign(definitionNodes[0]!, ++number) : none
-        case SyntaxKind.VariableDeclaration:
-            const initializer = (node as tsMorph.VariableDeclaration).getInitializer()
-            return initializer ? extractPayloadTypeFromDesign(initializer, ++number) : none
-        case SyntaxKind.CallExpression:
-            // Check if this is a call to withPayload or withoutPayload. If so get parent propertyAccessExpression and go back to call to design.
-            // Do this by resolving files. Should be somewhere in Runner.
-            const expr = (node as CallExpression).getExpression()
-            const callInfoOption = definitionNodeInfo(expr)
-            //console.log(`In CallExpression node.getExpression is: ${expr.getText()}`)
-            //console.log(`In CallExpression node is: ${node.getText()}`)
-            ////console.log((node as CallExpression).getTypeArguments())
-            if (isSome(callInfoOption) && isEventDesign(getValue(callInfoOption))) {
-                // Assume there will be exactly one arguments: a string naming the event type
-                return some((node as CallExpression).getArguments()[0]!)
-            } else if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
-              //console.log("BOing")
-              //console.log("Type args?? ", (node as CallExpression).getTypeArguments().map(ta => ta.getText()))
-            }
-            return extractPayloadTypeFromDesign(expr, ++number)
-    } */
   }
 
   return none
