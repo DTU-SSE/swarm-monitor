@@ -36,7 +36,7 @@ function basicVisit(node: Node, prepend: string = '') {
   });
 }
 
-const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
+const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
   const inner = (t: tsMorph.Type, visited: Set<string>): TypeInfo => {
     if (visited.has(t.getText())) {
       return { type: TYPEINFO_TYPES.REFERENCE, asString: t.getText() }
@@ -55,7 +55,10 @@ const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
     if (t.isObject()) {
       visited.add(t.getText())
       const mapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
-        return { propertyName: symbol.getName(), propertyType: inner(symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)}
+        const valueDeclarationType = symbol.getValueDeclaration()?.getType()
+        return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
+          ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
+          : { propertyName: symbol.getName(), propertyType: inner(symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)}
       }
       return { type: TYPEINFO_TYPES.OBJECT1, asString: t.getText(), properties: t.getProperties().map(mapper)}
     }
@@ -63,6 +66,7 @@ const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
       return { type: TYPEINFO_TYPES.STRING, asString: t.getText() }
     }
     if (t.isUnion()) {
+      // We should check for use of type alias here as well. Like we do for object properties
       const mapper = (unionTypeMember: tsMorph.Type): TypeInfo => inner(unionTypeMember, visited)
       let members = t.getUnionTypes().map(mapper)
 
@@ -83,12 +87,21 @@ const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
   return inner(t, new Set())
 }
 
+// Visit all type variable declarations and create a map from names to TypeInfos
 const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
+  // Use the set of names to not expand nested types. E.g. type a = { f1: number }; type b = { f2: a }.
+  // We do not want to expand the type a in the type b.
+  // This is by design, we may be able to resuse message types later on like this.
+  const typeNames = new Set(
+      sourceFile
+      .getTypeAliases()
+      .map(typeAliasDeclaration => typeAliasDeclaration.getName())
+  )
   return new Map(
       sourceFile
       .getTypeAliases()
       .map(typeAliasDeclaration =>
-        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType())]
+        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames)]
       )
     )
 }
