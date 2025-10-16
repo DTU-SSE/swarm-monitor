@@ -1,6 +1,6 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, SourceFile } from "ts-morph";
 import * as tsMorph from "ts-morph"
-import { none, serializeTypeInfo, some, type EventSpec, type Option, type PropertyInfo, type TypeInfo, type TypeVariables } from "./types.js";
+import { getValue, isSome, none, serializeTypeInfo, some, type EventSpec, type Option, type PropertyInfo, type TypeInfo, type TypeVariables } from "./types.js";
 import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 import { TYPEINFO_NAMES, TYPEINFO_TYPES, MACHINE_RUNNER_NAMES } from "./constants.js";
 
@@ -76,6 +76,7 @@ const typeToTypeInfo = (t: tsMorph.Type): TypeInfo => {
       return { type: TYPEINFO_TYPES.UNION, asString: t.getText(), members: members}
     }
     // TODO: remaining cases: e.g. tuples, intersections. Consider using options to not crash when encountering something not implemented
+    // But if this is not handled throughout then we just postpone the crash a little bit.
     throw Error(`Support for ${t.getText()} not implemented`)
   }
 
@@ -92,22 +93,71 @@ const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
     )
 }
 
+// Get all variable declarations and try to parse them as MachineEvents.
 const visitVariableDeclarations = (sourceFile: SourceFile): Event[] => {
+  return sourceFile
+    .getVariableDeclarations()
+    .concat(sourceFile
+      .getDescendantsOfKind(SyntaxKind.ModuleDeclaration)
+      .flatMap(m => m.getVariableDeclarations()))
+    .map(variableDeclaration => machineEventDefinition(variableDeclaration))
+    .filter(o => isSome(o))
+    .map(o => getValue(o))
+  /* console.log("Visiting top-level variable declarations")
+  const events = variableDeclarations
+      .map(variableDeclaration => machineEventDefinition(variableDeclaration))
+      .filter(o => isSome(o))
+      .map(o => getValue(o))
+  console.log("top level done")
+  //const modules = sourceFile.getModules()
+  const modules = sourceFile.getDescendantsOfKind(SyntaxKind.ModuleDeclaration)
+  for (const m of modules) {
+    console.log(`Visiting variable declarations of ${m.getName()}`)
+    for (const vDecl of m.getVariableDeclarations()) {
+      machineEventDefinition(vDecl)
+    }
+  }
+  return events */
+}
 
+const machineEventDefinition = (node: VariableDeclaration): Option<Event> => {
+  console.log("-----")
+  const enclosingModule = getEnclosingModule(node).map(m => m.getName()).join(".")
+  console.log(`Name of variable: ${enclosingModule.length ? enclosingModule + "." + node.getName() : node.getName()}`)
+  console.log(`Kind of initializer: ${node.getInitializer()!.getKindName()}`)
+  console.log("Basic visitting initializer")
+  basicVisit(node.getInitializer()!)
+  const maybeEventType = extractEventTypeFromDesign(node.getInitializer()!)
+  console.log(`Trying to get event type: ${isSome(maybeEventType) ? getValue(maybeEventType).getText() : "Not an event type"}`)
+  //const enclosingModule = getEnclosingModule(node)
+  //console.log(`Enclosing module: ${enclosingModule.map(m => m.getName()).join(".")}`)
+  console.log("-----")
+  return none
+}
 
-  throw Error
+const getEnclosingModule = (node: Node): tsMorph.ModuleDeclaration[] => {
+  const inner = (node: Node, acc: tsMorph.ModuleDeclaration[]): tsMorph.ModuleDeclaration[] => {
+    const mod = node.getFirstAncestorByKind(SyntaxKind.ModuleDeclaration)
+    if (!mod) {
+      return acc.reverse()
+    } else {
+      acc.push(mod)
+      return inner(mod, acc)
+    }
+  }
+  return inner(node, [])
 }
 
 type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: Node }
 
 function isEventDefinition(nodeInfo: DefinitionNodeInfo): boolean {
-    return (nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
-      && MACHINE_RUNNER_NAMES.EVENT_DEFINITION_FUNCTIONS.some(eventDefFunction => eventDefFunction === nodeInfo.definitionNodeText))
+  return (nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
+    && MACHINE_RUNNER_NAMES.EVENT_DEFINITION_FUNCTIONS.some(eventDefFunction => eventDefFunction === nodeInfo.definitionNodeText))
 }
 
 function isEventDesign(nodeInfo: DefinitionNodeInfo): boolean {
-    return nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
-      && nodeInfo.definitionNodeText === MACHINE_RUNNER_NAMES.EVENT_DESIGN_FUNCTION
+  return nodeInfo.sourceFile.endsWith(MACHINE_RUNNER_NAMES.EVENT_D_TS)
+    && nodeInfo.definitionNodeText === MACHINE_RUNNER_NAMES.EVENT_DESIGN_FUNCTION
 }
 
 // Assumes one definition
@@ -138,6 +188,48 @@ function definitionNodeInfo(node: Node): Option<DefinitionNodeInfo> {
           return none
           //throw Error(`Not implemented: definitionNodeInfo(node) where \`node\` is of type ${node.getKindName()}.`)
     }
+}
+
+function extractEventTypeFromDesign(node: Node): Option<Node> {
+  switch (node.getKind()) {
+      case SyntaxKind.PropertyAccessExpression:
+          const definitionNodeProperty = definitionNodeInfo(node)
+          if (isSome(definitionNodeProperty) && isEventDefinition(getValue(definitionNodeProperty))) {
+              // At this point we have an expression MachineEvent.design('myEventType').( withoutPayload() + withPayload<...>() + withZod<...>() )
+              // Recurse wit the 'MachineEvent.design('myEventType')' bit of this expression
+              console.log("isEventDefinition and node is: ", node.getText())
+              //console.log("Type args????", (node as tsMorph.PropertyAccessExpression).get)
+              return extractEventTypeFromDesign((node as tsMorph.PropertyAccessExpression).getExpression())
+          }
+          // Entered if e.g. event is defined in a namespace Events and we have
+          // Events.myEvent --> getNamenameNode() returns the myEvent bit of this expression.
+          return extractEventTypeFromDesign((node as tsMorph.PropertyAccessExpression).getNameNode())
+      case SyntaxKind.Identifier:
+          const definitionNodes = (node as tsMorph.Identifier).getDefinitionNodes()
+          // Assume there is just one definition of this name. At defnitionNodes[0]
+          return definitionNodes.length > 0 ? extractEventTypeFromDesign(definitionNodes[0]!) : none
+      case SyntaxKind.VariableDeclaration:
+          const initializer = (node as tsMorph.VariableDeclaration).getInitializer()
+          return initializer ? extractEventTypeFromDesign(initializer) : none
+      case SyntaxKind.CallExpression:
+          // Check if this is a call to withPayload or withoutPayload. If so get parent propertyAccessExpression and go back to call to design.
+          // Do this by resolving files. Should be somewhere in Runner.
+          const expr = (node as CallExpression).getExpression()
+          const callInfoOption = definitionNodeInfo(expr)
+          console.log(`In CallExpression node.getExpression is: ${expr.getText()}`)
+          console.log(`In CallExpression node is: ${node.getText()}`)
+          //console.log((node as CallExpression).getTypeArguments())
+          if (isSome(callInfoOption) && isEventDesign(getValue(callInfoOption))) {
+              // Assume there will be exactly one arguments: a string naming the event type
+              return some((node as CallExpression).getArguments()[0]!)
+          } else if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
+            console.log("BOing")
+            console.log("Type args?? ", (node as CallExpression).getTypeArguments().map(ta => ta.getText()))
+          }
+          return extractEventTypeFromDesign(expr)
+  }
+
+  return none
 }
 
 // Traverse an ast constructing an EventSpec. Hardcoded to work with a file defining events using MachineEvent.design(...)
@@ -271,4 +363,6 @@ export function visitTypes(filePath: string): void {
     console.log(`Typename: ${key}`)
     console.log(`Type: ${JSON.stringify(serializeTypeInfo(value), null, 2)}`)
   }
+  console.log("Visiting variables:")
+  visitVariableDeclarations(sourceFile)
 }

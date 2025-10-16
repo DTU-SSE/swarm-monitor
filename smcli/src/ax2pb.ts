@@ -23,7 +23,7 @@ export const ax2pb = new Command("ax2pb")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
         visitTypes(path.resolve(process.cwd(), file))
-        generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
+        //generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
         spinnerSuccess()
         if (options.compile) {
             updateSpinnerText(`Setting up compilation scripts.`);
