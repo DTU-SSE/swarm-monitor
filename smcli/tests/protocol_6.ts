@@ -1,5 +1,5 @@
 //import { MachineEvent } from "./dummy_interface.js"
-import { MachineEvent } from '@actyx/machine-runner'
+import { MachineEvent } from "@actyx/machine-runner"
 
 type LarsElem = number
 type Lars = LarsElem[]

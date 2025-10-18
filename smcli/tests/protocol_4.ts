@@ -1,4 +1,4 @@
-import { MachineEvent } from "./dummy_interface.js"
+import { MachineEvent } from "@actyx/machine-runner"
 
 type t1 = boolean
 type Lars = number[]

@@ -1,4 +1,4 @@
-import { MachineEvent } from "./dummy_interface.js"
+import { MachineEvent } from "@actyx/machine-runner"
 
 const a = "a"
 type ClosingTimePayload = { timeOfDay: "typeof a" }

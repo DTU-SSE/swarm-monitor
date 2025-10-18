@@ -1,4 +1,4 @@
-import { MachineEvent } from "./dummy_interface.js"
+import { MachineEvent } from "@actyx/machine-runner"
 
 type ClosingTimePayload = { timeOfDay: string, nested: { number: number[], other: number}}
 type PartReqPayload = {partName: string, aNestedField: { a: string, b: string, c: { number: boolean[], other: number}}}
