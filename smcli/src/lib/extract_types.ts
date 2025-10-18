@@ -54,7 +54,16 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
     }
     if (t.isObject()) {
       visited.add(t.getText())
+      console.log()
+      console.log("Enclosing object name: ", t.getText())
       const mapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
+        console.log("-----")
+        console.log("First (value declaration get type): ", symbol.getValueDeclaration()?.getType().getText())
+        console.log("Second (declaredType): ", symbol.getDeclaredType().getText())
+        console.log("Third (isAlias): ", symbol.isAlias())
+        console.log("Fourth (name): ", symbol.getName())
+        console.log("Fifth: ", symbol.getValueDeclaration()?.getSymbol()?.isAlias())
+        console.log("-----")
         const valueDeclarationType = symbol.getValueDeclaration()?.getType()
         return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
           ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
