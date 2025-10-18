@@ -44,9 +44,52 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
     if (t.isArray()) {
       return { type: TYPEINFO_TYPES.ARRAY, asString: t.getText(), elementType: inner(t.getArrayElementTypeOrThrow(), visited) }
     }
+    switch (t.getFlags()) {
+      // We lose some information here. type t = true, will be represented as a boolean and not the narrower literal true, only differ in asString.
+      // We do this because a union myUnion = boolean | number gets expanded as true | false | number
+      case tsMorph.TypeFlags.Boolean:
+      case tsMorph.TypeFlags.BooleanLiteral:
+        return { type: TYPEINFO_TYPES.BOOLEAN, asString: t.getText() }
+      // Number literals simply become numbers
+      case tsMorph.TypeFlags.Number:
+      case tsMorph.TypeFlags.NumberLiteral:
+        return { type: TYPEINFO_TYPES.NUMBER, asString: t.getText() }
+      case tsMorph.TypeFlags.Object:
+        visited.add(t.getText())
+        const propertyMapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
+          const valueDeclarationType = symbol.getValueDeclaration()?.getType()
+          return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
+            ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
+            : { propertyName: symbol.getName(), propertyType: inner(symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)}
+        }
+        return { type: TYPEINFO_TYPES.OBJECT1, asString: t.getText(), properties: t.getProperties().map(propertyMapper)}
+      case tsMorph.TypeFlags.String:
+        return { type: TYPEINFO_TYPES.STRING, asString: t.getText() }
+      case tsMorph.TypeFlags.Union:
+        // We should check for use of type alias here as well. Like we do for object properties
+        const unionMemberMapper = (unionTypeMember: tsMorph.Type): TypeInfo => inner(unionTypeMember, visited)
+        let members = t.getUnionTypes().map(unionMemberMapper)
+
+        // We do this because a union myUnion = boolean | number gets expanded as true | false | number
+        // Consider doing this in boolean instead if boolean literal replace asString with TYPEINFO_TYPES.BOOLEAN
+        const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
+        const predicateFalseLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "false"
+        if (members.some(predicateTrueLiteral) && members.some(predicateFalseLiteral)) {
+          members = members.filter(t => !(predicateTrueLiteral(t) || predicateFalseLiteral(t)))
+          members.push({ type: TYPEINFO_TYPES.BOOLEAN, asString: TYPEINFO_TYPES.BOOLEAN })
+        }
+        return { type: TYPEINFO_TYPES.UNION, asString: t.getText(), members: members}
+      default:
+        // There isn't a typeflag for array so handle it here.
+        if (t.isArray()) {
+          return { type: TYPEINFO_TYPES.ARRAY, asString: t.getText(), elementType: inner(t.getArrayElementTypeOrThrow(), visited) }
+        }
+        
+        throw Error(`Support for ${t.getText()} not implemented`)
+    }
     // We lose some information here. type t = true, will be represented as a boolean and not the narrower literal true, only differ in asString.
     // We do this because a union myUnion = boolean | number gets expanded as true | false | number
-    if (t.isBoolean() || t.isBooleanLiteral()) {
+    /* if (t.isBoolean() || t.isBooleanLiteral()) {
       return { type: TYPEINFO_TYPES.BOOLEAN, asString: t.getText() }
     }
     if (t.isNumber()) {
@@ -82,7 +125,7 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
     }
     // TODO: remaining cases: e.g. tuples, intersections. Consider using options to not crash when encountering something not implemented
     // But if this is not handled throughout then we just postpone the crash a little bit.
-    throw Error(`Support for ${t.getText()} not implemented`)
+    throw Error(`Support for ${t.getText()} not implemented`) */
   }
 
   return inner(t, new Set())
@@ -93,18 +136,23 @@ const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
   // Use the set of names to not expand nested types. E.g. type a = { f1: number }; type b = { f2: a }.
   // We do not want to expand the type a in the type b.
   // This is by design, we may be able to resuse message types later on like this.
+  console.log("A.1")
   const typeNames = new Set(
       sourceFile
       .getTypeAliases()
       .map(typeAliasDeclaration => typeAliasDeclaration.getName())
   )
-  return new Map(
+  console.log("A.2")
+  const thing = new Map(
       sourceFile
       .getTypeAliases()
       .map(typeAliasDeclaration =>
+        //[typeAliasDeclaration.getName(), typeNodeToTypeInfo(typeAliasDeclaration.getTypeNode()!)]
         [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames)]
       )
     )
+  console.log("A.3")
+  return thing
 }
 
 // Get all variable declarations and try to parse them as MachineEvents.
@@ -255,7 +303,7 @@ const extractPayloadTypeFromDesign = (node: Node, typeVariables: TypeVariables):
         return payloadType
       }
       return typeArguments.length > 0
-        ? some(mapper(typeNodeToPayloadType(typeArguments[0]!, typeVariables)))
+        ? some(typeNodeToPayloadType(typeArguments[0]!, typeVariables)) //some(mapper(typeNodeToPayloadType(typeArguments[0]!, typeVariables)))
         : none
     }
   }
@@ -398,8 +446,11 @@ export function extractTypesFromFileCleaned(filePath: string): EventSpec {
 export const eventSpecification = (filePath: string): EventSpec => {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
+  console.log("A")
   const typeVariables = visitTypeAliasDeclarations(sourceFile)
+  console.log("B")
   const events = visitVariableDeclarations(sourceFile, typeVariables)
+  console.log("C")
   return { variables: new Map(), typeVariables, events }
 }
 
@@ -408,4 +459,6 @@ const eventSpecificationCleaned = (filePath: string): EventSpec => {
   const namesInUse = usedNames(eventSpec)
   return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name))) }
 }
+
+
 
