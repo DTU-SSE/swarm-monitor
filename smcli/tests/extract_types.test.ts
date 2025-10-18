@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { extractTypesFromFile } from "../src/lib/extract_types.js";
+import { eventSpecification, extractTypesFromFile } from "../src/lib/extract_types.js";
 import { eventSpecToString } from "../src/lib/types.js";
 import { usedNames } from "../src/lib/utils.js"
 import { readFileSync } from "fs" // Is actually fine, it runs
@@ -8,8 +8,11 @@ import isEqual from 'lodash.isequal'
 describe("test warehouse demo with extra events", () => {
   it("compare outputs protocol.ts", () => {
     const expected: string = readFileSync('tests/expected_event_spec_1.json', 'utf8');
+    const expected1: string = readFileSync('tests/expected_event_spec_1_new.json', 'utf8');
     const event_spec = extractTypesFromFile("tests/protocol_1.ts");
+    const event_spec1 = eventSpecification("tests/protocol_1.ts");
     expect(eventSpecToString(event_spec, null, 2)).toEqual(expected)
+    expect(eventSpecToString(event_spec1, null, 2)).toEqual(expected1)
   });
 
   it("compare outputs protocol_2.ts", () => {

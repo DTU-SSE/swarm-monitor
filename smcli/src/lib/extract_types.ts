@@ -71,6 +71,7 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
       let members = t.getUnionTypes().map(mapper)
 
       // We do this because a union myUnion = boolean | number gets expanded as true | false | number
+      // Consider doing this in boolean instead if boolean literal replace asString with TYPEINFO_TYPES.BOOLEAN
       const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
       const predicateFalseLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "false"
       if (members.some(predicateTrueLiteral) && members.some(predicateFalseLiteral)) {
@@ -119,13 +120,16 @@ const visitVariableDeclarations = (sourceFile: SourceFile, typeVariables: TypeVa
 }
 
 const machineEventDefinition = (node: VariableDeclaration, typeVariables: TypeVariables): Option<Event> => {
-  const maybeEventType = extractEventTypeFromDesign(node.getInitializer()!)
-  if (isSome(maybeEventType)) {
-    const optionPayloadType = extractPayloadTypeFromDesign(node.getInitializer()!, typeVariables)
-    const eventTypeName = getEventTypeName(getValue(maybeEventType))
-    return isSome(optionPayloadType)
-      ? some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: getValue(optionPayloadType) })
-      : some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITHOUT_PAYLOAD })
+  const initializer = node.getInitializer()
+  if (initializer) {
+    const maybeEventType = extractEventTypeFromDesign(initializer)
+    if (isSome(maybeEventType)) {
+      const optionPayloadType = extractPayloadTypeFromDesign(initializer, typeVariables)
+      const eventTypeName = getEventTypeName(getValue(maybeEventType))
+      return isSome(optionPayloadType)
+        ? some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: getValue(optionPayloadType) })
+        : some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITHOUT_PAYLOAD })
+    }
   }
   return none
 }
@@ -174,7 +178,7 @@ function isEventDesign(nodeInfo: DefinitionNodeInfo): boolean {
 }
 
 // Assumes one definition
-function definitionNodeInfo(node: Node): Option<DefinitionNodeInfo> {
+const definitionNodeInfo = (node: Node): Option<DefinitionNodeInfo> => {
     switch (node.getKind()) {
         case SyntaxKind.PropertyAccessExpression:
             const definitionNodesProperty = (node as tsMorph.PropertyAccessExpression).getNameNode().getDefinitionNodes()
@@ -202,7 +206,7 @@ function definitionNodeInfo(node: Node): Option<DefinitionNodeInfo> {
     }
 }
 
-function extractEventTypeFromDesign(node: Node): Option<Node> {
+const extractEventTypeFromDesign = (node: Node): Option<Node> => {
   switch (node.getKind()) {
       case SyntaxKind.PropertyAccessExpression:
           const definitionNodeProperty = definitionNodeInfo(node)
@@ -236,14 +240,22 @@ function extractEventTypeFromDesign(node: Node): Option<Node> {
   return none
 }
 
-function extractPayloadTypeFromDesign(node: Node, typeVariables: TypeVariables): Option<PayloadType> {
+const extractPayloadTypeFromDesign = (node: Node, typeVariables: TypeVariables): Option<PayloadType> => {
   if (node.getKind() === SyntaxKind.CallExpression) {
     const expr = (node as CallExpression).getExpression()
     const callInfoOption = definitionNodeInfo(expr)
     if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
       const typeArguments = (node as CallExpression).getTypeArguments()
+      // DELETE MAPPER AND USE OF MAPPER ONCE YOU'VE FULLY TRANSITIONED TO NEW APPROACH AND OBJECT1 HAS REPLACED OBJECT
+      const mapper = (payloadType: PayloadType): PayloadType => {
+        if (payloadType.type === TYPEINFO_TYPES.OBJECT) {
+          const properties: PropertyInfo[] = payloadType.properties.map(([propertyName, propertyType]) => { return {propertyName, propertyType}})
+          return {...payloadType, type: TYPEINFO_TYPES.OBJECT1,  properties }
+        } 
+        return payloadType
+      }
       return typeArguments.length > 0
-        ? some(typeNodeToPayloadType(typeArguments[0]!, typeVariables))
+        ? some(mapper(typeNodeToPayloadType(typeArguments[0]!, typeVariables)))
         : none
     }
   }
