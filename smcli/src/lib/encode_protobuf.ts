@@ -57,6 +57,8 @@ function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObjec
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
             return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index + 1)) // Field numbers start at 1
+        case TYPEINFO_TYPES.OBJECT1:
+            throw Error("Not immplemented object1")
         case TYPEINFO_TYPES.UNION:
             throw Error("Encoding of union types is not implemented")
     }

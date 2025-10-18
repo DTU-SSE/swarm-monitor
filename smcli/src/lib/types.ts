@@ -20,7 +20,7 @@ export type PropertyInfo = { propertyName: string, propertyType: TypeInfo }
 export type ObjectType1 = { type: "object1", asString: string, properties: PropertyInfo[] };
 
 // Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
-export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
+export type PayloadType = ObjectType | ObjectType1 | (UnionType & { members: PayloadType[] });
 
 // Maps type aliases to the types they denote.
 export type TypeVariables = Map<string, TypeInfo>;

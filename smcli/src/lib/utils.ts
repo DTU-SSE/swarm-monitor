@@ -104,6 +104,8 @@ function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] 
         switch (typeInfo.type) {
             case TYPEINFO_TYPES.OBJECT:
                 return names.concat(typeInfo.properties.flatMap(([_, typeInfo]) => inner(typeInfo, typeVars, visited)))
+            case TYPEINFO_TYPES.OBJECT1:
+                return names.concat(typeInfo.properties.flatMap(p => inner(p.propertyType, typeVars, visited)))
             case TYPEINFO_TYPES.REFERENCE:
                 if (!visited.has(typeInfo.asString)) {
                     names.push(typeInfo.asString)
@@ -167,6 +169,8 @@ function replacePrimitiveTypeVarsPayloadType(payloadType: PayloadType, typeVars:
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
             return { ...payloadType, properties: payloadType.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
+        case TYPEINFO_TYPES.OBJECT1:
+            return { ...payloadType, properties: payloadType.properties.map(p => { return { propertyName: p.propertyName, propertyType: replacePrimitiveTypeVarsTypeInfo(p.propertyType, typeVars) }}) }
         case TYPEINFO_TYPES.UNION:
             // as PayloadType sketchy but what??
             return { ...payloadType, members: payloadType.members.map(field => replacePrimitiveTypeVarsTypeInfo(field, typeVars) as PayloadType) }

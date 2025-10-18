@@ -1,6 +1,6 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, SourceFile } from "ts-morph";
 import * as tsMorph from "ts-morph"
-import { getValue, isSome, none, serializeTypeInfo, some, type EventSpec, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type TypeVariables, type Event } from "./types.js";
+import { getValue, isSome, none, serializeTypeInfo, some, type EventSpec, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type TypeVariables, type Event, serializeEventSpec } from "./types.js";
 import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 import { TYPEINFO_NAMES, TYPEINFO_TYPES, MACHINE_RUNNER_NAMES } from "./constants.js";
 
@@ -54,16 +54,7 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
     }
     if (t.isObject()) {
       visited.add(t.getText())
-      console.log()
-      console.log("Enclosing object name: ", t.getText())
       const mapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
-        console.log("-----")
-        console.log("First (value declaration get type): ", symbol.getValueDeclaration()?.getType().getText())
-        console.log("Second (declaredType): ", symbol.getDeclaredType().getText())
-        console.log("Third (isAlias): ", symbol.isAlias())
-        console.log("Fourth (name): ", symbol.getName())
-        console.log("Fifth: ", symbol.getValueDeclaration()?.getSymbol()?.isAlias())
-        console.log("-----")
         const valueDeclarationType = symbol.getValueDeclaration()?.getType()
         return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
           ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
@@ -382,10 +373,27 @@ export function extractTypesFromFileCleaned(filePath: string): EventSpec {
   return cleanEventSpec(extractTypesFromFile(filePath))
 }
 
-export function visitTypes(filePath: string): EventSpec {
+/* export function eventSpec(filePath: string): EventSpec {
+  const project = new Project();
+  const sourceFile = project.addSourceFileAtPath(filePath);
+  const typeVariables = visitTypeAliasDeclarations(sourceFile)
+  const events = visitVariableDeclarations(sourceFile, typeVariables)
+  const eventSpec = replacePrimitiveTypeVarsEventSpec({ variables: new Map(), typeVariables, events })
+  const namesInUse = usedNames(eventSpec)
+  return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name))) }
+} */
+
+export const eventSpecification = (filePath: string): EventSpec => {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
   const typeVariables = visitTypeAliasDeclarations(sourceFile)
   const events = visitVariableDeclarations(sourceFile, typeVariables)
   return { variables: new Map(), typeVariables, events }
 }
+
+const eventSpecificationCleaned = (filePath: string): EventSpec => { 
+  const eventSpec = replacePrimitiveTypeVarsEventSpec(eventSpecification(filePath))
+  const namesInUse = usedNames(eventSpec)
+  return {...eventSpec, typeVariables: new Map(Array.from(eventSpec.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name))) }
+}
+
