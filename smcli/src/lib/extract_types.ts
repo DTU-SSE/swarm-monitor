@@ -36,7 +36,7 @@ function basicVisit(node: Node, prepend: string = '') {
   });
 }
 
-const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
+const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>, typeChecker: tsMorph.TypeChecker): TypeInfo => {
   const inner = (t: tsMorph.Type, visited: Set<string>): TypeInfo => {
     if (visited.has(t.getText())) {
       return { type: TYPEINFO_TYPES.REFERENCE, asString: t.getText() }
@@ -57,10 +57,11 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
       case tsMorph.TypeFlags.Object:
         visited.add(t.getText())
         const propertyMapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
-          const valueDeclarationType = symbol.getValueDeclaration()?.getType()
+          //const valueDeclarationType = symbol.getValueDeclaration()?.getType()
+          const valueDeclarationType = typeChecker.getTypeAtLocation(symbol.getValueDeclaration()!)
           return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
             ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
-            : { propertyName: symbol.getName(), propertyType: inner(symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)}
+            : { propertyName: symbol.getName(), propertyType: inner(typeChecker.getTypeAtLocation(symbol.getValueDeclaration()!), visited)}
         }
         return { type: TYPEINFO_TYPES.OBJECT1, asString: t.getText(), properties: t.getProperties().map(propertyMapper)}
       case tsMorph.TypeFlags.String:
@@ -132,7 +133,7 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
 }
 
 // Visit all type variable declarations and create a map from names to TypeInfos
-const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
+const visitTypeAliasDeclarations = (sourceFile: SourceFile, typeChecker: tsMorph.TypeChecker): TypeVariables => {
   // Use the set of names to not expand nested types. E.g. type a = { f1: number }; type b = { f2: a }.
   // We do not want to expand the type a in the type b.
   // This is by design, we may be able to resuse message types later on like this.
@@ -148,7 +149,8 @@ const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
       .getTypeAliases()
       .map(typeAliasDeclaration =>
         //[typeAliasDeclaration.getName(), typeNodeToTypeInfo(typeAliasDeclaration.getTypeNode()!)]
-        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames)]
+        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames, typeChecker)]
+        //[typeAliasDeclaration.getName(), typeToTypeInfo(typeChecker.getTypeAtLocation(typeAliasDeclaration), typeNames, typeChecker)]
       )
     )
   console.log("A.3")
@@ -446,8 +448,9 @@ export function extractTypesFromFileCleaned(filePath: string): EventSpec {
 export const eventSpecification = (filePath: string): EventSpec => {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
+  const typeChecker = project.getTypeChecker()
   console.log("A")
-  const typeVariables = visitTypeAliasDeclarations(sourceFile)
+  const typeVariables = visitTypeAliasDeclarations(sourceFile, typeChecker)
   console.log("B")
   const events = visitVariableDeclarations(sourceFile, typeVariables)
   console.log("C")
