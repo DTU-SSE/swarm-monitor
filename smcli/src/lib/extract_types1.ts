@@ -119,10 +119,26 @@ class TypeExtractor {
         return inner(t, new Set())
     }
 
+    simplifyTypeInfo(typeInfo: TypeInfo): TypeInfo {
+        switch (typeInfo.type) {
+            case TYPEINFO_TYPES.OBJECT1:
+                
+        }
+
+        throw Error
+    }
+
+    simplifyEvents(events: Event[]): Event[] {
+
+
+        throw Error
+    }
+
 }
 // definitely not a literal object type expr if it this is not satisfied :D
 const notLiteralObjectExpr = (name: string): boolean => !(name.startsWith("{") && name.endsWith("}"))
 
+// This is weird mapping and passing type extractor. Move everything to type extractor instead
 // Get all variable declarations and try to parse them as MachineEvents.
 const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): Event[] => {
     const typeExtractor = new TypeExtractor(sourceFile)
@@ -134,6 +150,8 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): Event[] => {
         .map(variableDeclaration => machineEventDefinition(variableDeclaration, typeExtractor))
         .filter(o => isSome(o))
         .map(o => getValue(o))
+
+    const ee = typeExtractor.simplifyEvents(events)
 
     for (const [k, v] of typeExtractor.knownTypes) {
         console.log(`${k}: ${JSON.stringify(serializeTypeInfo(v), null, 2)}`)
