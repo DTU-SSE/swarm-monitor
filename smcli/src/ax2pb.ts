@@ -6,6 +6,7 @@ import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
 import { eventSpecToString } from "./lib/types.js";
+import { eventSpecification1 } from "./lib/extract_types1.js";
 
 type Options = {
     output: string,
@@ -23,13 +24,16 @@ export const ax2pb = new Command("ax2pb")
     .option("-c, --compile", "Adds compilation of generated .proto to 'scripts' package.json")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
-        const eventSpecNew = eventSpecification(path.resolve(process.cwd(), file))
+        //const eventSpecNew = eventSpecification(path.resolve(process.cwd(), file))
+        const eventSpecNew1 = eventSpecification1(path.resolve(process.cwd(), file))
         //const eventSpecOld = extractTypesFromFileCleaned(path.resolve(process.cwd(), file))
         //console.log("type names in new: ", eventSpecNew.typeVariables.keys())
         //console.log("type names in old: ", eventSpecOld.typeVariables.keys())
         //console.log()
-        console.log("new: ", eventSpecToString(eventSpecNew, null, 2))
+        //console.log("new: ", eventSpecToString(eventSpecNew, null, 2))
         //console.log("-------")
+        //console.log("new1: ", eventSpecToString(eventSpecNew1, null, 2))
+
         //console.log("old: ", eventSpecToString(eventSpecOld, null, 2))
         //generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
         spinnerSuccess()

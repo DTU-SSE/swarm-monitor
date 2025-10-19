@@ -38,6 +38,15 @@ function basicVisit(node: Node, prepend: string = '') {
 
 const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
   const inner = (t: tsMorph.Type, visited: Set<string>): TypeInfo => {
+    /* console.log("t.getAliasSymbol()?.getName(): ", t.getAliasSymbol()?.getName())
+    console.log("t.getSymbol()?.getName(): ", t.getSymbol()?.getName())
+    console.log("t.getApparentType().getAliasSymbol()?.getName(): ", t.getApparentType().getAliasSymbol()?.getName())
+    console.log("t.getText(): ", t.getText())
+    console.log("------") */
+    const tname = t.getAliasSymbol()?.getName() ?? t.getText()
+    /* console.log("TNAME: ", tname)
+    console.log("------")
+    console.log() */
     if (visited.has(t.getText())) {
       return { type: TYPEINFO_TYPES.REFERENCE, asString: t.getText() }
     }
