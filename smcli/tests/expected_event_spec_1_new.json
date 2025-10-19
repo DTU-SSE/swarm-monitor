@@ -308,7 +308,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object1",
-        "asString": "{name: string}",
+        "asString": "{ name: string; }",
         "properties": [
           [
             "name",

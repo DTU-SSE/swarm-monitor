@@ -1,7 +1,7 @@
 import { Project, Node, SyntaxKind, VariableDeclaration, CallExpression, TypeAliasDeclaration, SourceFile } from "ts-morph";
 import * as tsMorph from "ts-morph"
 import { getValue, isSome, none, serializeTypeInfo, some, type EventSpec, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type TypeVariables, type Event, serializeEventSpec } from "./types.js";
-import { replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
+import { isPayloadType, replacePrimitiveTypeVarsEventSpec, typeNodeToPayloadType, typeNodeToTypeInfo, usedNames } from "./utils.js";
 import { TYPEINFO_NAMES, TYPEINFO_TYPES, MACHINE_RUNNER_NAMES } from "./constants.js";
 
 // Visitor interface
@@ -36,66 +36,26 @@ function basicVisit(node: Node, prepend: string = '') {
   });
 }
 
-const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>, typeChecker: tsMorph.TypeChecker): TypeInfo => {
+const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>): TypeInfo => {
   const inner = (t: tsMorph.Type, visited: Set<string>): TypeInfo => {
     if (visited.has(t.getText())) {
       return { type: TYPEINFO_TYPES.REFERENCE, asString: t.getText() }
     }
+
     if (t.isArray()) {
       return { type: TYPEINFO_TYPES.ARRAY, asString: t.getText(), elementType: inner(t.getArrayElementTypeOrThrow(), visited) }
     }
-    switch (t.getFlags()) {
-      // We lose some information here. type t = true, will be represented as a boolean and not the narrower literal true, only differ in asString.
-      // We do this because a union myUnion = boolean | number gets expanded as true | false | number
-      case tsMorph.TypeFlags.Boolean:
-      case tsMorph.TypeFlags.BooleanLiteral:
-        return { type: TYPEINFO_TYPES.BOOLEAN, asString: t.getText() }
-      // Number literals simply become numbers
-      case tsMorph.TypeFlags.Number:
-      case tsMorph.TypeFlags.NumberLiteral:
-        return { type: TYPEINFO_TYPES.NUMBER, asString: t.getText() }
-      case tsMorph.TypeFlags.Object:
-        visited.add(t.getText())
-        const propertyMapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
-          //const valueDeclarationType = symbol.getValueDeclaration()?.getType()
-          const valueDeclarationType = typeChecker.getTypeAtLocation(symbol.getValueDeclaration()!)
-          return valueDeclarationType && typeNames.has(valueDeclarationType.getText())
-            ? { propertyName: symbol.getName(), propertyType: { type: TYPEINFO_TYPES.REFERENCE, asString: valueDeclarationType.getText() }}
-            : { propertyName: symbol.getName(), propertyType: inner(typeChecker.getTypeAtLocation(symbol.getValueDeclaration()!), visited)}
-        }
-        return { type: TYPEINFO_TYPES.OBJECT1, asString: t.getText(), properties: t.getProperties().map(propertyMapper)}
-      case tsMorph.TypeFlags.String:
-        return { type: TYPEINFO_TYPES.STRING, asString: t.getText() }
-      case tsMorph.TypeFlags.Union:
-        // We should check for use of type alias here as well. Like we do for object properties
-        const unionMemberMapper = (unionTypeMember: tsMorph.Type): TypeInfo => inner(unionTypeMember, visited)
-        let members = t.getUnionTypes().map(unionMemberMapper)
 
-        // We do this because a union myUnion = boolean | number gets expanded as true | false | number
-        // Consider doing this in boolean instead if boolean literal replace asString with TYPEINFO_TYPES.BOOLEAN
-        const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
-        const predicateFalseLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "false"
-        if (members.some(predicateTrueLiteral) && members.some(predicateFalseLiteral)) {
-          members = members.filter(t => !(predicateTrueLiteral(t) || predicateFalseLiteral(t)))
-          members.push({ type: TYPEINFO_TYPES.BOOLEAN, asString: TYPEINFO_TYPES.BOOLEAN })
-        }
-        return { type: TYPEINFO_TYPES.UNION, asString: t.getText(), members: members}
-      default:
-        // There isn't a typeflag for array so handle it here.
-        if (t.isArray()) {
-          return { type: TYPEINFO_TYPES.ARRAY, asString: t.getText(), elementType: inner(t.getArrayElementTypeOrThrow(), visited) }
-        }
-        
-        throw Error(`Support for ${t.getText()} not implemented`)
-    }
     // We lose some information here. type t = true, will be represented as a boolean and not the narrower literal true, only differ in asString.
     // We do this because a union myUnion = boolean | number gets expanded as true | false | number
-    /* if (t.isBoolean() || t.isBooleanLiteral()) {
+    if (t.isBoolean() || t.isBooleanLiteral()) {
       return { type: TYPEINFO_TYPES.BOOLEAN, asString: t.getText() }
     }
-    if (t.isNumber()) {
+
+    if (t.isNumber() || t.isNumberLiteral()) {
       return { type: TYPEINFO_TYPES.NUMBER, asString: t.getText() }
     }
+
     if (t.isObject()) {
       visited.add(t.getText())
       const mapper = (symbol: tsMorph.Symbol):  PropertyInfo => {
@@ -106,12 +66,18 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>, typeChecker: ts
       }
       return { type: TYPEINFO_TYPES.OBJECT1, asString: t.getText(), properties: t.getProperties().map(mapper)}
     }
-    if (t.isString()) {
+
+    if (t.isString() || t.isStringLiteral()) {
       return { type: TYPEINFO_TYPES.STRING, asString: t.getText() }
     }
+
     if (t.isUnion()) {
       // We should check for use of type alias here as well. Like we do for object properties
-      const mapper = (unionTypeMember: tsMorph.Type): TypeInfo => inner(unionTypeMember, visited)
+      const mapper = (unionTypeMember: tsMorph.Type): TypeInfo => { 
+        return typeNames.has(unionTypeMember.getText()) 
+          ? { type: TYPEINFO_TYPES.REFERENCE, asString: unionTypeMember.getText() }
+          : inner(unionTypeMember, visited) 
+        }
       let members = t.getUnionTypes().map(mapper)
 
       // We do this because a union myUnion = boolean | number gets expanded as true | false | number
@@ -126,34 +92,43 @@ const typeToTypeInfo = (t: tsMorph.Type, typeNames: Set<string>, typeChecker: ts
     }
     // TODO: remaining cases: e.g. tuples, intersections. Consider using options to not crash when encountering something not implemented
     // But if this is not handled throughout then we just postpone the crash a little bit.
-    throw Error(`Support for ${t.getText()} not implemented`) */
+    throw Error(`Support for ${t.getText()} not implemented`)
   }
 
   return inner(t, new Set())
 }
 
 // Visit all type variable declarations and create a map from names to TypeInfos
-const visitTypeAliasDeclarations = (sourceFile: SourceFile, typeChecker: tsMorph.TypeChecker): TypeVariables => {
+// Use the slower getType() version that uses the Projects (instantiated in eventSpecification and containing sourcefile) typechecker
+// Slower than looking at TypeNodes but still.
+const visitTypeAliasDeclarations = (sourceFile: SourceFile): TypeVariables => {
   // Use the set of names to not expand nested types. E.g. type a = { f1: number }; type b = { f2: a }.
   // We do not want to expand the type a in the type b.
   // This is by design, we may be able to resuse message types later on like this.
-  console.log("A.1")
   const typeNames = new Set(
       sourceFile
       .getTypeAliases()
       .map(typeAliasDeclaration => typeAliasDeclaration.getName())
   )
-  console.log("A.2")
   const thing = new Map(
       sourceFile
       .getTypeAliases()
       .map(typeAliasDeclaration =>
-        //[typeAliasDeclaration.getName(), typeNodeToTypeInfo(typeAliasDeclaration.getTypeNode()!)]
-        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames, typeChecker)]
-        //[typeAliasDeclaration.getName(), typeToTypeInfo(typeChecker.getTypeAtLocation(typeAliasDeclaration), typeNames, typeChecker)]
+        //[typeAliasDeclaration.getName(), typeNodeToTypeInfo(typeAliasDeclaration.getTypeNode()!)] // faster version
+        [typeAliasDeclaration.getName(), typeToTypeInfo(typeAliasDeclaration.getType(), typeNames)]
       )
     )
-  console.log("A.3")
+  /* const typeVarsInitial: Map<string, Option<TypeInfo>> = new Map(
+    sourceFile
+    .getTypeAliases()
+    .map(typeAliasDeclaration => [typeAliasDeclaration.getName(), none])
+    )
+  const thing1 = sourceFile
+    .getTypeAliases()
+    .reduce(
+      (typeVars, typeDeclaration) =>  typeVars.set(typeDeclaration.getName(), some()),
+      typeVarsInitial
+    ) */
   return thing
 }
 
@@ -164,17 +139,17 @@ const visitVariableDeclarations = (sourceFile: SourceFile, typeVariables: TypeVa
     .concat(sourceFile
       .getDescendantsOfKind(SyntaxKind.ModuleDeclaration)
       .flatMap(m => m.getVariableDeclarations()))
-    .map(variableDeclaration => machineEventDefinition(variableDeclaration, typeVariables))
+    .map(variableDeclaration => machineEventDefinition(variableDeclaration, typeVariables, new Set(typeVariables.keys())))
     .filter(o => isSome(o))
     .map(o => getValue(o))
 }
 
-const machineEventDefinition = (node: VariableDeclaration, typeVariables: TypeVariables): Option<Event> => {
+const machineEventDefinition = (node: VariableDeclaration, typeVariables: TypeVariables, typeNames: Set<string>): Option<Event> => {
   const initializer = node.getInitializer()
   if (initializer) {
     const maybeEventType = extractEventTypeFromDesign(initializer)
     if (isSome(maybeEventType)) {
-      const optionPayloadType = extractPayloadTypeFromDesign(initializer, typeVariables)
+      const optionPayloadType = extractPayloadTypeFromDesign(initializer, typeVariables, typeNames)
       const eventTypeName = getEventTypeName(getValue(maybeEventType))
       return isSome(optionPayloadType)
         ? some({ eventTypeName: eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: getValue(optionPayloadType) })
@@ -200,19 +175,6 @@ const getEventTypeName = (node: Node): string => {
     }
   }
   throw new Error(`Event type name not found in arguments of call expression: ${node.getText()}`);
-}
-
-const getEnclosingModule = (node: Node): tsMorph.ModuleDeclaration[] => {
-  const inner = (node: Node, acc: tsMorph.ModuleDeclaration[]): tsMorph.ModuleDeclaration[] => {
-    const mod = node.getFirstAncestorByKind(SyntaxKind.ModuleDeclaration)
-    if (!mod) {
-      return acc.reverse()
-    } else {
-      acc.push(mod)
-      return inner(mod, acc)
-    }
-  }
-  return inner(node, [])
 }
 
 type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: Node }
@@ -290,23 +252,32 @@ const extractEventTypeFromDesign = (node: Node): Option<Node> => {
   return none
 }
 
-const extractPayloadTypeFromDesign = (node: Node, typeVariables: TypeVariables): Option<PayloadType> => {
+// Function to convert a TypeNode to PayloadType
+// First level expanded by design.
+// We want 'message eventTypeName { ... fields of type denoted by type alias }'
+// instead of  'message eventTypeName { TypeAlias type_alias }' and 'message TypeAlias { ... fields of type denoted by type alias }
+const designTypeArgsToPayloadType = (typeArgumets:tsMorph.TypeNode<tsMorph.ts.TypeNode>[], typeVariables: TypeVariables, typeNames: Set<string>): Option<PayloadType> => {
+  if (typeArgumets.length != 1) {
+    return none
+  }
+  const t = typeArgumets[0]!.getType()
+  var typeInfo = typeVariables.get(t.getText()) ?? typeToTypeInfo(t, typeNames)
+  if (isPayloadType(typeInfo, typeVariables)) {
+      return some(typeInfo)
+  }
+
+  return none
+
+}
+
+const extractPayloadTypeFromDesign = (node: Node, typeVariables: TypeVariables, typeNames: Set<string>): Option<PayloadType> => {
   if (node.getKind() === SyntaxKind.CallExpression) {
     const expr = (node as CallExpression).getExpression()
     const callInfoOption = definitionNodeInfo(expr)
+    
     if (isSome(callInfoOption) && isEventDefinition(getValue(callInfoOption))) {
       const typeArguments = (node as CallExpression).getTypeArguments()
-      // DELETE MAPPER AND USE OF MAPPER ONCE YOU'VE FULLY TRANSITIONED TO NEW APPROACH AND OBJECT1 HAS REPLACED OBJECT
-      const mapper = (payloadType: PayloadType): PayloadType => {
-        if (payloadType.type === TYPEINFO_TYPES.OBJECT) {
-          const properties: PropertyInfo[] = payloadType.properties.map(([propertyName, propertyType]) => { return {propertyName, propertyType}})
-          return {...payloadType, type: TYPEINFO_TYPES.OBJECT1,  properties }
-        } 
-        return payloadType
-      }
-      return typeArguments.length > 0
-        ? some(typeNodeToPayloadType(typeArguments[0]!, typeVariables)) //some(mapper(typeNodeToPayloadType(typeArguments[0]!, typeVariables)))
-        : none
+      return designTypeArgsToPayloadType(typeArguments, typeVariables, typeNames)
     }
   }
 
@@ -448,12 +419,8 @@ export function extractTypesFromFileCleaned(filePath: string): EventSpec {
 export const eventSpecification = (filePath: string): EventSpec => {
   const project = new Project();
   const sourceFile = project.addSourceFileAtPath(filePath);
-  const typeChecker = project.getTypeChecker()
-  console.log("A")
-  const typeVariables = visitTypeAliasDeclarations(sourceFile, typeChecker)
-  console.log("B")
+  const typeVariables = visitTypeAliasDeclarations(sourceFile)
   const events = visitVariableDeclarations(sourceFile, typeVariables)
-  console.log("C")
   return { variables: new Map(), typeVariables, events }
 }
 

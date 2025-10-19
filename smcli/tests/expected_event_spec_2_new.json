@@ -195,15 +195,15 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "union",
-        "asString": "PartReqPayload | ClosingTimePayload",
+        "asString": "ClosingTimePayload | PartReqPayload",
         "members": [
           {
             "type": "reference",
-            "asString": "PartReqPayload"
+            "asString": "ClosingTimePayload"
           },
           {
             "type": "reference",
-            "asString": "ClosingTimePayload"
+            "asString": "PartReqPayload"
           }
         ]
       }
@@ -309,7 +309,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object1",
-        "asString": "{name: string}",
+        "asString": "{ name: string; }",
         "properties": [
           [
             "name",

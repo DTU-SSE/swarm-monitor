@@ -7,13 +7,13 @@ import isEqual from 'lodash.isequal'
 // TODO: Test clean event spec
 describe("test warehouse demo with extra events", () => {
   it("compare outputs protocol.ts", () => {
-    const expected: string = readFileSync('tests/expected_event_spec_1.json', 'utf8');
+    const expected: string = readFileSync('tests/expected_event_spec_1_new.json', 'utf8');
     const event_spec = eventSpecification("tests/protocol_1.ts");
     expect(eventSpecToString(event_spec, null, 2)).toEqual(expected)
   });
 
   it("compare outputs protocol_2.ts", () => {
-    const expected: string = readFileSync('tests/expected_event_spec_2.json', 'utf8');
+    const expected: string = readFileSync('tests/expected_event_spec_2_new.json', 'utf8');
     const event_spec = eventSpecification("tests/protocol_2.ts");
     expect(eventSpecToString(event_spec, null, 2)).toEqual(expected)
   });
@@ -24,7 +24,7 @@ describe("test warehouse demo with extra events", () => {
     // Other type aliases used for event payload types are inlined
     const event_spec = eventSpecification("tests/protocol_2.ts");
     // Haha is not included -- resolved as string. Boing not included -- resovled as Laquo
-    const expected = new Set(["Haha", "ClosingTypeNested", "ClosingTimePayload", "Boing", "PartReqPayload"])
+    const expected = new Set(["ClosingTypeNested", "ClosingTimePayload", "Laquo", "PartReqPayload"])
     expect(isEqual(usedNames(event_spec), expected)).toEqual(true)
   });
 
@@ -33,7 +33,7 @@ describe("test warehouse demo with extra events", () => {
     // ClosingTypePayload recursively in terms of itself, has a field of type ClosingTypePayload
     // Other type aliases used for event payload types are inlined
     // Boing is resolved to Lars
-    const expected = new Set(["ClosingTypeNested", "ClosingTimePayload", "Boing"])
+    const expected = new Set(["ClosingTypeNested", "ClosingTimePayload", "Lars"])
     expect(isEqual(usedNames(event_spec), expected)).toEqual(true)
   })
 

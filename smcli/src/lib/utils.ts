@@ -50,7 +50,7 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
 // that situation is not allowed anyway, so i do not think collecting visited necessary here.
 // Ok?
 // Get type that a type alias denotes.
-function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInfo {
+export function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInfo {
     function inner(typeVar: string, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
         const resolvedTypeInfo = typeVars.get(typeVar)
         if (resolvedTypeInfo) {
@@ -64,7 +64,7 @@ function resolveTypeReference(typeVar: string, typeVars: TypeVariables): TypeInf
 }
 
 // Type predicates. Returns a boolean. If true ensures that 'typeInfo' is typed as PayloadType.
-function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is PayloadType {
+export function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is PayloadType {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.OBJECT:
             return true

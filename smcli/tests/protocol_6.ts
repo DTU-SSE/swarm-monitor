@@ -1,13 +1,12 @@
 //import { MachineEvent } from "./dummy_interface.js"
 import { MachineEvent } from "@actyx/machine-runner"
+import { type ClosingTimePayload } from "./closing_time_payload"
 
 type LarsElem = number
 type Lars = LarsElem[]
 type Laquo = Lars
 type Boing = Laquo
 type Haha = string
-type ClosingTypeNested = { number: number[], other: Boing}
-type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }
 type PartReqPayload = {partName: Haha}
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}
