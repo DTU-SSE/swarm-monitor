@@ -8,4 +8,6 @@ export type PartReqPayload = {partName: Haha}
 type ClosingTypeNested = { number: number[], other: Boing1}
 export type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested; closing: ClosingTimePayload }
 
-export const foo = (): number => 1 
+export const foo = (): number => 1
+
+export type PosPayload = { position: string, partName: string, fromPayloadTypesTS: boolean }

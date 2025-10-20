@@ -42,6 +42,10 @@ export const isPrimitiveType = (typeInfo: TypeInfo): boolean => {
   return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING
 }
 
+export const isPrimitiveOrArray = (typeInfo: TypeInfo): boolean => {
+  return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING || typeInfo.type === TYPEINFO_TYPES.ARRAY
+}
+
 // Serializable things are to pretty print TypeInfo, Event and EventSpec
 type Serializable = string | number | boolean | null | SerializableObject | Serializable[]
 export type SerializableObject = { [key: string]: Serializable }
@@ -64,7 +68,7 @@ export function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
     }
 }
 
-function serializeEvent(event: Event): Serializable {
+export function serializeEvent(event: Event): Serializable {
   switch (event.eventKind) {
     case 'withPayload':
       return { eventTypeName: event.eventTypeName, eventKind: event.eventKind, payloadType: serializeTypeInfo(event.payloadType) }
