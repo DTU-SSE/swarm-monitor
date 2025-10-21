@@ -1,12 +1,11 @@
 import { Command } from "commander";
 import { generateProtoBufMsgDefs } from "./lib/protobuf_codegen.js";
 import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
-import { extractTypesFromFileCleaned, eventSpecification } from "./lib/extract_types.js";
 import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
 import { eventSpecToString } from "./lib/types.js";
-import { eventSpecification1 } from "./lib/extract_types1.js";
+import { eventSpecification } from "./lib/extract_types.js";
 
 type Options = {
     output: string,
@@ -25,7 +24,7 @@ export const ax2pb = new Command("ax2pb")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
         //const eventSpecNew = eventSpecification(path.resolve(process.cwd(), file))
-        const eventSpecNew1 = eventSpecification1(path.resolve(process.cwd(), file))
+        const eventSpecNew1 = eventSpecification(path.resolve(process.cwd(), file))
         //const eventSpecOld = extractTypesFromFileCleaned(path.resolve(process.cwd(), file))
         //console.log("type names in new: ", eventSpecNew.typeVariables.keys())
         //console.log("type names in old: ", eventSpecOld.typeVariables.keys())

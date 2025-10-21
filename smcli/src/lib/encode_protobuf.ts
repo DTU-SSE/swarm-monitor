@@ -16,7 +16,7 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     namespace.add(meta)
 
     // Encode the type definitions referred to by payload types
-    addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.typeVariables))
+    addMessagesToNamespace(namespace, encodeTypeAliases(eventSpec.context.typeVariables))
 
     const extra: FieldGenerator[] = branchTracking ? [metaField, lastUpField] : [metaField]
 
@@ -56,9 +56,7 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
 function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-            return payloadType.properties.map(([fieldName, typeInfo], index) => typeInfoToField(typeInfo, fieldName, index + 1)) // Field numbers start at 1
-        case TYPEINFO_TYPES.OBJECT1:
-            throw Error("Not immplemented object1")
+            return payloadType.properties.map(({propertyName, propertyType}, index) => typeInfoToField(propertyType, propertyName, index + 1)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
             throw Error("Encoding of union types is not implemented")
     }

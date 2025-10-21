@@ -1,4 +1,4 @@
-import { type TypeInfo, type PayloadType, type TypeVariables, type Event, type EventSpec, isPrimitiveType } from "./types.js";
+/* import { type TypeInfo, type PayloadType, type TypeVariables, type Event, type EventSpec, isPrimitiveType } from "./types.js";
 import { TypeNode, SyntaxKind, ArrayTypeNode, UnionTypeNode, TypeLiteralNode, PropertySignature } from "ts-morph";
 import { TYPEINFO_TYPES, TYPEINFO_NAMES } from "./constants.js";
 
@@ -39,7 +39,7 @@ export function typeNodeToTypeInfo(typeNode: TypeNode): TypeInfo {
                     const fieldType = typeNodeToTypeInfo(prop.getTypeNode()!);
                     return [prop.getName(), fieldType]
                 });
-            return { type: 'object', asString: typeLiteral.getText(), properties: pairs };
+            return { type: 'objectNot', asString: typeLiteral.getText(), properties: pairs };
         default:
             throw new Error(`Unsupported TypeNode kind: ${SyntaxKind[typeNode.getKind()]}`);
     }
@@ -66,9 +66,9 @@ export function resolveTypeReference(typeVar: string, typeVars: TypeVariables): 
 // Type predicates. Returns a boolean. If true ensures that 'typeInfo' is typed as PayloadType.
 export function isPayloadType(typeInfo: TypeInfo, typeVars: TypeVariables): typeInfo is PayloadType {
     switch (typeInfo.type) {
-        case TYPEINFO_TYPES.OBJECT:
+        case TYPEINFO_TYPES.OBJECTNOT:
             return true
-        case TYPEINFO_TYPES.OBJECT1:
+        case TYPEINFO_TYPES.OBJECT:
             return true
         case TYPEINFO_TYPES.UNION:
             return typeInfo.members.every(m => isPayloadType(m, typeVars))
@@ -102,9 +102,9 @@ function namesInTypeInfo(typeInfo: TypeInfo, typeVars: TypeVariables): string[] 
     function inner(typeInfo: TypeInfo, typeVars: TypeVariables, visited: Set<string>): string[] {
         const names: string[] = []
         switch (typeInfo.type) {
-            case TYPEINFO_TYPES.OBJECT:
+            case TYPEINFO_TYPES.OBJECTNOT:
                 return names.concat(typeInfo.properties.flatMap(([_, typeInfo]) => inner(typeInfo, typeVars, visited)))
-            case TYPEINFO_TYPES.OBJECT1:
+            case TYPEINFO_TYPES.OBJECT:
                 return names.concat(typeInfo.properties.flatMap(p => inner(p.propertyType, typeVars, visited)))
             case TYPEINFO_TYPES.REFERENCE:
                 if (!visited.has(typeInfo.asString)) {
@@ -157,9 +157,9 @@ function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVari
             return { ...typeInfo, elementType: replacePrimitiveTypeVarsTypeInfo(typeInfo.elementType, typeVars) }
         case TYPEINFO_TYPES.UNION:
             return { ...typeInfo, members: typeInfo.members.map(m => replacePrimitiveTypeVarsTypeInfo(m, typeVars)) }
-        case TYPEINFO_TYPES.OBJECT:
+        case TYPEINFO_TYPES.OBJECTNOT:
             return { ...typeInfo, properties: typeInfo.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
-        case TYPEINFO_TYPES.OBJECT1:
+        case TYPEINFO_TYPES.OBJECT:
             return { ...typeInfo, properties: typeInfo.properties.map((p) => {return {propertyName: p.propertyName, propertyType: replacePrimitiveTypeVarsTypeInfo(p.propertyType, typeVars)} }) }
     }
 }
@@ -167,9 +167,9 @@ function replacePrimitiveTypeVarsTypeInfo(typeInfo: TypeInfo, typeVars: TypeVari
 // If some field or union member array element has a type alias for a primitive type as type, replace by that type
 function replacePrimitiveTypeVarsPayloadType(payloadType: PayloadType, typeVars: TypeVariables): PayloadType {
     switch (payloadType.type) {
-        case TYPEINFO_TYPES.OBJECT:
+        case TYPEINFO_TYPES.OBJECTNOT:
             return { ...payloadType, properties: payloadType.properties.map(([fieldName, field]) => [fieldName, replacePrimitiveTypeVarsTypeInfo(field, typeVars)]) }
-        case TYPEINFO_TYPES.OBJECT1:
+        case TYPEINFO_TYPES.OBJECT:
             return { ...payloadType, properties: payloadType.properties.map(p => { return { propertyName: p.propertyName, propertyType: replacePrimitiveTypeVarsTypeInfo(p.propertyType, typeVars) }}) }
         case TYPEINFO_TYPES.UNION:
             // as PayloadType sketchy but what??
@@ -199,4 +199,4 @@ export function replacePrimitiveTypeVarsEventSpec(eventSpec: EventSpec): EventSp
     }
 
     return { ...eventSpec, typeVariables: replacePrimitiveTypeVars(eventSpec.typeVariables), events: eventSpec.events.map(mapper) }
-}
+} */
