@@ -3,7 +3,7 @@ import { generateProtoBufMsgDefs } from "../src/lib/protobuf_codegen.js";
 import { metaMsgType, eventSpecToProtoBuf } from "../src/lib/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
-import { extractTypesFromFileCleaned } from "../src/lib/extract_types.js";
+import { eventSpecificationCleaned } from "../src/lib/extract_types.js";
 
 const OUTDIR = "tests"
 
@@ -44,7 +44,7 @@ describe("test dummy messages", () => {
     })
     it("generate .proto from tests/warehouse-demo-events.ts", async () => {
         const expected: string = readFileSync('tests/expected_output_3_lbj.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/warehouse-demo-events.ts");
+        const eventSpec = eventSpecificationCleaned("tests/warehouse-demo-events.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_3.proto`
         await generateProtoBufMsgDefs(root, outputFile)
@@ -54,7 +54,7 @@ describe("test dummy messages", () => {
     })
     it("generate .proto with nested messages as separate message types", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_4.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/protocol_4.ts");
+        const eventSpec = eventSpecificationCleaned("tests/protocol_4.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_4.proto`
         await generateProtoBufMsgDefs(root, outputFile)
@@ -64,7 +64,7 @@ describe("test dummy messages", () => {
     })
     it("generate .proto with nested messages", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_5.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/protocol_5.ts");
+        const eventSpec = eventSpecificationCleaned("tests/protocol_5.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_5.proto`
         await generateProtoBufMsgDefs(root, outputFile)

@@ -56,7 +56,7 @@
     [
       "ClosingTypeNested",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "ClosingTypeNested",
         "properties": [
           [
@@ -83,7 +83,7 @@
     [
       "ClosingTimePayload",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "ClosingTimePayload",
         "properties": [
           [
@@ -113,7 +113,7 @@
     [
       "PartReqPayload",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "PartReqPayload",
         "properties": [
           [
@@ -129,7 +129,7 @@
     [
       "PosPayload",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "PosPayload",
         "properties": [
           [
@@ -152,7 +152,7 @@
     [
       "PartOKPayload",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "PartOKPayload",
         "properties": [
           [
@@ -168,7 +168,7 @@
     [
       "CarPayload",
       {
-        "type": "object1",
+        "type": "object",
         "asString": "CarPayload",
         "properties": [
           [
@@ -212,7 +212,7 @@
       "eventTypeName": "partOK",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "object1",
+        "type": "object",
         "asString": "PartOKPayload",
         "properties": [
           [
@@ -229,7 +229,7 @@
       "eventTypeName": "pos",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "object1",
+        "type": "object",
         "asString": "PosPayload",
         "properties": [
           [
@@ -253,7 +253,7 @@
       "eventTypeName": "closingTime",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "object1",
+        "type": "object",
         "asString": "ClosingTimePayload",
         "properties": [
           [
@@ -284,7 +284,7 @@
       "eventTypeName": "car",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "object1",
+        "type": "object",
         "asString": "CarPayload",
         "properties": [
           [
@@ -308,7 +308,7 @@
       "eventTypeName": "thing",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "object1",
+        "type": "object",
         "asString": "{ name: string; }",
         "properties": [
           [

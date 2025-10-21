@@ -77,7 +77,7 @@ export function serializeEvent(event: Event): Serializable {
 export function serializeEventSpec(eventSpec: EventSpec): Serializable {
   return {
     context: {
-      knownTypes: Array.from(eventSpec.context.typeVariables.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
+      typeVariables: Array.from(eventSpec.context.typeVariables.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
       namedImports: Array.from(eventSpec.context.namedImports.entries())
     },
     events: eventSpec.events.map(e => serializeEvent(e))

@@ -1,5 +1,5 @@
 
-import { MachineEvent } from "./dummy_interface.js"
+import { MachineEvent } from "@actyx/machine-runner"
 
 type ClosingTimePayload = { timeOfDay: string }
 type PartReqPayload = {partName: string}

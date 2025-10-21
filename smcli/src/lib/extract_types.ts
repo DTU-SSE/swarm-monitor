@@ -1,6 +1,7 @@
 import * as tsMorph from "ts-morph"
 import { type Event, getValue, isSome, none, some, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type EventSpec, serializeTypeInfo, serializeEvent, type Context } from "./types.js"
 import { MACHINE_RUNNER_NAMES, TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js"
+import { usedNames } from "./utils.js"
 
 /*
     One approach could be to get typeNodes for array element types, object properties and union members, check the syntax to see if a type reference is used.
@@ -43,7 +44,7 @@ const typeName = (context: Context, t: tsMorph.Type): string => {
     const symbol = t.getSymbol()
     if (symbol) {
       const source = symbol.getDeclarations()?.[0]?.getSourceFile()
-      console.log(`tText: ${tText}, source?.getBaseName(): ${source?.getBaseName()}`)
+      //console.log(`tText: ${tText}, source?.getBaseName(): ${source?.getBaseName()}`)
     }
     if (context.namedImports.has(tText)) {
         return context.namedImports.get(tText)!
@@ -79,7 +80,7 @@ function basicVisit(node: tsMorph.Node, prepend: string = '') {
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
         const tName = typeName(context, t)
-        console.log(`Hi t.getText(): ${t.getText()}. tName: ${tName}`)
+        //console.log(`Hi t.getText(): ${t.getText()}. tName: ${tName}`)
         // Recursive types
         if (visited.has(tName)) {
             return { context, typeInfo: { type: TYPEINFO_TYPES.REFERENCE, asString: tName } }
@@ -105,7 +106,7 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
         }
 
         if (t.isArray()) {
-            // need to use reference here sometimes. use something like get symbol??
+            // need to use reference here sometimes? use something like get symbol??
             const elementTypeResult = inner(context, t.getArrayElementTypeOrThrow(), visited)
             return { context: elementTypeResult.context, typeInfo: { type: TYPEINFO_TYPES.ARRAY, asString: tName, elementType: elementTypeResult.typeInfo } }
         }
@@ -116,11 +117,19 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
             const folder = (acc: { context: Context, propertyInfos: PropertyInfo[] }, symbol: tsMorph.Symbol): { context: Context, propertyInfos: PropertyInfo[] } => {
                 const typeVisitResult = inner(acc.context, symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)
                 const propertySignatureTypeNode = (symbol.getValueDeclaration() as tsMorph.PropertySignature)?.getTypeNode()
+
                 const typeInfo = propertySignatureTypeNode
                     && propertySignatureTypeNode.getKind() === tsMorph.SyntaxKind.TypeReference
                     && (typeVisitResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || typeVisitResult.typeInfo.type === TYPEINFO_TYPES.UNION)
                         ? { type: TYPEINFO_TYPES.REFERENCE, asString: propertySignatureTypeNode.getText() }
                         : typeVisitResult.typeInfo
+
+                // Make sure type name is in context if reference. Might not be the case already. 
+                // In 'type a = { ... }; type b = a;' typeInfo would be { ... } and we would have an entry for a.
+                // However, propertySignatureTypeNode.getText() would be b. Sketchy
+                if (typeInfo.type == TYPEINFO_TYPES.REFERENCE) {
+                    context.typeVariables.set(propertySignatureTypeNode?.getText()!, typeVisitResult.typeInfo)
+                }
 
                 // Add property type to property infos. Bit weird that it mutates.
                 // Consider possibly adding a reference here? If object or union but not literal?
@@ -356,10 +365,17 @@ const payloadTypeArgument = (node: tsMorph.Node): Option<tsMorph.Type> => {
 }
 
 export const eventSpecification = (filePath: string): EventSpec => {
-    console.log()
     const project = new tsMorph.Project();
     const sourceFile = project.addSourceFileAtPath(filePath);
-    const events = visitVariableDeclarations(sourceFile)
+    const eventSpec = visitVariableDeclarations(sourceFile)
 
-    return events
+    return eventSpec
+}
+
+export const eventSpecificationCleaned = (filePath: string): EventSpec => {
+
+    const eventSpec = eventSpecification(filePath)
+    const namesInUse = usedNames(eventSpec)
+    const typeVariables = new Map(Array.from(eventSpec.context.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))
+    return {...eventSpec, context: {...eventSpec.context, typeVariables }}
 }
