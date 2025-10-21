@@ -7,7 +7,7 @@ import isEqual from 'lodash.isequal'
 // TODO: Test clean event spec
 describe("test warehouse demo with extra events", () => {
   it("compare outputs protocol.ts", () => {
-    const expected: string = readFileSync('tests/expected_event_spec_1_1.json', 'utf8');
+    const expected: string = readFileSync('tests/expected_event_spec_1.json', 'utf8');
     const expectedCleaned: string = readFileSync('tests/expected_event_spec_1_cleaned.json', 'utf8');
     const eventSpec = eventSpecification("tests/protocol_1.ts");
     expect(eventSpecToString(eventSpec, null, 2)).toEqual(expected)
