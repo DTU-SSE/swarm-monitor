@@ -38,14 +38,9 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
 const hasLiteralObjectExprStartEnd = (name: string): boolean => (name.startsWith("{") && name.endsWith("}"))
 const hasBar = (name: string): boolean => name.includes("|")
 
-// this one should use typenode??
+// TODO: 'nested imports' of same name. 
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
-    const symbol = t.getSymbol()
-    if (symbol) {
-      const source = symbol.getDeclarations()?.[0]?.getSourceFile()
-      //console.log(`tText: ${tText}, source?.getBaseName(): ${source?.getBaseName()}`)
-    }
     if (context.namedImports.has(tText)) {
         return context.namedImports.get(tText)!
     }
@@ -73,14 +68,9 @@ function basicVisit(node: tsMorph.Node, prepend: string = '') {
   });
 }
 
-/* const useReference = (typeVisitResult: TypeVisitResult, symbol: tsMorph.Symbol): boolean {
-
-} */
-
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
         const tName = typeName(context, t)
-        //console.log(`Hi t.getText(): ${t.getText()}. tName: ${tName}`)
         // Recursive types
         if (visited.has(tName)) {
             return { context, typeInfo: { type: TYPEINFO_TYPES.REFERENCE, asString: tName } }
@@ -204,11 +194,7 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     return inner(context, t, new Set())
 }
 
-// Move the comment below somwhere else:
-//  Function to convert a TypeNode to PayloadType
-//  First level expanded by design.
-//  We want 'message eventTypeName { ... fields of type denoted by type alias }'
-//  instead of  'message eventTypeName { TypeAlias type_alias }' and 'message TypeAlias { ... fields of type denoted by type alias }
+// Visit all variable declarations in a file and create an event specification.
 const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec => {
     const context = { typeVariables: new Map(), namedImports: getNamedImports(sourceFile) }
     const eventTypeDeclarations = sourceFile
@@ -220,7 +206,6 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec =>
         .filter(isSome)
         .map(getValue)
 
-    // Turn {context, events} into eventspec??
     const folder = (acc: EventSpec, eventTypeInitExpr: EventTypeInitExpr): EventSpec => {
         const payloadTypeArg = payloadTypeArgument(eventTypeInitExpr.initializer)
         if (isSome(payloadTypeArg)) {
@@ -235,22 +220,8 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec =>
             return { context: acc.context, events: acc.events }
         }
     }
-    const result = eventTypeDeclarations
+    return eventTypeDeclarations
         .reduce(folder, { context, events: [] })
-
-    /* console.log("KNOWN TYPES: ")
-    for (const [k, v] of result.context.typeVariables) {
-        console.log(`${k}: ${JSON.stringify(serializeTypeInfo(v), null, 2)}`)
-    }
-    console.log("NAMED IMPORTS: ")
-    for (const [k, v] of result.context.namedImports) {
-        console.log(`${k}: ${v}`)
-    }
-    console.log("EVENTS: ")
-    for (const e of result.events) {
-        console.log(JSON.stringify(serializeEvent(e), null, 2))
-    } */
-    return result
 }
 
 const machineEventDefinition = (node: tsMorph.VariableDeclaration): Option<EventTypeInitExpr> => {

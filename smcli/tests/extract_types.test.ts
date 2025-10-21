@@ -16,7 +16,7 @@ describe("test warehouse demo with extra events", () => {
   });
 
   it("compare outputs protocol_2.ts", () => {
-    const expected: string = readFileSync('tests/expected_event_spec_2_2.json', 'utf8');
+    const expected: string = readFileSync('tests/expected_event_spec_2.json', 'utf8');
     const expectedCleaned: string = readFileSync('tests/expected_event_spec_2_cleaned.json', 'utf8');
     const event_spec = eventSpecification("tests/protocol_2.ts");
     expect(eventSpecToString(event_spec, null, 2)).toEqual(expected)
