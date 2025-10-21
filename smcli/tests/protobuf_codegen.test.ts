@@ -72,4 +72,14 @@ describe("test dummy messages", () => {
         expect(generated).toEqual(expected)
         unlinkSync(outputFile)
     })
+    it("car-factory example", async () => {
+        const expected: string = readFileSync('tests/expected_car_factory.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/car_factory_protocol.ts");
+        const root = eventSpecToProtoBuf("car_factory_messages", eventSpec, true)
+        const outputFile = `${OUTDIR}/car_factory.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
 });
