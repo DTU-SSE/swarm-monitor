@@ -40,6 +40,11 @@ const hasBar = (name: string): boolean => name.includes("|")
 // this one should use typenode??
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
+    const symbol = t.getSymbol()
+    if (symbol) {
+      const source = symbol.getDeclarations()?.[0]?.getSourceFile()
+      console.log(`tText: ${tText}, source?.getBaseName(): ${source?.getBaseName()}`)
+    }
     if (context.namedImports.has(tText)) {
         return context.namedImports.get(tText)!
     }
@@ -217,7 +222,7 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec =>
     const result = eventTypeDeclarations
         .reduce(folder, { context, events: [] })
 
-    console.log("KNOWN TYPES: ")
+    /* console.log("KNOWN TYPES: ")
     for (const [k, v] of result.context.typeVariables) {
         console.log(`${k}: ${JSON.stringify(serializeTypeInfo(v), null, 2)}`)
     }
@@ -228,7 +233,7 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec =>
     console.log("EVENTS: ")
     for (const e of result.events) {
         console.log(JSON.stringify(serializeEvent(e), null, 2))
-    }
+    } */
     return result
 }
 
