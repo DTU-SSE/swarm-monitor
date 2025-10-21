@@ -153,11 +153,18 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
         if (t.isUnion()) {
             const folder = (acc: { context: Context, unionTypeMembers: TypeInfo[] }, unionTypeMember: tsMorph.Type): { context: Context, unionTypeMembers: TypeInfo[] } => {
                 const typeVisitResult = inner(context, unionTypeMember, visited)
-                acc.unionTypeMembers.push(typeVisitResult.typeInfo)
+                const typeInfoFromContext = typeVisitResult.context.typeVariables.get(typeVisitResult.typeInfo.asString)
+                // Sketchy
+                const typeInfo = typeInfoFromContext 
+                    && (typeVisitResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || typeVisitResult.typeInfo.type === TYPEINFO_TYPES.UNION)
+                        ? { type: TYPEINFO_TYPES.REFERENCE, asString: typeVisitResult.typeInfo.asString }
+                        : typeVisitResult.typeInfo
+                
+                acc.unionTypeMembers.push(typeInfo)
                 return { context: typeVisitResult.context, unionTypeMembers: acc.unionTypeMembers }
             }
             const membersResult = t.getUnionTypes().reduce(folder, { context, unionTypeMembers: [] })
-
+            
             // We do this because a union myUnion = boolean | number gets expanded as true | false | number
             // Consider doing this in boolean instead if boolean literal replace asString with TYPEINFO_TYPES.BOOLEAN
             const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
