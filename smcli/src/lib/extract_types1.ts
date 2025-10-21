@@ -2,6 +2,11 @@ import * as tsMorph from "ts-morph"
 import { type Event, getValue, isSome, none, some, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type EventSpec, serializeTypeInfo, serializeEvent } from "./types.js"
 import { MACHINE_RUNNER_NAMES, TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js"
 
+/*
+    One approach could be to get typeNodes for array element types, object properties and union members, check the syntax to see if a type reference is used.
+    In that case add to context and use reference type info? visitType is already weird
+*/
+
 type Context = { knownTypes: Map<string, TypeInfo>, namedImports: Map<string, string> }
 type TypeVisitResult = { context: Context, typeInfo: TypeInfo }
 type EventTypeInitExpr = { eventTypeName: string, initializer: tsMorph.Expression }
@@ -28,10 +33,18 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
     )
 }
 
+// Literal object type expr would begin like this. Works for our purpose.
+const hasLiteralObjectExprStartEnd = (name: string): boolean => (name.startsWith("{") && name.endsWith("}"))
+const hasBar = (name: string): boolean => name.includes("|")
+
+// this one should use typenode??
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
     if (context.namedImports.has(tText)) {
         return context.namedImports.get(tText)!
+    }
+    if (hasLiteralObjectExprStartEnd(tText) || hasBar(tText)) {
+        return tText
     }
     // The type could be defined in some submodule. In this case we want the full name including all modules.
     const decl = t.getSymbol()?.getDeclarations()
@@ -46,6 +59,17 @@ const typeName = (context: Context, t: tsMorph.Type): string => {
 
     return tText
 }
+
+function basicVisit(node: tsMorph.Node, prepend: string = '') {
+  console.log(`${prepend}Node: ${node.getText()} of kind ${tsMorph.SyntaxKind[node.getKind()]}`);
+  node.forEachChild(child => {
+    basicVisit(child, prepend + '  * ');
+  });
+}
+
+/* const useReference = (typeVisitResult: TypeVisitResult, symbol: tsMorph.Symbol): boolean {
+
+} */
 
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
@@ -75,6 +99,7 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
         }
 
         if (t.isArray()) {
+            // need to use reference here sometimes. use something like get symbol??
             const elementTypeResult = inner(context, t.getArrayElementTypeOrThrow(), visited)
             return { context: elementTypeResult.context, typeInfo: { type: TYPEINFO_TYPES.ARRAY, asString: tName, elementType: elementTypeResult.typeInfo } }
         }
@@ -84,9 +109,16 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
             // This looks a bit odd.
             const folder = (acc: { context: Context, propertyInfos: PropertyInfo[] }, symbol: tsMorph.Symbol): { context: Context, propertyInfos: PropertyInfo[] } => {
                 const typeVisitResult = inner(acc.context, symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)
+                const propertySignatureTypeNode = (symbol.getValueDeclaration() as tsMorph.PropertySignature)?.getTypeNode()
+                const typeInfo = propertySignatureTypeNode
+                    && propertySignatureTypeNode.getKind() === tsMorph.SyntaxKind.TypeReference
+                    && (typeVisitResult.typeInfo.type === TYPEINFO_TYPES.OBJECT1 || typeVisitResult.typeInfo.type === TYPEINFO_TYPES.UNION)
+                        ? { type: TYPEINFO_TYPES.REFERENCE, asString: propertySignatureTypeNode.getText() }
+                        : typeVisitResult.typeInfo
+
                 // Add property type to property infos. Bit weird that it mutates.
                 // Consider possibly adding a reference here? If object or union but not literal?
-                const property = { propertyName: symbol.getName(), propertyType: typeVisitResult.typeInfo }
+                const property = { propertyName: symbol.getName(), propertyType: typeInfo }
                 acc.propertyInfos.push(property)
                 // Return updated context and property infos.
                 return { context: typeVisitResult.context, propertyInfos: acc.propertyInfos }
@@ -95,8 +127,10 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
             const propertiesResult = t.getProperties().reduce(folder, { context, propertyInfos: [] })
             const typeInfo = { type: TYPEINFO_TYPES.OBJECT1, asString: tName, properties: propertiesResult.propertyInfos }
 
-            // Update context
-            context.knownTypes.set(tName, typeInfo)
+            // Update context for object types that are not given as literal object type
+            if (!hasLiteralObjectExprStartEnd(tName)) {
+                context.knownTypes.set(tName, typeInfo)
+            }
 
             return { context, typeInfo }
         }
@@ -132,8 +166,10 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
 
             const typeInfo = { type: TYPEINFO_TYPES.UNION, asString: tName, members: members }
 
-            // Update context
-            context.knownTypes.set(tName, typeInfo)
+            // Update context for union types that are not given as literal union type
+            if (!hasBar(tName)) {
+                context.knownTypes.set(tName, typeInfo)
+            }
 
             return { context, typeInfo }
 
@@ -145,8 +181,6 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
 
     return inner(context, t, new Set())
 }
-// definitely not a literal object type expr if it this is not satisfied :D
-const notLiteralObjectExpr = (name: string): boolean => !(name.startsWith("{") && name.endsWith("}"))
 
 // Move the comment below somwhere else:
 //  Function to convert a TypeNode to PayloadType
@@ -160,12 +194,12 @@ const visitVariableDeclarations1 = (sourceFile: tsMorph.SourceFile): Event[] => 
         .concat(sourceFile
             .getDescendantsOfKind(tsMorph.SyntaxKind.ModuleDeclaration)
             .flatMap(m => m.getVariableDeclarations()))
-            .map(machineEventDefinition1)
-            .filter(isSome)
-            .map(getValue)
+        .map(machineEventDefinition1)
+        .filter(isSome)
+        .map(getValue)
 
     // Turn {context, events} into eventspec??
-    const folder = (acc: {context: Context, events: Event[]}, eventTypeInitExpr: EventTypeInitExpr): {context: Context, events: Event[]} => {
+    const folder = (acc: { context: Context, events: Event[] }, eventTypeInitExpr: EventTypeInitExpr): { context: Context, events: Event[] } => {
         const payloadTypeArg = payloadTypeArgument(eventTypeInitExpr.initializer)
         if (isSome(payloadTypeArg)) {
             const visitTypeResult = visitType(acc.context, getValue(payloadTypeArg))
@@ -180,7 +214,7 @@ const visitVariableDeclarations1 = (sourceFile: tsMorph.SourceFile): Event[] => 
         }
     }
     const result = eventTypeDeclarations
-        .reduce(folder, {context, events: []})
+        .reduce(folder, { context, events: [] })
 
     console.log("KNOWN TYPES: ")
     for (const [k, v] of result.context.knownTypes) {
@@ -201,7 +235,7 @@ const machineEventDefinition1 = (node: tsMorph.VariableDeclaration): Option<Even
     const initializer = node.getInitializer()
     if (initializer) {
         const maybeEventType = extractEventTypeFromDesign(initializer)
-        return isSome(maybeEventType) ? some({ eventTypeName: getEventTypeName(getValue(maybeEventType)), initializer}) : none
+        return isSome(maybeEventType) ? some({ eventTypeName: getEventTypeName(getValue(maybeEventType)), initializer }) : none
     }
     return none
 }
@@ -212,7 +246,7 @@ const getEventTypeName = (node: tsMorph.Node): string => {
     // TODO: other cases e.g. property access?
     if (node.getKind() === tsMorph.SyntaxKind.StringLiteral) {
         return node.getText().replace(/['"]/g, '')
-    // Seems sketchy
+        // Seems sketchy
     } else if (node.getKind() === tsMorph.SyntaxKind.Identifier) {
         const optionDefinitionNode = definitionNodeInfo(node)
         if (isSome(optionDefinitionNode)) {

@@ -1,7 +1,7 @@
 //import { MachineEvent } from "./dummy_interface.js"
 import { MachineEvent } from "@actyx/machine-runner"
 import { PartReqPayload, type ClosingTimePayload, foo, PosPayload as MyPosPayload } from "./payload_types"
-import { type ClosingTimePayload as ClosingTimePayload1 } from "./protocol_5"
+import { type ClosingTimePayload as ClosingTimePayload1 } from "./protocol_7"
 import * as pTypes1 from "./payload_types1"
 
 type LarsElem = number
@@ -11,11 +11,12 @@ type Boing = Laquo
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}
 type CarPayload = {partName: string, modelName: string}
+type SomeUnionType = string[] | boolean
 type ShouldNotBeIncluded1 = string[] | boolean
 type ShouldNotBeIncluded2 = number | ShouldNotBeIncluded1
 type ShouldNotBeIncluded3 = { a: string, b: string, c: number | string }
 type ShouldNotBeIncluded4 = {field1: number, field2: ShouldNotBeIncluded2}
-type MyPartReqPayload = {field1: PartReqPayload, field2: number }
+type MyPartReqPayload = {field1: PartReqPayload, field2: number, field3: SomeUnionType }
 type NestedClosingTime1 = { field1 :number, field2: ClosingTimePayload1}
 const var1 = 'pos'
 const posName = var1
@@ -42,6 +43,7 @@ export namespace Events {
       export const nestedPos = MachineEvent.design('Events2Pos').withPayload<PosPayload>()
       export namespace Events3 {
         export const nestedPos = MachineEvent.design('Events3Pos').withPayload<MyPosPayload>()
+        export const nestedPos1 = MachineEvent.design('Events3Pos1').withPayload<MyPosPayload | CarPayload>()
       }
     }
   }
