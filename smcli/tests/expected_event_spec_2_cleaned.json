@@ -94,7 +94,7 @@
     ],
     "namedImports": [
       [
-        "import(\"/home/luc/Git/swarm-monitor/smcli/node_modules/@actyx/machine-runner/lib/esm/design/event\").MachineEvent<Key, Payload>",
+        "@actyx.machine-runner.MachineEvent",
         "MachineEvent"
       ]
     ]

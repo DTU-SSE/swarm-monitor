@@ -2,6 +2,7 @@ import * as tsMorph from "ts-morph"
 import { type Event, getValue, isSome, none, some, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type EventSpec, serializeTypeInfo, serializeEvent, type Context } from "./types.js"
 import { MACHINE_RUNNER_NAMES, TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js"
 import { usedNames } from "./utils.js"
+import path from "path"
 
 /*
     One approach could be to get typeNodes for array element types, object properties and union members, check the syntax to see if a type reference is used.
@@ -13,6 +14,18 @@ type TypeVisitResult = { context: Context, typeInfo: TypeInfo }
 type EventTypeInitExpr = { eventTypeName: string, initializer: tsMorph.Expression }
 type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: tsMorph.Node }
 
+const importPath = (importDeclaration: tsMorph.ImportDeclaration, importSpecifier: tsMorph.ImportSpecifier): string => {
+    const importedSourceFile = importDeclaration.getModuleSpecifierSourceFile()
+    const projectRoot = importSpecifier.getProject().getDirectory("")?.getPath()
+    if (importedSourceFile && projectRoot) {
+        console.log("this branch: ", path.relative(projectRoot, importedSourceFile.getFilePath()))
+        console.log("else branch value is: ", importDeclaration.getModuleSpecifierValue())
+        return path.relative(projectRoot, importedSourceFile.getFilePath())
+    } else {
+        return importDeclaration.getModuleSpecifierValue()
+    }
+}
+
 const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> => {
     return new Map(
         sourceFile
@@ -21,10 +34,18 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
                 return imp.getNamedImports().map(namedImp => {
                     const alias = namedImp.getAliasNode()
                     const declaredType = namedImp.getNameNode().getSymbol()?.getDeclaredType()
+                    //console.log("named imp.getText: ", namedImp.getText())
+                    //console.log("named imp.getName: ", namedImp.getName()) // this one
+                    //console.log("named imp.getNameNode().getText(): ", namedImp.getNameNode().getText())
+                    //console.log(`alias: ${alias ? alias.getText() : "no alias"}`)
+                    //console.log("From importPath(imp, namedImp): ", importPath(imp, namedImp))
+                    //console.log("------")
+                    const prefix = imp.getModuleSpecifierValue().replace(/^\.\//, "").replace(".ts", "").replaceAll("/", ".")
+                    const fullName = `${prefix}.${namedImp.getName()}`
                     return declaredType
                         ? alias
-                            ? some({ fullName: declaredType.getText(), alias: alias.getText() })
-                            : some({ fullName: declaredType.getText(), alias: namedImp.getNameNode().getText() })
+                            ? some({ fullName, alias: alias.getText() })
+                            : some({ fullName, alias: namedImp.getName() })
                         : none
                 })
             })
@@ -38,7 +59,7 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
 const hasLiteralObjectExprStartEnd = (name: string): boolean => (name.startsWith("{") && name.endsWith("}"))
 const hasBar = (name: string): boolean => name.includes("|")
 
-// TODO: 'nested imports' of same name. 
+// TODO: 'nested imports' of same name.
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
     if (context.namedImports.has(tText)) {
@@ -114,7 +135,7 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
                         ? { type: TYPEINFO_TYPES.REFERENCE, asString: propertySignatureTypeNode.getText() }
                         : typeVisitResult.typeInfo
 
-                // Make sure type name is in context if reference. Might not be the case already. 
+                // Make sure type name is in context if reference. Might not be the case already.
                 // In 'type a = { ... }; type b = a;' typeInfo would be { ... } and we would have an entry for a.
                 // However, propertySignatureTypeNode.getText() would be b. Sketchy
                 if (typeInfo.type == TYPEINFO_TYPES.REFERENCE) {
@@ -145,16 +166,16 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
                 const typeVisitResult = inner(context, unionTypeMember, visited)
                 const typeInfoFromContext = typeVisitResult.context.typeVariables.get(typeVisitResult.typeInfo.asString)
                 // Sketchy
-                const typeInfo = typeInfoFromContext 
+                const typeInfo = typeInfoFromContext
                     && (typeVisitResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || typeVisitResult.typeInfo.type === TYPEINFO_TYPES.UNION)
                         ? { type: TYPEINFO_TYPES.REFERENCE, asString: typeVisitResult.typeInfo.asString }
                         : typeVisitResult.typeInfo
-                
+
                 acc.unionTypeMembers.push(typeInfo)
                 return { context: typeVisitResult.context, unionTypeMembers: acc.unionTypeMembers }
             }
             const membersResult = t.getUnionTypes().reduce(folder, { context, unionTypeMembers: [] })
-            
+
             // We do this because a union myUnion = boolean | number gets expanded as true | false | number
             // Consider doing this in boolean instead if boolean literal replace asString with TYPEINFO_TYPES.BOOLEAN
             const predicateTrueLiteral = (typeInfo: TypeInfo): boolean => typeInfo.type == TYPEINFO_TYPES.BOOLEAN && typeInfo.asString == "true"
@@ -351,8 +372,8 @@ export const eventSpecification = (filePath: string): EventSpec => {
 }
 
 export const eventSpecificationCleaned = (filePath: string): EventSpec => {
-
     const eventSpec = eventSpecification(filePath)
+    console.log(eventSpec.context.namedImports)
     const namesInUse = usedNames(eventSpec)
     const typeVariables = new Map(Array.from(eventSpec.context.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))
     return {...eventSpec, context: {...eventSpec.context, typeVariables }}

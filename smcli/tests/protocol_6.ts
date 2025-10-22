@@ -1,6 +1,7 @@
 import { MachineEvent } from "@actyx/machine-runner"
 import { PartReqPayload, type ClosingTimePayload, foo, PosPayload as MyPosPayload } from "./payload_types"
 import { type ClosingTimePayload as ClosingTimePayload1 } from "./subfolder/protocol_7"
+import { type ClosingTimePayload as ClosingTimePayload2 } from "./protocol_7"
 import * as pTypes1 from "./payload_types1"
 
 type LarsElem = number
@@ -42,6 +43,7 @@ export namespace Events {
     export namespace Events2 {
       type PosPayload = {position: string, partName: string, myFieeeeld: string[]}
       export const nestedPos = MachineEvent.design('Events2Pos').withPayload<PosPayload>()
+      export const nesteClosingtimeEvents2 = MachineEvent.design('Events2ClosingTime').withPayload<ClosingTimePayload2>()
       export namespace Events3 {
         export const nestedPos = MachineEvent.design('Events3Pos').withPayload<MyPosPayload>()
         export const nestedPos1 = MachineEvent.design('Events3Pos1').withPayload<MyPosPayload | CarPayload>()
