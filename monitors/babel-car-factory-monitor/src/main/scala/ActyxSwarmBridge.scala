@@ -13,15 +13,15 @@ import scala.annotation.tailrec
 import java.util.concurrent.Executors
 import scala.concurrent.{Future, ExecutionContext, Promise}
 
-class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
+class ActyxSwarmBridge(stopSignal: Promise[Unit])(using ec: ExecutionContext)
     extends GenericProtocol(
-      ActyxEventAdaptor.protoName,
-      ActyxEventAdaptor.protoId
+      ActyxSwarmBridge.protoName,
+      ActyxSwarmBridge.protoId
     ):
 
   private var socket: DatagramSocket = uninitialized
   private val buffer: Array[Byte] =
-    new Array[Byte](ActyxEventAdaptor.bufferSize)
+    new Array[Byte](ActyxSwarmBridge.bufferSize)
 
   override def init(properties: Properties): Unit =
 
@@ -35,7 +35,7 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
       case None         => return
 
     println(
-      s"${Console.GREEN}🚀 Actyx Event Adaptor ready and listening on ${socket
+      s"${Console.GREEN}🚀 Actyx swarm bridge ready and listening on ${socket
           .getLocalAddress()
           .getHostAddress()}:${socket.getLocalPort()} 📦${Console.RESET}"
     )
@@ -58,8 +58,8 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
         properties
           .getProperty("port")
           .toIntOption
-          .getOrElse(ActyxEventAdaptor.defaultPort)
-      else ActyxEventAdaptor.defaultPort
+          .getOrElse(ActyxSwarmBridge.defaultPort)
+      else ActyxSwarmBridge.defaultPort
 
     val addressString =
       if properties.containsKey("interface") then
@@ -77,7 +77,7 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
     Future {
       if stopSignal.isCompleted then ()
       else
-        val packet = new DatagramPacket(buffer, ActyxEventAdaptor.bufferSize)
+        val packet = new DatagramPacket(buffer, ActyxSwarmBridge.bufferSize)
 
         socket.receive(packet)
 
@@ -92,9 +92,9 @@ class ActyxEventAdaptor(stopSignal: Promise[Unit])(using ec: ExecutionContext)
         receivePacket()
     }
 
-object ActyxEventAdaptor:
+object ActyxSwarmBridge:
   val protoName: String = "ActyxEventAdaptor"
   val protoId: Short = 101
   val defaultPort: Int = 9999
   val bufferSize: Int = 4096
-  val logger: Logger = LogManager.getLogger(ActyxEventAdaptor)
+  val logger: Logger = LogManager.getLogger(ActyxSwarmBridge)

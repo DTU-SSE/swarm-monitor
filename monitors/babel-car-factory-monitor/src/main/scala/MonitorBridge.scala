@@ -16,14 +16,14 @@ import pt.unl.fct.di.novasys.babel.core.GenericProtocol
 import java.util.Properties
 import scala.compiletime.uninitialized
 
-class CarFactoryMonitor
+class MonitorBridge
     extends GenericProtocol(
-      CarFactoryMonitor.protoName,
-      CarFactoryMonitor.protoId
+      MonitorBridge.protoName,
+      MonitorBridge.protoId
     ):
 
   private val (monitorFut, monitorRef): (Future[Unit], ActorRef[Event]) =
-    monitor(CarFactoryMonitor.algorithm).start()
+    monitor(MonitorBridge.algorithm).start()
 
   override def init(properties: Properties): Unit =
     subscribeNotification(
@@ -81,8 +81,8 @@ class CarFactoryMonitor
       )
     case None => ()
 
-object CarFactoryMonitor:
+object MonitorBridge:
   val protoName: String = "CarFactoryMonitor"
   val protoId: Short = 102
-  val logger: Logger = LogManager.getLogger(CarFactoryMonitor)
+  val logger: Logger = LogManager.getLogger(MonitorBridge)
   val algorithm: MatchingAlgorithm = MatchingAlgorithm.WhileLazyAlgorithm

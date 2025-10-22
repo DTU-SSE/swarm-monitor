@@ -43,14 +43,14 @@ object Main:
 
     val properties: Properties = Babel.loadConfig(args, null)
 
-    val carFactoryMonitor: CarFactoryMonitor = new CarFactoryMonitor
-    val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor(stopSignal)
+    val actyxSwarmBridge: ActyxSwarmBridge = new ActyxSwarmBridge(stopSignal)
+    val monitorBridge: MonitorBridge = new MonitorBridge
 
-    babel.registerProtocol(carFactoryMonitor)
-    babel.registerProtocol(actyxEventAdaptor)
+    babel.registerProtocol(actyxSwarmBridge)
+    babel.registerProtocol(monitorBridge)
 
-    carFactoryMonitor.init(properties)
-    actyxEventAdaptor.init(properties)
+    monitorBridge.init(properties)
+    actyxSwarmBridge.init(properties)
 
     babel.start()
 
