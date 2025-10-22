@@ -2,15 +2,11 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import notifications.{ActyxEventNotification, StopReceivingNotification}
 import pt.unl.fct.di.novasys.babel.core.GenericProtocol
-import pt.unl.fct.di.novasys.babel.exceptions.HandlerRegistrationException
-import pt.unl.fct.di.novasys.network.data.Host
 import java.util.Properties
 import java.net.{DatagramSocket, DatagramPacket}
 import java.net.InetAddress
 import utils.NetworkingUtilities
 import scala.compiletime.uninitialized
-import scala.annotation.tailrec
-import java.util.concurrent.Executors
 import scala.concurrent.{Future, ExecutionContext, Promise}
 
 class ActyxSwarmBridge(stopSignal: Promise[Unit])(using ec: ExecutionContext)
