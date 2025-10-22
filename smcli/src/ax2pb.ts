@@ -24,7 +24,9 @@ export const ax2pb = new Command("ax2pb")
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
         //const eventSpecNew = eventSpecification(path.resolve(process.cwd(), file))
         //console.log(eventSpecToString(eventSpecNew, null, 2))
-        generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, eventSpecificationCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
+        const eventSpec = eventSpecificationCleaned(path.resolve(process.cwd(), file))
+        const protoBufRoot = eventSpecToProtoBuf(options.packageName, eventSpec, options.branchTracking)
+        generateProtoBufMsgDefs(protoBufRoot, path.resolve(process.cwd(), options.output))
         spinnerSuccess()
         if (options.compile) {
             updateSpinnerText(`Setting up compilation scripts.`);
