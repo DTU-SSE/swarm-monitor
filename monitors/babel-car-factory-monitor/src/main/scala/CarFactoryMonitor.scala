@@ -35,7 +35,7 @@ def monitor(algorithm: MatchingAlgorithm) =
     }(algorithm)
   }
 
-def printMetaInner(meta: Option[Meta]) = meta match
+def printMeta(meta: Option[Meta]) = meta match
   case Some(value) =>
     println(
       s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}"

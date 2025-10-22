@@ -6,6 +6,8 @@ import pt.unl.fct.di.novasys.babel.core.GenericProtocol
 import java.util.Properties
 import join_actors.api.{Actor, ActorRef}
 
+implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+
 // Takes an actor processing messages of type M and producing a result of type T.
 class MonitorBridge[M, T](actor: Actor[M, T], val parse: Array[Byte] => M)
     extends GenericProtocol(
@@ -14,6 +16,11 @@ class MonitorBridge[M, T](actor: Actor[M, T], val parse: Array[Byte] => M)
     ):
 
   private val (actorFut, actorRef): (Future[T], ActorRef[M]) = actor.start()
+
+  // Trigger StopReceivingNotitification when actor future completes
+  actorFut.onComplete {
+    case _ => triggerNotification(new StopReceivingNotification)
+  }
 
   override def init(properties: Properties): Unit =
     subscribeNotification(
@@ -30,6 +37,6 @@ class MonitorBridge[M, T](actor: Actor[M, T], val parse: Array[Byte] => M)
     actorRef ! event
 
 object MonitorBridge:
-  val protoName: String = "CarFactoryMonitor"
+  val protoName: String = "MonitorBridge"
   val protoId: Short = 102
   val logger: Logger = LogManager.getLogger(MonitorBridge)

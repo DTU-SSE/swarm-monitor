@@ -38,7 +38,7 @@ class ActyxSwarmBridge(stopSignal: Promise[Unit])(using ec: ExecutionContext)
 
     receivePacket()
 
-  // Called when receiving an StopReceivingNotification, emitted by the car factory monitor when it Stop()s
+  // Called when receiving an StopReceivingNotification
   private def onStopReceivingNotification(
       stopReceivingNotification: StopReceivingNotification,
       sourceProto: Short
@@ -89,7 +89,7 @@ class ActyxSwarmBridge(stopSignal: Promise[Unit])(using ec: ExecutionContext)
     }
 
 object ActyxSwarmBridge:
-  val protoName: String = "ActyxEventAdaptor"
+  val protoName: String = "ActyxSwarmBridge"
   val protoId: Short = 101
   val defaultPort: Int = 9999
   val bufferSize: Int = 4096
