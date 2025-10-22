@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future, Promise, ExecutionContext}
+import car_factory_messages.car_factory.{EventMessage, Event}
 
 object Main:
 
@@ -42,9 +43,11 @@ object Main:
     val babel: Babel = Babel.getInstance
 
     val properties: Properties = Babel.loadConfig(args, null)
-
     val actyxSwarmBridge: ActyxSwarmBridge = new ActyxSwarmBridge(stopSignal)
-    val monitorBridge: MonitorBridge = new MonitorBridge
+
+    val carFactoryMonitor = monitor(MatchingAlgorithm.WhileLazyAlgorithm)
+    val parse: (Array[Byte]) => Event = (payload: Array[Byte]) => EventMessage.parseFrom(payload).toEvent
+    val monitorBridge: MonitorBridge[Event, Unit] = new MonitorBridge(carFactoryMonitor, parse)
 
     babel.registerProtocol(actyxSwarmBridge)
     babel.registerProtocol(monitorBridge)
