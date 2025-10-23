@@ -43,18 +43,13 @@ const hasBar = (name: string): boolean => name.includes("|")
 const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
     const declaration = t.getSymbol()?.getDeclarations()?.[0]
     if (declaration) {
-        // path to file in which type is declared relative to file containing events that we are inspecting
-        console.log(`context.sourceFile.getFilePath(): ${context.sourceFile.getFilePath()}`)
-        console.log(`declaration.getSourceFile().getFilePath(): ${declaration.getSourceFile().getFilePath()}`)
-
+        // Path to file in which type is declared relative to file containing events that we are inspecting
         // Prefix type names with the name of the file in which they are defined. Use path relative to file under analysis for this.
         // Do not prefix name of file if file is the file under analysis. Because why??
         const contextSourceFilePath = context.sourceFile.getFilePath()
         const declarationSourceFilePath = declaration.getSourceFile().getFilePath()
         const relativePath = contextSourceFilePath === declarationSourceFilePath ? "" : path.relative(path.dirname(context.sourceFile.getFilePath()), declaration.getSourceFile().getFilePath())
         const relativePathCleaned = relativePath.replaceAll(".ts", "").replace(/\.\.\//g, "").replace(/\/|\./g, NAME_COMPONENT_SEP)
-        console.log("relative path: ", relativePath)
-        console.log("relative path cleaned: ", relativePathCleaned)
         const enclosingNamespaceSymbol = declaration.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)?.getNameNode().getSymbol()
         // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
         const enclosingNamespace = enclosingNamespaceSymbol ? enclosingNamespaceSymbol.getFullyQualifiedName().split(".").slice(1).join(NAME_COMPONENT_SEP) : "" // Find more robust solution? Is the file name always there as the first element?
@@ -65,7 +60,6 @@ const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
         const removeTrailingPattern = new RegExp(`\\.\\.${NAME_COMPONENT_SEP}`, "g")
         //${relativePath.replaceAll(".ts", "").replaceAll("/", NAME_COMPONENT_SEP)}
         const fullName = `${relativePathCleaned ? relativePathCleaned + NAME_COMPONENT_SEP : ""}${enclosingNamespace ? enclosingNamespace + NAME_COMPONENT_SEP : ""}${t.getText().replace(/^import(.*)\./, "")}`.replace(removeTrailingPattern, "")  //.replace(/(\.(\.)+)/, "")
-        console.log(fullName)
         return some(fullName)
     }
 
@@ -103,10 +97,7 @@ function basicVisit(node: tsMorph.Node, prepend: string = '') {
 
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
-        console.log("------")
         const tName = typeName(context, t)
-        console.log(tName)
-        console.log("------")
         // Recursive types
         if (visited.has(tName)) {
             return { context, typeInfo: { type: TYPEINFO_TYPES.REFERENCE, asString: tName } }

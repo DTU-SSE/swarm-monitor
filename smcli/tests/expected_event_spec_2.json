@@ -61,7 +61,7 @@
               "number",
               {
                 "type": "array",
-                "asString": "number[]",
+                "asString": "node_modules_typescript_lib_lib_es5_d_number[]",
                 "elementType": {
                   "type": "number",
                   "asString": "number"
@@ -173,7 +173,7 @@
     ],
     "namedImports": [
       [
-        "@actyx.machine-runner.MachineEvent",
+        "@actyx_machine-runner_MachineEvent",
         "MachineEvent"
       ]
     ]
