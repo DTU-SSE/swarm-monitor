@@ -9,7 +9,7 @@ import path from "path"
     In that case add to context and use reference type info? visitType is already weird
 */
 
-
+const NAME_COMPONENT_SEP = "_"
 type TypeVisitResult = { context: Context, typeInfo: TypeInfo }
 type EventTypeInitExpr = { eventTypeName: string, initializer: tsMorph.Expression }
 type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: tsMorph.Node }
@@ -19,19 +19,17 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
         sourceFile
             .getImportDeclarations()
             .flatMap(imp => {
-                const prefix = imp.getModuleSpecifierValue().replace(/^\.\//, "").replace(".ts", "").replaceAll("/", ".")
+                const prefix = imp.getModuleSpecifierValue().replace(/^\.\//, "").replace(".ts", "").replaceAll("/", NAME_COMPONENT_SEP)
                 return imp.getNamedImports().map(namedImp => {
                     const alias = namedImp.getAliasNode()
                     const declaredType = namedImp.getNameNode().getSymbol()?.getDeclaredType()
-                    const fullName = `${prefix}.${namedImp.getName()}`
+                    const fullName = `${prefix}${NAME_COMPONENT_SEP}${namedImp.getName()}`
                     return declaredType
                         ? alias
                             ? some({ fullName, alias: alias.getText() })
                             : some({ fullName, alias: namedImp.getName() })
                         : none
                 })
-                //names.push(some({fullName: prefix, alias: prefix}))
-                //return names
             })
             .filter(optionImp => isSome(optionImp))
             .map(optionImp => getValue(optionImp))
@@ -46,14 +44,28 @@ const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
     const declaration = t.getSymbol()?.getDeclarations()?.[0]
     if (declaration) {
         // path to file in which type is declared relative to file containing events that we are inspecting
-        const relativePath = path.relative(path.dirname(context.sourceFile.getFilePath()), declaration.getSourceFile().getFilePath())
+        console.log(`context.sourceFile.getFilePath(): ${context.sourceFile.getFilePath()}`)
+        console.log(`declaration.getSourceFile().getFilePath(): ${declaration.getSourceFile().getFilePath()}`)
+
+        // Prefix type names with the name of the file in which they are defined. Use path relative to file under analysis for this.
+        // Do not prefix name of file if file is the file under analysis. Because why??
+        const contextSourceFilePath = context.sourceFile.getFilePath()
+        const declarationSourceFilePath = declaration.getSourceFile().getFilePath()
+        const relativePath = contextSourceFilePath === declarationSourceFilePath ? "" : path.relative(path.dirname(context.sourceFile.getFilePath()), declaration.getSourceFile().getFilePath())
+        const relativePathCleaned = relativePath.replaceAll(".ts", "").replace(/\.\.\//g, "").replace(/\/|\./g, NAME_COMPONENT_SEP)
+        console.log("relative path: ", relativePath)
+        console.log("relative path cleaned: ", relativePathCleaned)
         const enclosingNamespaceSymbol = declaration.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)?.getNameNode().getSymbol()
-        const enclosingNamespace = enclosingNamespaceSymbol ? enclosingNamespaceSymbol.getFullyQualifiedName().split(".").slice(1).join(".") : ""
+        // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
+        const enclosingNamespace = enclosingNamespaceSymbol ? enclosingNamespaceSymbol.getFullyQualifiedName().split(".").slice(1).join(NAME_COMPONENT_SEP) : "" // Find more robust solution? Is the file name always there as the first element?
         // relative path without extension and with all '/'s replaced by '.'s
         // concatenated with module specifiers if any
         // concatenated with the actual name of the type (with any 'import("...").' stripped away)
         // more than two .. (like if ../../../node_modules becoming .........node_modules? removed)
-        const fullName = `${relativePath.replaceAll(".ts", "").replaceAll("/", ".")}${enclosingNamespace ? "." + enclosingNamespace : ""}.${t.getText().replace(/^import(.*)\./, "")}`//.replace(/(\.(\.)+)/, "")
+        const removeTrailingPattern = new RegExp(`\\.\\.${NAME_COMPONENT_SEP}`, "g")
+        //${relativePath.replaceAll(".ts", "").replaceAll("/", NAME_COMPONENT_SEP)}
+        const fullName = `${relativePathCleaned ? relativePathCleaned + NAME_COMPONENT_SEP : ""}${enclosingNamespace ? enclosingNamespace + NAME_COMPONENT_SEP : ""}${t.getText().replace(/^import(.*)\./, "")}`.replace(removeTrailingPattern, "")  //.replace(/(\.(\.)+)/, "")
+        console.log(fullName)
         return some(fullName)
     }
 
@@ -63,36 +75,6 @@ const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
 // TODO: 'nested imports' of same name.
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
-    /* console.log("----")
-    console.log("in typeName: ", tText)
-    const sym = t.getSymbol() */
-    /* if (sym) {
-        console.log("sym: ", sym.getName())
-        console.log("sym escaped name: ", sym.getEscapedName())
-    } */
-    /* const decls = sym?.getDeclarations()?.[0]
-    if (decls) {
-        console.log("decl: ", decls.getText())
-        console.log("decl source: ", decls.getSourceFile().getBaseName())
-        console.log("decl source again: ", decls.getSourceFile().getFilePath())
-        console.log("context.sourceFile.getFilePath(): ", context.sourceFile.getFilePath())
-        const p = path.relative(path.dirname(context.sourceFile.getFilePath()), decls.getSourceFile().getFilePath())
-        const p1 = path.relative(path.dirname(context.sourceFile.getFilePath()), decls.getSourceFile().getBaseName())
-
-        console.log("p: ", p)
-        console.log("p1: ", p1)
-        const enclosingNamespace = decls.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)
-        const symbol = enclosingNamespace?.getNameNode().getSymbol()
-        if (symbol) {
-            // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
-            console.log("LOng thing: ", symbol.getFullyQualifiedName().split(".").slice(1).join("_"))
-        }
-
-        const okName = `${p.replaceAll(".ts", "").replaceAll("/", ".")}${symbol ? "." + symbol.getFullyQualifiedName().split(".").slice(1).join(".") : ""}.${tText.replace(/^import(.*)\./, "")}`.replace(/(\.(\.)+)/, "")
-        console.log("okName: ", okName)
-
-    }
-    console.log("----") */
     if (hasLiteralObjectExprStartEnd(tText) || hasBar(tText)) {
         return tText
     }
@@ -109,18 +91,6 @@ const typeName = (context: Context, t: tsMorph.Type): string => {
         }
     }
 
-
-    /* // The type could be defined in some submodule. In this case we want the full name including all modules.
-    const decl = t.getSymbol()?.getDeclarations()
-    if (decl && decl.length > 0) {
-        const encolsingNamespace = decl[0]?.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)
-        const symbol = encolsingNamespace?.getNameNode().getSymbol()
-        if (symbol) {
-            // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
-            return symbol.getFullyQualifiedName().split(".").slice(1).join("_") // Find more robust solution. The file name should be included somehow. And is it always there?
-        }
-    } */
-
     return tText
 }
 
@@ -133,7 +103,10 @@ function basicVisit(node: tsMorph.Node, prepend: string = '') {
 
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
+        console.log("------")
         const tName = typeName(context, t)
+        console.log(tName)
+        console.log("------")
         // Recursive types
         if (visited.has(tName)) {
             return { context, typeInfo: { type: TYPEINFO_TYPES.REFERENCE, asString: tName } }
