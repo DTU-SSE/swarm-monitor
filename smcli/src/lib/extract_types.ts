@@ -49,7 +49,7 @@ const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
         const contextSourceFilePath = context.sourceFile.getFilePath()
         const declarationSourceFilePath = declaration.getSourceFile().getFilePath()
         const relativePath = contextSourceFilePath === declarationSourceFilePath ? "" : path.relative(path.dirname(context.sourceFile.getFilePath()), declaration.getSourceFile().getFilePath())
-        const relativePathCleaned = relativePath.replaceAll(".ts", "").replace(/\.\.\//g, "").replace(/\/|\./g, NAME_COMPONENT_SEP)
+        const relativePathCleaned = relativePath.replace(/.[jt]s/g, "").replace(/\.\.\//g, "").replace(/\/|\./g, NAME_COMPONENT_SEP)
         const enclosingNamespaceSymbol = declaration.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)?.getNameNode().getSymbol()
         // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
         const enclosingNamespace = enclosingNamespaceSymbol ? enclosingNamespaceSymbol.getFullyQualifiedName().split(".").slice(1).join(NAME_COMPONENT_SEP) : "" // Find more robust solution? Is the file name always there as the first element?
@@ -66,7 +66,12 @@ const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
     return none
 }
 
-// TODO: 'nested imports' of same name.
+// Design choices:
+//  Types defined in same file as file under analysis have they name they are given, e.g. type A = ... has the name A
+//  Types defined in other files imported with 'as SomeName' have the name SomeName, e.g. import { A as MyA } has the name MyA
+//  Types imported from other files have the relative path to the file ('/' replaced by _ ) + file + type as name, e.g. import { A } from "B/C/D.ts" has the name B_C_D_A
+//  Primitive types keep their names, e.g. string has the name string.
+//  Object and union literals have whatever type they describe as name, e.g. { field1: number } has the name { field1: number }, when { field1: number } is given directly somewhere.
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
     if (hasLiteralObjectExprStartEnd(tText) || hasBar(tText)) {
