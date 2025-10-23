@@ -130,7 +130,16 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
         if (t.isArray()) {
             // need to use reference here sometimes? use something like get symbol??
             const elementTypeResult = inner(context, t.getArrayElementTypeOrThrow(), visited)
-            return { context: elementTypeResult.context, typeInfo: { type: TYPEINFO_TYPES.ARRAY, asString: tName, elementType: elementTypeResult.typeInfo } }
+            console.log("-----")
+            console.log(`Element type: ${JSON.stringify(elementTypeResult.typeInfo)}`)
+            const elementType =
+                elementTypeResult.context.typeVariables.has(elementTypeResult.typeInfo.asString)
+                && (elementTypeResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || elementTypeResult.typeInfo.type === TYPEINFO_TYPES.UNION)
+                    ? { type: TYPEINFO_TYPES.REFERENCE, asString: elementTypeResult.typeInfo.asString }
+                    : elementTypeResult.typeInfo
+            console.log(`Element type after: ${JSON.stringify(elementType)}`)
+            console.log("-----")
+            return { context: elementTypeResult.context, typeInfo: { type: TYPEINFO_TYPES.ARRAY, asString: tName, elementType: elementType } }
         }
 
         if (t.isObject()) {
@@ -243,7 +252,7 @@ const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec =>
         if (isSome(payloadTypeArg)) {
             const visitTypeResult = visitType(acc.context, getValue(payloadTypeArg))
             // TODO: handle this as PayloadType thing
-            const event = { eventTypeName: eventTypeInitExpr.eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: visitTypeResult.typeInfo as PayloadType }
+            const event = { eventTypeName: eventTypeInitExpr.eventTypeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: visitTypeResult.typeInfo }
             acc.events.push(event)
             return { context: visitTypeResult.context, events: acc.events }
         } else {

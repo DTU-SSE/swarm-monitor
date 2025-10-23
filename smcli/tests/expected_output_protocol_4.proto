@@ -4,73 +4,73 @@ package test;
 
 message Meta {
 
-    bool is_local_event = 1;
-    repeated string tags = 2;
-    uint64 timestamp_micros = 3;
-    uint32 lamport = 4;
-    string app_id = 5;
-    string event_id = 6;
-    string stream = 7;
-    uint32 offset = 8;
+    bool is_local_event = 3;
+    repeated string tags = 4;
+    uint64 timestamp_micros = 5;
+    uint32 lamport = 6;
+    string app_id = 7;
+    string event_id = 8;
+    string stream = 9;
+    uint32 offset = 10;
 }
 
 message ClosingTypeNested {
 
-    repeated double number = 1;
-    repeated double other = 2;
+    repeated double number = 3;
+    repeated double other = 4;
 }
 
 message ClosingTimePayload {
 
-    string time_of_day = 1;
-    ClosingTypeNested nested = 2;
-    ClosingTimePayload closing = 3;
+    string time_of_day = 3;
+    ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
 }
 
 message partReq {
 
-    string part_name = 1;
-    Meta meta = 2;
-    string lbj = 3;
+    string part_name = 3;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message partOK {
 
-    string part_name = 1;
-    Meta meta = 2;
-    string lbj = 3;
+    string part_name = 3;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message pos {
 
-    string position = 1;
-    string part_name = 2;
-    Meta meta = 3;
-    string lbj = 4;
+    string position = 3;
+    string part_name = 4;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message closingTime {
 
-    string time_of_day = 1;
-    ClosingTypeNested nested = 2;
-    ClosingTimePayload closing = 3;
-    Meta meta = 4;
-    string lbj = 5;
+    string time_of_day = 3;
+    ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message car {
 
-    string part_name = 1;
-    string model_name = 2;
-    Meta meta = 3;
-    string lbj = 4;
+    string part_name = 3;
+    string model_name = 4;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message thing {
 
-    string name = 1;
-    Meta meta = 2;
-    string lbj = 3;
+    string name = 3;
+    Meta meta = 1;
+    string lbj = 2;
 }
 
 message noPayload {
@@ -89,13 +89,13 @@ message Event {
 
     oneof sealed_value {
 
-        partReq part_req = 1;
-        partOK part_ok = 2;
-        pos pos = 3;
-        closingTime closing_time = 4;
-        car car = 5;
-        thing thing = 6;
-        noPayload no_payload = 7;
-        noPayload1 no_payload_1 = 8;
+        partReq part_req = 3;
+        partOK part_ok = 4;
+        pos pos = 5;
+        closingTime closing_time = 6;
+        car car = 7;
+        thing thing = 8;
+        noPayload no_payload = 9;
+        noPayload1 no_payload_1 = 10;
     }
 }

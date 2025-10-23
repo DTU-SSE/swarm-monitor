@@ -18,7 +18,7 @@ export type PropertyInfo = { propertyName: string, propertyType: TypeInfo }
 export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: PropertyInfo[] };
 
 // Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
-export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
+export type PayloadType = TypeInfo //ObjectType | (UnionType & { members: PayloadType[] });
 
 // Maps type aliases to the types they denote.
 export type TypeVariables = Map<string, TypeInfo>;
@@ -43,6 +43,10 @@ export const isPrimitiveType = (typeInfo: TypeInfo): boolean => {
 
 export const isPrimitiveOrArray = (typeInfo: TypeInfo): boolean => {
   return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING || typeInfo.type === TYPEINFO_TYPES.ARRAY
+}
+
+export const isListOfTypeReferences = (typeInfos: TypeInfo[]): typeInfos is ReferenceType[] => {
+  return typeInfos.every(typeInfo => typeInfo.type === TYPEINFO_TYPES.REFERENCE)
 }
 
 // Serializable things are to pretty print TypeInfo, Event and EventSpec

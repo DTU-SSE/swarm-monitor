@@ -4,12 +4,12 @@ package Meta;
 
 message Meta {
 
-    bool is_local_event = 1;
-    repeated string tags = 2;
-    uint64 timestamp_micros = 3;
-    uint32 lamport = 4;
-    string app_id = 5;
-    string event_id = 6;
-    string stream = 7;
-    uint32 offset = 8;
+    bool is_local_event = 3;
+    repeated string tags = 4;
+    uint64 timestamp_micros = 5;
+    uint32 lamport = 6;
+    string app_id = 7;
+    string event_id = 8;
+    string stream = 9;
+    uint32 offset = 10;
 }

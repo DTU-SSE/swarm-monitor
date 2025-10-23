@@ -10,4 +10,4 @@ export type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested;
 
 export const foo = (): number => 1
 
-export type PosPayload = { position: string, partName: string, fromPayloadTypesTS: boolean }
+export type PosPayload = { position: string, partName: string, fromPayloadTypesTS: boolean | number }
