@@ -10,8 +10,8 @@ export function resolveTypeReference(typeVar: string, typeVars: TypeVariables): 
     function inner(typeVar: string, typeVars: TypeVariables, visited: Set<string>): TypeInfo {
         const resolvedTypeInfo = typeVars.get(typeVar)
         if (resolvedTypeInfo) {
-            return resolvedTypeInfo.type === TYPEINFO_TYPES.REFERENCE && !visited.has(resolvedTypeInfo.asString) 
-                ? inner(resolvedTypeInfo.asString, typeVars, visited.add(resolvedTypeInfo.asString)) 
+            return resolvedTypeInfo.type === TYPEINFO_TYPES.REFERENCE && !visited.has(resolvedTypeInfo.asString)
+                ? inner(resolvedTypeInfo.asString, typeVars, visited.add(resolvedTypeInfo.asString))
                 : resolvedTypeInfo
         }
 

@@ -55,7 +55,8 @@ Fields of payloads i.e. `f1, ..., fn` of `{type: "MyEventType", f1: T1, ..., fn:
 | `number`                  | `double`                                          |
 | `string`                  | `string`                                          |
 | `T[]`                     | `repeated T'`                                     |
-| `{f1: T1, ..., fn: Tn }`  | `message field_ame { f1: T1', ..., fn: Tn' }`*    |
+| `{f1: T1, ..., fn: Tn }`  | `message field_name { f1: T1', ..., fn: Tn' }`*   |
+| `T`                       | `message field_name T`**                          |
 | `T1 \| ... \| Tn`         | Not supported                                     |
 
 
@@ -64,7 +65,9 @@ Fields of payloads i.e. `f1, ..., fn` of `{type: "MyEventType", f1: T1, ..., fn:
 
 * The type definition of `Metadata` can be seen [here](https://github.com/Actyx/Actyx/blob/master/js/sdk/src/types/various.ts#L224). The encoding is a straightforward transliteration.
 
-* \* Where `field_name` is the name of the field with type `{f1: T1, ..., fn: Tn }`. Only object types can be used as payload types, so we are bound to have such a name.
+* \* Where `field_name` is the name of the field with type `{f1: T1, ..., fn: Tn }`. Only object types (and unions and intersections of object types) can be used as payload types, so we are bound to have such a field name.
+
+* \*\* Where `T` is a type alias referring to an object type and `field_name` is the name of the field with type `T` (like above we have such a field name). A separate message type is created for `T`.
 
 
 
