@@ -14,33 +14,15 @@ type TypeVisitResult = { context: Context, typeInfo: TypeInfo }
 type EventTypeInitExpr = { eventTypeName: string, initializer: tsMorph.Expression }
 type DefinitionNodeInfo = { sourceFile: string, definitionNodeText: string, definitionNode: tsMorph.Node }
 
-const importPath = (importDeclaration: tsMorph.ImportDeclaration, importSpecifier: tsMorph.ImportSpecifier): string => {
-    const importedSourceFile = importDeclaration.getModuleSpecifierSourceFile()
-    const projectRoot = importSpecifier.getProject().getDirectory("")?.getPath()
-    if (importedSourceFile && projectRoot) {
-        console.log("this branch: ", path.relative(projectRoot, importedSourceFile.getFilePath()))
-        console.log("else branch value is: ", importDeclaration.getModuleSpecifierValue())
-        return path.relative(projectRoot, importedSourceFile.getFilePath())
-    } else {
-        return importDeclaration.getModuleSpecifierValue()
-    }
-}
-
 const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> => {
     return new Map(
         sourceFile
             .getImportDeclarations()
             .flatMap(imp => {
+                const prefix = imp.getModuleSpecifierValue().replace(/^\.\//, "").replace(".ts", "").replaceAll("/", ".")
                 return imp.getNamedImports().map(namedImp => {
                     const alias = namedImp.getAliasNode()
                     const declaredType = namedImp.getNameNode().getSymbol()?.getDeclaredType()
-                    //console.log("named imp.getText: ", namedImp.getText())
-                    //console.log("named imp.getName: ", namedImp.getName()) // this one
-                    //console.log("named imp.getNameNode().getText(): ", namedImp.getNameNode().getText())
-                    //console.log(`alias: ${alias ? alias.getText() : "no alias"}`)
-                    //console.log("From importPath(imp, namedImp): ", importPath(imp, namedImp))
-                    //console.log("------")
-                    const prefix = imp.getModuleSpecifierValue().replace(/^\.\//, "").replace(".ts", "").replaceAll("/", ".")
                     const fullName = `${prefix}.${namedImp.getName()}`
                     return declaredType
                         ? alias
@@ -48,6 +30,8 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
                             : some({ fullName, alias: namedImp.getName() })
                         : none
                 })
+                //names.push(some({fullName: prefix, alias: prefix}))
+                //return names
             })
             .filter(optionImp => isSome(optionImp))
             .map(optionImp => getValue(optionImp))
@@ -58,17 +42,75 @@ const getNamedImports = (sourceFile: tsMorph.SourceFile): Map<string, string> =>
 // Literal object type expr would begin like this. Works for our purpose.
 const hasLiteralObjectExprStartEnd = (name: string): boolean => (name.startsWith("{") && name.endsWith("}"))
 const hasBar = (name: string): boolean => name.includes("|")
+const fullTypeName = (context: Context, t: tsMorph.Type): Option<string> => {
+    const declaration = t.getSymbol()?.getDeclarations()?.[0]
+    if (declaration) {
+        // path to file in which type is declared relative to file containing events that we are inspecting
+        const relativePath = path.relative(path.dirname(context.sourceFile.getFilePath()), declaration.getSourceFile().getFilePath())
+        const enclosingNamespaceSymbol = declaration.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)?.getNameNode().getSymbol()
+        const enclosingNamespace = enclosingNamespaceSymbol ? enclosingNamespaceSymbol.getFullyQualifiedName().split(".").slice(1).join(".") : ""
+        // relative path without extension and with all '/'s replaced by '.'s
+        // concatenated with module specifiers if any
+        // concatenated with the actual name of the type (with any 'import("...").' stripped away)
+        // more than two .. (like if ../../../node_modules becoming .........node_modules? removed)
+        const fullName = `${relativePath.replaceAll(".ts", "").replaceAll("/", ".")}${enclosingNamespace ? "." + enclosingNamespace : ""}.${t.getText().replace(/^import(.*)\./, "")}`//.replace(/(\.(\.)+)/, "")
+        return some(fullName)
+    }
+
+    return none
+}
 
 // TODO: 'nested imports' of same name.
 const typeName = (context: Context, t: tsMorph.Type): string => {
     const tText = t.getText()
-    if (context.namedImports.has(tText)) {
-        return context.namedImports.get(tText)!
+    /* console.log("----")
+    console.log("in typeName: ", tText)
+    const sym = t.getSymbol() */
+    /* if (sym) {
+        console.log("sym: ", sym.getName())
+        console.log("sym escaped name: ", sym.getEscapedName())
+    } */
+    /* const decls = sym?.getDeclarations()?.[0]
+    if (decls) {
+        console.log("decl: ", decls.getText())
+        console.log("decl source: ", decls.getSourceFile().getBaseName())
+        console.log("decl source again: ", decls.getSourceFile().getFilePath())
+        console.log("context.sourceFile.getFilePath(): ", context.sourceFile.getFilePath())
+        const p = path.relative(path.dirname(context.sourceFile.getFilePath()), decls.getSourceFile().getFilePath())
+        const p1 = path.relative(path.dirname(context.sourceFile.getFilePath()), decls.getSourceFile().getBaseName())
+
+        console.log("p: ", p)
+        console.log("p1: ", p1)
+        const enclosingNamespace = decls.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)
+        const symbol = enclosingNamespace?.getNameNode().getSymbol()
+        if (symbol) {
+            // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
+            console.log("LOng thing: ", symbol.getFullyQualifiedName().split(".").slice(1).join("_"))
+        }
+
+        const okName = `${p.replaceAll(".ts", "").replaceAll("/", ".")}${symbol ? "." + symbol.getFullyQualifiedName().split(".").slice(1).join(".") : ""}.${tText.replace(/^import(.*)\./, "")}`.replace(/(\.(\.)+)/, "")
+        console.log("okName: ", okName)
+
     }
+    console.log("----") */
     if (hasLiteralObjectExprStartEnd(tText) || hasBar(tText)) {
         return tText
     }
-    // The type could be defined in some submodule. In this case we want the full name including all modules.
+    if (context.namedImports.has(tText)) {
+        return context.namedImports.get(tText)!
+    }
+    const fullNameOption = fullTypeName(context, t)
+    if (isSome(fullNameOption)) {
+        const fullName = getValue(fullNameOption)
+        if (context.namedImports.has(fullName)) {
+            return context.namedImports.get(fullName)!
+        } else {
+            return fullName
+        }
+    }
+
+
+    /* // The type could be defined in some submodule. In this case we want the full name including all modules.
     const decl = t.getSymbol()?.getDeclarations()
     if (decl && decl.length > 0) {
         const encolsingNamespace = decl[0]?.getFirstAncestorByKind(tsMorph.SyntaxKind.ModuleDeclaration)
@@ -77,7 +119,7 @@ const typeName = (context: Context, t: tsMorph.Type): string => {
             // getFullyQualifiedName() should give us "file".A.B.C for some type defined in C. We actually get the quotes around the file name.
             return symbol.getFullyQualifiedName().split(".").slice(1).join("_") // Find more robust solution. The file name should be included somehow. And is it always there?
         }
-    }
+    } */
 
     return tText
 }
@@ -217,7 +259,7 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
 
 // Visit all variable declarations in a file and create an event specification.
 const visitVariableDeclarations = (sourceFile: tsMorph.SourceFile): EventSpec => {
-    const context = { typeVariables: new Map(), namedImports: getNamedImports(sourceFile) }
+    const context = { sourceFile: sourceFile, typeVariables: new Map(), namedImports: getNamedImports(sourceFile) }
     const eventTypeDeclarations = sourceFile
         .getVariableDeclarations()
         .concat(sourceFile
@@ -373,7 +415,7 @@ export const eventSpecification = (filePath: string): EventSpec => {
 
 export const eventSpecificationCleaned = (filePath: string): EventSpec => {
     const eventSpec = eventSpecification(filePath)
-    console.log(eventSpec.context.namedImports)
+    //console.log(eventSpec.context.namedImports)
     const namesInUse = usedNames(eventSpec)
     const typeVariables = new Map(Array.from(eventSpec.context.typeVariables.entries()).filter(([name, _]) => namesInUse.has(name)))
     return {...eventSpec, context: {...eventSpec.context, typeVariables }}

@@ -1,5 +1,5 @@
 import { TYPEINFO_TYPES, TYPEINFO_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from "./constants.js";
-
+import { SourceFile } from "ts-morph"
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
 
@@ -28,7 +28,7 @@ type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_N
 type EventWithPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITH_PAYLOAD; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
-export type Context = { typeVariables: TypeVariables, namedImports: Map<string, string> }
+export type Context = { sourceFile: SourceFile, typeVariables: TypeVariables, namedImports: Map<string, string> }
 
 // Constructed when parsing a TypeScript file defining Actyx events.
 export type EventSpec = {

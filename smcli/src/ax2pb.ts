@@ -5,6 +5,7 @@ import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
 import { eventSpecificationCleaned } from "./lib/extract_types.js";
+import { eventSpecToString } from "./lib/types.js";
 
 type Options = {
     output: string,
