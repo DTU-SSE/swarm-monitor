@@ -1,5 +1,5 @@
 import protobuf from 'protobufjs'
-import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType, type UnionType, isListOfTypeReferences, type ObjectType, type PropertyInfo } from './types.js';
+import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType, type UnionType, type ObjectType, type PropertyInfo } from './types.js';
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'

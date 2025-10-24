@@ -1,5 +1,5 @@
 import * as tsMorph from "ts-morph"
-import { type Event, getValue, isSome, none, some, type Option, type PayloadType, type PropertyInfo, type TypeInfo, type EventSpec, serializeTypeInfo, serializeEvent, type Context } from "./types.js"
+import { type Event, getValue, isSome, none, some, type Option, type PropertyInfo, type TypeInfo, type EventSpec, type Context } from "./types.js"
 import { MACHINE_RUNNER_NAMES, TYPEINFO_NAMES, TYPEINFO_TYPES } from "./constants.js"
 import { usedNames } from "./utils.js"
 import path from "path"
