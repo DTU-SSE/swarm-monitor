@@ -215,10 +215,10 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
 
             // Update context for union types that are not given as literal union type
             if (!hasBar(tName)) {
-                context.typeVariables.set(tName, typeInfo)
+                membersResult.context.typeVariables.set(tName, typeInfo)
             }
 
-            return { context, typeInfo }
+            return { context: membersResult.context, typeInfo }
 
         }
 

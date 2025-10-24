@@ -24,6 +24,15 @@ describe("test warehouse demo with extra events", () => {
     expect(eventSpecToString(cleanedEventSpec, null, 2)).toEqual(expectedCleaned)
   });
 
+  it("compare outputs protocol_9.ts", () => {
+    const expected: string = readFileSync('tests/expected_event_spec_9.json', 'utf8');
+    const expectedCleaned: string = readFileSync('tests/expected_event_spec_9_cleaned.json', 'utf8');
+    const event_spec = eventSpecification("tests/protocol_9.ts");
+    expect(eventSpecToString(event_spec, null, 2)).toEqual(expected)
+    const cleanedEventSpec = eventSpecificationCleaned("tests/protocol_9.ts");
+    expect(eventSpecToString(cleanedEventSpec, null, 2)).toEqual(expectedCleaned)
+  });
+
   it("check used names are identified correctly union and recursive types", () => {
     // ClosingTimePayload and PartReqPayload appears because PartReq has the payload type PartReqPayload | ClosingTimePayload
     // Also ClosingTypePayload recursively in terms of itself, has a field of type ClosingTypePayload

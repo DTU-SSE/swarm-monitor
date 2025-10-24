@@ -76,3 +76,13 @@ function usedNamesEvent(event: Event, typeVars: TypeVariables): string[] {
 export function usedNames(eventSpec: EventSpec): Set<string> {
     return new Set(eventSpec.events.flatMap(event => usedNamesEvent(event, eventSpec.context.typeVariables)))
 }
+
+// TODO:
+// Check:
+//      All type variables can be turned into message types -- are objects or unions
+//      No unions have literal object types as members
+//      events actually have propery payloads --> objects or unions of objects.
+export function checkEventSpec(eventSpec: EventSpec): Array<string> {
+
+    return []
+}

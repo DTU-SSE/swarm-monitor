@@ -3,6 +3,7 @@ import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type Pay
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
+import { checkEventSpec } from './utils.js';
 
 type FieldGenerator = (fieldNumber?: number) => protobuf.Field
 
@@ -23,6 +24,10 @@ class FieldNumbeHandler {
 
 // Transform an EventSpec to a 'Root' -- data structure representing a set of protobuf message types.
 export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
+    const eventSpecErrors = checkEventSpec(eventSpec)
+    if (eventSpecErrors.length > 0) {
+        throw Error(eventSpecErrors.join(",\n"))
+    }
     const root = new protobuf.Root()
     const namespace = root.define(packageName)
 
@@ -36,7 +41,7 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
     const extra: FieldGenerator[] = branchTracking ? [metaField, lastUpField] : [metaField]
 
     for (const event of eventSpec.events) {
-        namespace.add(encodeEventToProtoBuf(event, extra))
+        namespace.add(eventToProtoBufType(event, extra))
     }
 
     namespace.add(topLevelEvent(eventSpec.events))
@@ -57,7 +62,7 @@ function topLevelEvent(events: Event[]): protobuf.Type {
 // Transform type aliases denoting object types as message types
 function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     const mapper = (typeName: string, typeInfo: PayloadType) => {
-        return encodeEventToProtoBuf({eventTypeName: typeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: typeInfo})
+        return eventToProtoBufType({ eventTypeName: typeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: typeInfo })
     }
 
     return Array.from(typeVariables)
@@ -98,7 +103,7 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     return oneOf
 } */
 
-function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset=0) {
+function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0) {
     const violator = unionType.members.find(member => !validUnionMember(member))
     if (violator) {
         throw Error(`Invalid union member type: ${violator?.type}`)
@@ -119,11 +124,13 @@ function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeI
 function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-            return payloadType.properties.map(({propertyName, propertyType}, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
+            return payloadType.properties.map(({ propertyName, propertyType }, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
-            return [unionTypeToOneOf(payloadType, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field))]// The 'as' thing not nice. Not nice that we do not check top level unions -- only refernces to objects ok here. [unionPayloadType(payloadType as UnionType)]
+            // The 'as' thing looks dangerous -- but we've checked that things are ok in eventSpecToProtoBuf.
+            // Not nice that we do not check top level unions -- only refernces to objects ok here.
+            return [unionTypeToOneOf(payloadType, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field))]
         default:
-            throw Error(`Invalid payload type: ${payloadType.type}`)
+            throw Error(`Invalid payload type: ${typeNameForErrorMessage(payloadType)}`)
     }
 }
 
@@ -175,11 +182,13 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             return msgType
     }
 
-    throw Error(`Support for ${typeInfo.type} not implemented`)
+    throw Error(`Support for ${typeNameForErrorMessage(typeInfo)} not implemented`)
 }
 
+//function makeMsgType()
+
 // Transform an Event to a protobuf message type
-function encodeEventToProtoBuf(event: Event, extra: FieldGenerator[] = []): protobuf.Type {
+function eventToProtoBufType(event: Event, extra: FieldGenerator[] = []): protobuf.Type {
     const msgType = new protobuf.Type(event.eventTypeName)
     const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFields(event.payloadType) : []
     addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index))))
@@ -192,7 +201,7 @@ function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) 
     }
 }
 
-function generateField(fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string|{ [k: string]: any })): protobuf.Field {
+function generateField(fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string | { [k: string]: any })): protobuf.Field {
     return new protobuf.Field(fieldName, FieldNumbeHandler.nextFieldNumber(fieldNumber), getFieldType(fieldType), rule)
 }
 
@@ -239,4 +248,23 @@ export const metaField = (): protobuf.Field => {
 // Generate the last updating event field.
 export const lastUpField = (): protobuf.Field => {
     return new protobuf.Field(PROTOBUF_NAMES.LAST_UP, LASTUP_FIELD_NUMBER, PROTOBUF_FIELD_TYPES.STRING)
+}
+
+export const typeNameForErrorMessage = (typeInfo: TypeInfo): string => {
+    switch (typeInfo.type) {
+        case TYPEINFO_TYPES.BOOLEAN:
+        case TYPEINFO_TYPES.NUMBER:
+        case TYPEINFO_TYPES.STRING:
+            return typeInfo.type
+        case TYPEINFO_TYPES.REFERENCE:
+            return typeInfo.asString
+        case TYPEINFO_TYPES.ARRAY:
+            const elementTypeName = typeNameForErrorMessage(typeInfo.elementType)
+            return `${elementTypeName}[]`
+        case TYPEINFO_TYPES.UNION:
+            return typeInfo.members.map(typeNameForErrorMessage).join(" | ")
+        case TYPEINFO_TYPES.OBJECT:
+            const propertyNames = typeInfo.properties.map(p => `${p.propertyName} : ${typeNameForErrorMessage(p.propertyType)}`)
+            return `{ ${propertyNames.join(", ")} }`
+    }
 }

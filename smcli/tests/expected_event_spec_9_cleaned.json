@@ -1,0 +1,237 @@
+{
+  "context": {
+    "typeVariables": [
+      [
+        "payload_types_ClosingTypeNested",
+        {
+          "type": "object",
+          "asString": "payload_types_ClosingTypeNested",
+          "properties": [
+            [
+              "number",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_number[]",
+                "elementType": {
+                  "type": "number",
+                  "asString": "number"
+                }
+              }
+            ],
+            [
+              "other",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_Lars1",
+                "elementType": {
+                  "type": "number",
+                  "asString": "number"
+                }
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "ClosingTimePayload",
+        {
+          "type": "object",
+          "asString": "ClosingTimePayload",
+          "properties": [
+            [
+              "timeOfDay",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "nested",
+              {
+                "type": "reference",
+                "asString": "payload_types_ClosingTypeNested"
+              }
+            ],
+            [
+              "closing",
+              {
+                "type": "reference",
+                "asString": "ClosingTimePayload"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "subfolder_protocol_7_ClosingTypeNested",
+        {
+          "type": "object",
+          "asString": "subfolder_protocol_7_ClosingTypeNested",
+          "properties": [
+            [
+              "strings",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_string[]",
+                "elementType": {
+                  "type": "string",
+                  "asString": "string"
+                }
+              }
+            ],
+            [
+              "booleanField",
+              {
+                "type": "boolean",
+                "asString": "boolean"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "protocol_7_ClosingTypeNested",
+        {
+          "type": "object",
+          "asString": "protocol_7_ClosingTypeNested",
+          "properties": [
+            [
+              "number",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_number[]",
+                "elementType": {
+                  "type": "number",
+                  "asString": "number"
+                }
+              }
+            ],
+            [
+              "other",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "myField",
+              {
+                "type": "boolean",
+                "asString": "boolean"
+              }
+            ]
+          ]
+        }
+      ]
+    ],
+    "namedImports": [
+      [
+        "@actyx_machine-runner_MachineEvent",
+        "MachineEvent"
+      ],
+      [
+        "payload_types_ClosingTimePayload",
+        "ClosingTimePayload"
+      ],
+      [
+        "subfolder_protocol_7_ClosingTimePayload",
+        "ClosingTimePayload1"
+      ],
+      [
+        "protocol_7_ClosingTimePayload",
+        "ClosingTimePayload2"
+      ]
+    ]
+  },
+  "events": [
+    {
+      "eventTypeName": "ClosingTime",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "ClosingTimePayload",
+        "properties": [
+          [
+            "timeOfDay",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "nested",
+            {
+              "type": "reference",
+              "asString": "payload_types_ClosingTypeNested"
+            }
+          ],
+          [
+            "closing",
+            {
+              "type": "reference",
+              "asString": "ClosingTimePayload"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "ClosingTime1",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "ClosingTimePayload1",
+        "properties": [
+          [
+            "timeOfDay",
+            {
+              "type": "union",
+              "asString": "string | number",
+              "members": [
+                {
+                  "type": "string",
+                  "asString": "string"
+                },
+                {
+                  "type": "number",
+                  "asString": "number"
+                }
+              ]
+            }
+          ],
+          [
+            "nested",
+            {
+              "type": "reference",
+              "asString": "subfolder_protocol_7_ClosingTypeNested"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "ClosingTime2",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "ClosingTimePayload2",
+        "properties": [
+          [
+            "timeOfDay",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "nested",
+            {
+              "type": "reference",
+              "asString": "protocol_7_ClosingTypeNested"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
