@@ -15,7 +15,7 @@ type Options = {
 }
 
 export const ax2pb = new Command("ax2pb")
-    .description("Translate an Actyx event definition to a Protocol Buffers message types.")
+    .description("Translate Actyx event definitions to Protocol Buffers message types.")
     .argument("<FILE>")
     .option("-o, --output <FILE>", "Output file.", "output.proto")
     .option("-p, --package-name <PACKAGE>", "Name to give package containing message types.", "myPackage")
