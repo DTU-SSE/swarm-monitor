@@ -1,5 +1,5 @@
 import protobuf from 'protobufjs'
-import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType, type UnionType, isListOfTypeReferences } from './types.js';
+import { type EventSpec, type Event, type TypeInfo, type TypeVariables, type PayloadType, type Option, some, none, isSome, type ProtobufFieldType, getFieldType, type UnionType, isListOfTypeReferences, type ObjectType, type PropertyInfo } from './types.js';
 import type { Root } from 'protobufjs';
 import { PROTOBUF_FIELD_TYPES, PROTOBUF_NAMES, META_NAMES, TYPEINFO_TYPES, TYPEINFO_NAMES } from './constants.js'
 import snakeCase from 'lodash.snakecase'
@@ -118,13 +118,37 @@ function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeI
     return oneOf
 }
 
+// Assign a number to each property. Use to generate field numbers in a message type.
+// Generally, associate with each property its index in the list of properties.
+// Special care needs to be taken when we encounter unions. Unions do not themselves have a field number, but their members do
+// these are at the same level as rest of fields (field number wise) --> counter the number of members
+// --> next property after union is associated with n = number of members in previous union + index of property with union type.
+const enumerateProperties = (objectType: ObjectType): [number, PropertyInfo][] => {
+    type EnumerateAccumulator = { currentId: number, numbersAndProperties: [number, PropertyInfo][] }
+    const folder = (acc: EnumerateAccumulator, propertyInfo: PropertyInfo): EnumerateAccumulator => {
+        acc.numbersAndProperties.push([acc.currentId, propertyInfo])
+        const nextId = propertyInfo.propertyType.type === TYPEINFO_TYPES.UNION
+            ? acc.currentId + propertyInfo.propertyType.members.length
+            : acc.currentId + 1
+
+        return { currentId: nextId, numbersAndProperties: acc.numbersAndProperties }
+
+    }
+
+    return objectType
+        .properties
+        .reduce(folder, { currentId: 0, numbersAndProperties: []})
+        .numbersAndProperties
+}
+
 // Transform the fields of an object type used as payload type to an array of 'ReflectionObject'
 // which is a type we use to represent the fields of a message type. A field can itself be a message type.
 // Unions of object types supported as Actyx payload type, but currently not supported here.
 function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-            return payloadType.properties.map(({ propertyName, propertyType }, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
+            return enumerateProperties(payloadType).map(([id, {propertyName, propertyType}]) => typeInfoToField(propertyType, propertyName, id))
+            //return payloadType.properties.map(({ propertyName, propertyType }, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
             // The 'as' thing looks dangerous -- but we've checked that things are ok in eventSpecToProtoBuf.
             // Not nice that we do not check top level unions -- only refernces to objects ok here.
@@ -174,7 +198,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             }
             break
         case TYPEINFO_TYPES.UNION:
-            return unionTypeToOneOf(typeInfo, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field), fieldNumber + 1) // as not good
+            return unionTypeToOneOf(typeInfo, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field), fieldNumber) // as not good
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
             const encodedObject = payloadTypeToFields(typeInfo)

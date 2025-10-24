@@ -18,6 +18,7 @@ export type PropertyInfo = { propertyName: string, propertyType: TypeInfo }
 export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: PropertyInfo[] };
 
 // Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
+// TODO: Revise this!
 export type PayloadType = TypeInfo //ObjectType | (UnionType & { members: PayloadType[] });
 
 // Maps type aliases to the types they denote.
