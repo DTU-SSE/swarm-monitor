@@ -70,40 +70,13 @@ const encodeTypeAliases = (typeVariables: TypeVariables): protobuf.Type[] => {
         .map(([typeName, typeInfo]) => mapper(typeName, typeInfo as PayloadType))
 }
 
-//function oneOf(oneOfName: string, fields: )
-
-// Handle top level union type ENFORCE THIS SOMEHOW
-/* function unionPayloadType(unionType: UnionType): protobuf.ReflectionObject {
-    if (!isListOfTypeReferences(unionType.members)) {
-        const invalidMemberType = unionType.members.find(typeInfo => typeInfo.type !== TYPEINFO_TYPES.REFERENCE)
-        throw Error(`Invalid union member type: ${invalidMemberType?.type}`)
-    }
-    const oneOfName = FieldNumbeHandler.nextOneOfId()
-    const oneOf = new protobuf.OneOf(oneOfName)
-    unionType.members.forEach((referenceType, index) => {
-        oneOf.add(generateField(`${oneOfName}_${index}`, index, { userDefined: referenceType.asString }))
-    })
-
-    return oneOf
-} */
-
-// Handle union field not at top-level. Difference is that this may contain primitive types.
-// A union like this would appear as the field of some object type
-/* function unionFieldType(unionType: UnionType): protobuf.ReflectionObject {
-    if (!isListOfTypeReferences(unionType.members)) {
-        const invalidMemberType = unionType.members.find(typeInfo => typeInfo.type !== TYPEINFO_TYPES.REFERENCE)
-        throw Error(`Invalid union member type: ${invalidMemberType?.type}`)
-    }
-    const oneOfName = FieldNumbeHandler.nextOneOfId()
-    const oneOf = new protobuf.OneOf(oneOfName)
-    unionType.members.forEach((referenceType, index) => {
-        oneOf.add(generateField(`${oneOfName}_${index}`, index, { userDefined: referenceType.asString }))
-    })
-
-    return oneOf
-} */
-
-const unionTypeToOneOf = (unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0, oneOfFieldName?: string): protobuf.OneOf => {
+const unionTypeToOneOf = (
+    unionType: UnionType,
+    validUnionMember: (member: TypeInfo) => boolean,
+    toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field,
+    fieldNumberOffset = 0,
+    oneOfFieldName?: string
+): protobuf.OneOf => {
     const violator = unionType.members.find(member => !validUnionMember(member))
     if (violator) {
         throw Error(`Invalid union member type: ${violator?.type}`)
@@ -137,7 +110,7 @@ const enumerateProperties = (objectType: ObjectType): [number, PropertyInfo][] =
 
     return objectType
         .properties
-        .reduce(folder, { currentId: 0, numbersAndProperties: []})
+        .reduce(folder, { currentId: 0, numbersAndProperties: [] })
         .numbersAndProperties
 }
 
@@ -147,8 +120,7 @@ const enumerateProperties = (objectType: ObjectType): [number, PropertyInfo][] =
 const payloadTypeToFields = (payloadType: PayloadType): protobuf.ReflectionObject[] => {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
-            return enumerateProperties(payloadType).map(([id, {propertyName, propertyType}]) => typeInfoToField(propertyType, propertyName, id))
-            //return payloadType.properties.map(({ propertyName, propertyType }, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
+            return enumerateProperties(payloadType).map(([id, { propertyName, propertyType }]) => typeInfoToField(propertyType, propertyName, id))
         case TYPEINFO_TYPES.UNION:
             // The 'as' thing looks dangerous -- but we've checked that things are ok in eventSpecToProtoBuf.
             // Not nice that we do not check top level unions -- only refernces to objects ok here.
@@ -209,6 +181,7 @@ const typeInfoToField = (typeInfo: TypeInfo, fieldName: string, fieldNumber: num
     throw Error(`Support for ${typeNameForErrorMessage(typeInfo)} not implemented`)
 }
 
+// Consider this
 //function makeMsgType()
 
 // Transform an Event to a protobuf message type
