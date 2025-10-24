@@ -23,7 +23,7 @@ class FieldNumbeHandler {
 }
 
 // Transform an EventSpec to a 'Root' -- data structure representing a set of protobuf message types.
-export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
+export const eventSpecToProtoBuf = (packageName: string, eventSpec: EventSpec, branchTracking = false): Root => {
     const eventSpecErrors = checkEventSpec(eventSpec)
     if (eventSpecErrors.length > 0) {
         throw Error(eventSpecErrors.join(",\n"))
@@ -49,7 +49,7 @@ export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, b
 }
 
 // Generate the overall message type that includes the different event types as variants
-function topLevelEvent(events: Event[]): protobuf.Type {
+const topLevelEvent = (events: Event[]): protobuf.Type => {
     const sealedValue = new protobuf.Type(PROTOBUF_NAMES.TOP_LEVEL_EVENT_NAME)
     for (const [index, event] of events.entries()) {
         sealedValue.add(new protobuf.Field(snakeCase(event.eventTypeName), FieldNumbeHandler.nextFieldNumber(index), event.eventTypeName)) // Field numbers start at 1
@@ -60,7 +60,7 @@ function topLevelEvent(events: Event[]): protobuf.Type {
 }
 
 // Transform type aliases denoting object types as message types
-function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
+const encodeTypeAliases = (typeVariables: TypeVariables): protobuf.Type[] => {
     const mapper = (typeName: string, typeInfo: PayloadType) => {
         return eventToProtoBufType({ eventTypeName: typeName, eventKind: TYPEINFO_NAMES.WITH_PAYLOAD, payloadType: typeInfo })
     }
@@ -103,7 +103,7 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     return oneOf
 } */
 
-function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0, oneOfFieldName?: string) {
+const unionTypeToOneOf = (unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0, oneOfFieldName?: string): protobuf.OneOf => {
     const violator = unionType.members.find(member => !validUnionMember(member))
     if (violator) {
         throw Error(`Invalid union member type: ${violator?.type}`)
@@ -144,7 +144,7 @@ const enumerateProperties = (objectType: ObjectType): [number, PropertyInfo][] =
 // Transform the fields of an object type used as payload type to an array of 'ReflectionObject'
 // which is a type we use to represent the fields of a message type. A field can itself be a message type.
 // Unions of object types supported as Actyx payload type, but currently not supported here.
-function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObject[] {
+const payloadTypeToFields = (payloadType: PayloadType): protobuf.ReflectionObject[] => {
     switch (payloadType.type) {
         case TYPEINFO_TYPES.OBJECT:
             return enumerateProperties(payloadType).map(([id, {propertyName, propertyType}]) => typeInfoToField(propertyType, propertyName, id))
@@ -159,7 +159,7 @@ function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObjec
 }
 
 // Primitive TypeInfo type or reference to ProtoBufFieldType. Consider of Option show is necessary
-function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
+const resolveSimpleType = (typeInfo: TypeInfo): Option<ProtobufFieldType> => {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
             return some(PROTOBUF_FIELD_TYPES.BOOL)
@@ -179,7 +179,7 @@ const isOkUnionMember = (unionTypeMember: TypeInfo): boolean => {
 }
 
 // Transform a TypeInfo to a ReflectionObject. Used to create the fields of a message type.
-function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject {
+const typeInfoToField = (typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject => {
     switch (typeInfo.type) {
         case TYPEINFO_TYPES.BOOLEAN:
         case TYPEINFO_TYPES.NUMBER:
@@ -212,24 +212,24 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
 //function makeMsgType()
 
 // Transform an Event to a protobuf message type
-function eventToProtoBufType(event: Event, extra: FieldGenerator[] = []): protobuf.Type {
+const eventToProtoBufType = (event: Event, extra: FieldGenerator[] = []): protobuf.Type => {
     const msgType = new protobuf.Type(event.eventTypeName)
     const fields = event.eventKind === TYPEINFO_NAMES.WITH_PAYLOAD ? payloadTypeToFields(event.payloadType) : []
     addFields(msgType, fields.concat(extra.map((generateField, index) => generateField(fields.length + index))))
     return msgType
 }
 
-function addFields(msgType: protobuf.Type, fields: protobuf.ReflectionObject[]) {
+const addFields = (msgType: protobuf.Type, fields: protobuf.ReflectionObject[]): void => {
     for (const field of fields) {
         msgType.add(field)
     }
 }
 
-function generateField(fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string | { [k: string]: any })): protobuf.Field {
+const generateField = (fieldName: string, fieldNumber: number, fieldType: ProtobufFieldType, rule?: (string | { [k: string]: any })): protobuf.Field => {
     return new protobuf.Field(fieldName, FieldNumbeHandler.nextFieldNumber(fieldNumber), getFieldType(fieldType), rule)
 }
 
-function addMessagesToNamespace(namespace: protobuf.Namespace, msgTypes: protobuf.Type[]) {
+const addMessagesToNamespace = (namespace: protobuf.Namespace, msgTypes: protobuf.Type[]): void => {
     for (const msgType of msgTypes) {
         namespace.add(msgType)
     }
