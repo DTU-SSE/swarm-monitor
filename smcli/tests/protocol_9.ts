@@ -1,4 +1,4 @@
-import { MachineEvent } from "@actyx/machine-runner"
+import { MachineEvent as SomethingImportantRenamed } from "@actyx/machine-runner"
 
 /*
     Three types with the same name. Test that they are treated as different types.
@@ -15,7 +15,7 @@ const closingTimeName1 = "ClosingTime1"
 const closingTimeName2 = "ClosingTime2"
 
 export namespace Events {
-    export const closingTime = MachineEvent.design(closingTimeName).withPayload<ClosingTimePayload>()
-    export const closingTime1 = MachineEvent.design(closingTimeName1).withPayload<ClosingTimePayload1>()
-    export const closingTime2 = MachineEvent.design(closingTimeName2).withPayload<ClosingTimePayload2>()
+    export const closingTime = SomethingImportantRenamed.design(closingTimeName).withPayload<ClosingTimePayload>()
+    export const closingTime1 = SomethingImportantRenamed.design(closingTimeName1).withPayload<ClosingTimePayload1>()
+    export const closingTime2 = SomethingImportantRenamed.design(closingTimeName2).withPayload<ClosingTimePayload2>()
 }

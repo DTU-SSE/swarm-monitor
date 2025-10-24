@@ -183,7 +183,7 @@
     "namedImports": [
       [
         "@actyx_machine-runner_MachineEvent",
-        "MachineEvent"
+        "SomethingImportantRenamed"
       ],
       [
         "payload_types_ClosingTimePayload",

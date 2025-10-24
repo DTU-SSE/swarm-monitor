@@ -82,4 +82,24 @@ describe("test dummy messages", () => {
         expect(generated).toEqual(expected)
         unlinkSync(outputFile)
     })
+    it("generate .proto from tests/protocol_9.ts. Imports types of same name from different files and aliases them.", async () => {
+        const expected: string = readFileSync('tests/expected_output_protocol_9.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/protocol_9.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
+        const outputFile = `${OUTDIR}/output_9.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
+    it("generate .proto from tests/protocol_6.ts. Unions and weird imports.", async () => {
+        const expected: string = readFileSync('tests/expected_output_protocol_6.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/protocol_6.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
+        const outputFile = `${OUTDIR}/output_6.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
 });

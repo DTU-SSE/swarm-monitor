@@ -23,10 +23,8 @@ export const ax2pb = new Command("ax2pb")
     .option("-c, --compile", "Adds compilation of generated .proto to 'scripts' package.json")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
-        //const eventSpecNew = eventSpecification(path.resolve(process.cwd(), file))
-        //console.log(eventSpecToString(eventSpecNew, null, 2))
         const eventSpec = eventSpecificationCleaned(path.resolve(process.cwd(), file))
-        console.log(eventSpecToString(eventSpec, null, 2))
+        //console.log(eventSpecToString(eventSpec, null, 2))
         const protoBufRoot = eventSpecToProtoBuf(options.packageName, eventSpec, options.branchTracking)
         generateProtoBufMsgDefs(protoBufRoot, path.resolve(process.cwd(), options.output))
         spinnerSuccess()

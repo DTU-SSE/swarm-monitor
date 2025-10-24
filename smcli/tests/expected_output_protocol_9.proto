@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package test;
+
+message Meta {
+
+    bool is_local_event = 3;
+    repeated string tags = 4;
+    uint64 timestamp_micros = 5;
+    uint32 lamport = 6;
+    string app_id = 7;
+    string event_id = 8;
+    string stream = 9;
+    uint32 offset = 10;
+}
+
+message payload_types_ClosingTypeNested {
+
+    repeated double number = 3;
+    repeated double other = 4;
+}
+
+message ClosingTimePayload {
+
+    string time_of_day = 3;
+    payload_types_ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+}
+
+message subfolder_protocol_7_ClosingTypeNested {
+
+    repeated string strings = 3;
+    bool boolean_field = 4;
+}
+
+message protocol_7_ClosingTypeNested {
+
+    repeated double number = 3;
+    string other = 4;
+    bool my_field = 5;
+}
+
+message ClosingTime {
+
+    string time_of_day = 3;
+    payload_types_ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message ClosingTime1 {
+
+    oneof time_of_day {
+
+        string time_of_day_0 = 3;
+        double time_of_day_1 = 4;
+    }
+
+    subfolder_protocol_7_ClosingTypeNested nested = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message ClosingTime2 {
+
+    string time_of_day = 3;
+    protocol_7_ClosingTypeNested nested = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Event {
+
+    oneof sealed_value {
+
+        ClosingTime closing_time = 3;
+        ClosingTime1 closing_time_1 = 4;
+        ClosingTime2 closing_time_2 = 5;
+    }
+}

@@ -103,12 +103,12 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     return oneOf
 } */
 
-function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0) {
+function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset = 0, oneOfFieldName?: string) {
     const violator = unionType.members.find(member => !validUnionMember(member))
     if (violator) {
         throw Error(`Invalid union member type: ${violator?.type}`)
     }
-    const oneOfName = FieldNumbeHandler.nextOneOfId()
+    const oneOfName = oneOfFieldName ?? FieldNumbeHandler.nextOneOfId()
     const oneOf = new protobuf.OneOf(oneOfName)
 
     unionType.members.forEach((member, index) => {
@@ -198,7 +198,7 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             }
             break
         case TYPEINFO_TYPES.UNION:
-            return unionTypeToOneOf(typeInfo, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field), fieldNumber) // as not good
+            return unionTypeToOneOf(typeInfo, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field), fieldNumber, fieldName) // as not good
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
             const encodedObject = payloadTypeToFields(typeInfo)

@@ -4,7 +4,7 @@ import { eventSpecToString } from "../src/lib/types.js";
 import { usedNames } from "../src/lib/utils.js"
 import { readFileSync } from "fs" // Is actually fine, it runs
 import isEqual from 'lodash.isequal'
-// TODO: Test clean event spec
+
 describe("test warehouse demo with extra events", () => {
   it("compare outputs protocol.ts", () => {
     const expected: string = readFileSync('tests/expected_event_spec_1.json', 'utf8');
@@ -23,7 +23,7 @@ describe("test warehouse demo with extra events", () => {
     const cleanedEventSpec = eventSpecificationCleaned("tests/protocol_2.ts");
     expect(eventSpecToString(cleanedEventSpec, null, 2)).toEqual(expectedCleaned)
   });
-
+  // Imports types of same name from different files and aliases
   it("compare outputs protocol_9.ts", () => {
     const expected: string = readFileSync('tests/expected_event_spec_9.json', 'utf8');
     const expectedCleaned: string = readFileSync('tests/expected_event_spec_9_cleaned.json', 'utf8');
