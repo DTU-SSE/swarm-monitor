@@ -103,6 +103,7 @@ function basicVisit(node: tsMorph.Node, prepend: string = '') {
 const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
     const inner = (context: Context, t: tsMorph.Type, visited: Set<string>): TypeVisitResult => {
         const tName = typeName(context, t)
+        //console.log("HEY TNAME: ", tName)
         // Recursive types
         if (visited.has(tName)) {
             return { context, typeInfo: { type: TYPEINFO_TYPES.REFERENCE, asString: tName } }
@@ -130,15 +131,11 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
         if (t.isArray()) {
             // need to use reference here sometimes? use something like get symbol??
             const elementTypeResult = inner(context, t.getArrayElementTypeOrThrow(), visited)
-            console.log("-----")
-            console.log(`Element type: ${JSON.stringify(elementTypeResult.typeInfo)}`)
             const elementType =
                 elementTypeResult.context.typeVariables.has(elementTypeResult.typeInfo.asString)
                 && (elementTypeResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || elementTypeResult.typeInfo.type === TYPEINFO_TYPES.UNION)
                     ? { type: TYPEINFO_TYPES.REFERENCE, asString: elementTypeResult.typeInfo.asString }
                     : elementTypeResult.typeInfo
-            console.log(`Element type after: ${JSON.stringify(elementType)}`)
-            console.log("-----")
             return { context: elementTypeResult.context, typeInfo: { type: TYPEINFO_TYPES.ARRAY, asString: tName, elementType: elementType } }
         }
 
@@ -149,18 +146,15 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
                 const typeVisitResult = inner(acc.context, symbol.getValueDeclaration()?.getType() ?? symbol.getDeclaredType(), visited)
                 const propertySignatureTypeNode = (symbol.getValueDeclaration() as tsMorph.PropertySignature)?.getTypeNode()
 
+                // Bit tricky. If the propertySignatureNode exists and states that the property type is given as a type reference in the source code and
+                // we know of this type -- then set the type of the field to a reference to typeVisitResult.typeInfo.asString. This is not
+                // necessarily the same type name as the one used in the source code. Instead, it is our 'full name', this is to avoid name clashes.
                 const typeInfo = propertySignatureTypeNode
                     && propertySignatureTypeNode.getKind() === tsMorph.SyntaxKind.TypeReference
                     && (typeVisitResult.typeInfo.type === TYPEINFO_TYPES.OBJECT || typeVisitResult.typeInfo.type === TYPEINFO_TYPES.UNION)
-                        ? { type: TYPEINFO_TYPES.REFERENCE, asString: propertySignatureTypeNode.getText() }
+                    && typeVisitResult.context.typeVariables.has(typeVisitResult.typeInfo.asString)
+                        ? { type: TYPEINFO_TYPES.REFERENCE, asString: typeVisitResult.typeInfo.asString }
                         : typeVisitResult.typeInfo
-
-                // Make sure type name is in context if reference. Might not be the case already.
-                // In 'type a = { ... }; type b = a;' typeInfo would be { ... } and we would have an entry for a.
-                // However, propertySignatureTypeNode.getText() would be b. Sketchy
-                if (typeInfo.type == TYPEINFO_TYPES.REFERENCE) {
-                    context.typeVariables.set(propertySignatureTypeNode?.getText()!, typeVisitResult.typeInfo)
-                }
 
                 // Add property type to property infos. Bit weird that it mutates.
                 // Consider possibly adding a reference here? If object or union but not literal?
@@ -175,10 +169,10 @@ const visitType = (context: Context, t: tsMorph.Type): TypeVisitResult => {
 
             // Update context for object types that are not given as literal object type
             if (!hasLiteralObjectExprStartEnd(tName)) {
-                context.typeVariables.set(tName, typeInfo)
+                propertiesResult.context.typeVariables.set(tName, typeInfo)
             }
 
-            return { context, typeInfo }
+            return { context: propertiesResult.context, typeInfo }
         }
 
         if (t.isUnion()) {

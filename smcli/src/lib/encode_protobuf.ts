@@ -12,7 +12,7 @@ class FieldNumbeHandler {
     private static oneOfCounter: number = 1
 
     static nextOneOfId(): string {
-        return `_oneof${FieldNumbeHandler.oneOfCounter++}`
+        return `oneof_${FieldNumbeHandler.oneOfCounter++}`
     }
     // Maps numbers to numbers used as field numbers taking into account the fact that
     // field numbers start at 1 and we have reserved 1 and 2 for meta and last up
@@ -20,8 +20,6 @@ class FieldNumbeHandler {
         return n + 3
     }
 }
-
-
 
 // Transform an EventSpec to a 'Root' -- data structure representing a set of protobuf message types.
 export function eventSpecToProtoBuf(packageName: string, eventSpec: EventSpec, branchTracking = false): Root {
@@ -63,23 +61,53 @@ function encodeTypeAliases(typeVariables: TypeVariables): protobuf.Type[] {
     }
 
     return Array.from(typeVariables)
-        .filter(([_, typeInfo]) => typeInfo.type === TYPEINFO_TYPES.OBJECT)
+        .filter(([_, typeInfo]) => typeInfo.type === TYPEINFO_TYPES.OBJECT || typeInfo.type === TYPEINFO_TYPES.UNION)
         .map(([typeName, typeInfo]) => mapper(typeName, typeInfo as PayloadType))
 }
 
-// Handle top level union type
-function unionPayloadType(unionType: UnionType): protobuf.ReflectionObject {
+//function oneOf(oneOfName: string, fields: )
+
+// Handle top level union type ENFORCE THIS SOMEHOW
+/* function unionPayloadType(unionType: UnionType): protobuf.ReflectionObject {
     if (!isListOfTypeReferences(unionType.members)) {
         const invalidMemberType = unionType.members.find(typeInfo => typeInfo.type !== TYPEINFO_TYPES.REFERENCE)
         throw Error(`Invalid union member type: ${invalidMemberType?.type}`)
     }
     const oneOfName = FieldNumbeHandler.nextOneOfId()
     const oneOf = new protobuf.OneOf(oneOfName)
-    //const members = unionType.members.map((referenceType, index) => generateField(`${oneOfName}_${index + 1}`, index + 1, { userDefined: referenceType.asString }))
     unionType.members.forEach((referenceType, index) => {
-        console.log("oneOfName: ", oneOfName)
-        console.log(`oneOfField: ${oneOfName}_${index}`)
         oneOf.add(generateField(`${oneOfName}_${index}`, index, { userDefined: referenceType.asString }))
+    })
+
+    return oneOf
+} */
+
+// Handle union field not at top-level. Difference is that this may contain primitive types.
+// A union like this would appear as the field of some object type
+/* function unionFieldType(unionType: UnionType): protobuf.ReflectionObject {
+    if (!isListOfTypeReferences(unionType.members)) {
+        const invalidMemberType = unionType.members.find(typeInfo => typeInfo.type !== TYPEINFO_TYPES.REFERENCE)
+        throw Error(`Invalid union member type: ${invalidMemberType?.type}`)
+    }
+    const oneOfName = FieldNumbeHandler.nextOneOfId()
+    const oneOf = new protobuf.OneOf(oneOfName)
+    unionType.members.forEach((referenceType, index) => {
+        oneOf.add(generateField(`${oneOfName}_${index}`, index, { userDefined: referenceType.asString }))
+    })
+
+    return oneOf
+} */
+
+function unionTypeToOneOf(unionType: UnionType, validUnionMember: (member: TypeInfo) => boolean, toField: (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field, fieldNumberOffset=0) {
+    const violator = unionType.members.find(member => !validUnionMember(member))
+    if (violator) {
+        throw Error(`Invalid union member type: ${violator?.type}`)
+    }
+    const oneOfName = FieldNumbeHandler.nextOneOfId()
+    const oneOf = new protobuf.OneOf(oneOfName)
+
+    unionType.members.forEach((member, index) => {
+        oneOf.add(toField(member, `${oneOfName}_${index}`, index + fieldNumberOffset))
     })
 
     return oneOf
@@ -93,7 +121,7 @@ function payloadTypeToFields(payloadType: PayloadType): protobuf.ReflectionObjec
         case TYPEINFO_TYPES.OBJECT:
             return payloadType.properties.map(({propertyName, propertyType}, index) => typeInfoToField(propertyType, propertyName, index)) // Field numbers start at 1
         case TYPEINFO_TYPES.UNION:
-            return [unionPayloadType(payloadType as UnionType)]
+            return [unionTypeToOneOf(payloadType, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field))]// The 'as' thing not nice. Not nice that we do not check top level unions -- only refernces to objects ok here. [unionPayloadType(payloadType as UnionType)]
         default:
             throw Error(`Invalid payload type: ${payloadType.type}`)
     }
@@ -114,6 +142,10 @@ function resolveSimpleType(typeInfo: TypeInfo): Option<ProtobufFieldType> {
             return none
     }
 }
+// We can not have inlined objects as members of a oneof
+const isOkUnionMember = (unionTypeMember: TypeInfo): boolean => {
+    return unionTypeMember.type !== TYPEINFO_TYPES.OBJECT
+}
 
 // Transform a TypeInfo to a ReflectionObject. Used to create the fields of a message type.
 function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: number): protobuf.ReflectionObject {
@@ -129,18 +161,13 @@ function typeInfoToField(typeInfo: TypeInfo, fieldName: string, fieldNumber: num
             break
         // Right now only arrays of bools, numbers, strings or typealiases are allowed as element types of arrays.
         case TYPEINFO_TYPES.ARRAY:
-            console.log("-----")
-            console.log(typeInfo)
             const elementProtoBufType = resolveSimpleType(typeInfo.elementType)
-            console.log(elementProtoBufType)
-            console.log("-----")
             if (isSome(elementProtoBufType)) {
                 return generateField(fieldName, fieldNumber, elementProtoBufType.value, PROTOBUF_NAMES.REPEATED)
-
             }
             break
         case TYPEINFO_TYPES.UNION:
-            throw Error("Encoding of union types is not implemented") // sealed oneof. But what to do with field name? Of sealed oneof and its options.
+            return unionTypeToOneOf(typeInfo, isOkUnionMember, (typeInfoToField as (member: TypeInfo, fieldName: string, fieldNumber: number) => protobuf.Field), fieldNumber + 1) // as not good
         case TYPEINFO_TYPES.OBJECT:
             const msgType = new protobuf.Type(fieldName)
             const encodedObject = payloadTypeToFields(typeInfo)

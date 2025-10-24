@@ -1,7 +1,7 @@
 import { MachineEvent } from "@actyx/machine-runner"
 
-type ClosingTypeNested = { number: number[], other: string, myField: boolean }
-export type ClosingTimePayload = { timeOfDay: string, nested: ClosingTypeNested}
+type ClosingTypeNested = { strings: string[], booleanField: boolean }
+export type ClosingTimePayload = { timeOfDay: string | number, nested: ClosingTypeNested}
 type PartReqPayload = {partName: string, aNestedField: { a: string, b: string, c: { number: boolean[], other: number}}}
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}

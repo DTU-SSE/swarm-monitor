@@ -29,8 +29,8 @@ describe("test warehouse demo with extra events", () => {
     // Also ClosingTypePayload recursively in terms of itself, has a field of type ClosingTypePayload
     // Other type aliases used for event payload types are inlined
     const event_spec = eventSpecification("tests/protocol_2.ts");
-    // Haha is not included -- resolved as string. Boing included -- resovled as Laquo -- but included still
-    const expected = new Set(["ClosingTypeNested", "ClosingTimePayload", "Boing", "PartReqPayload"])
+    // Haha is not included -- resolved as string. Boing resovled as Laquo.
+    const expected = new Set(["ClosingTypeNested", "ClosingTimePayload", "Laquo", "PartReqPayload"])
     expect(isEqual(usedNames(event_spec), expected)).toEqual(true)
   });
 

@@ -74,23 +74,6 @@
         }
       ],
       [
-        "Boing",
-        {
-          "type": "union",
-          "asString": "Laquo",
-          "members": [
-            {
-              "type": "string",
-              "asString": "string"
-            },
-            {
-              "type": "boolean",
-              "asString": "boolean"
-            }
-          ]
-        }
-      ],
-      [
         "ClosingTypeNested",
         {
           "type": "object",
@@ -111,7 +94,7 @@
               "other",
               {
                 "type": "reference",
-                "asString": "Boing"
+                "asString": "Laquo"
               }
             ]
           ]

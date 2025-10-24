@@ -2,7 +2,7 @@
   "context": {
     "typeVariables": [
       [
-        "Boing",
+        "Laquo",
         {
           "type": "union",
           "asString": "Laquo",
@@ -39,7 +39,7 @@
               "other",
               {
                 "type": "reference",
-                "asString": "Boing"
+                "asString": "Laquo"
               }
             ]
           ]
