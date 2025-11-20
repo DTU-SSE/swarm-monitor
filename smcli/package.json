@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test": "tsc && node --experimental-vm-modules node_modules/.bin/jest",
     "gen-protobuf": "tsc && node dist/cli.js",
     "codegen": "tsc && node dist/protobuf_codegen.js",
     "encode": "tsc && node dist/encode_protobuf.js",
@@ -11,6 +11,7 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@actyx/machine-runner": "^0.5.7",
     "@jest/globals": "^30.0.5",
     "@types/jest": "^30.0.0",
     "@types/lodash.isequal": "^4.5.8",

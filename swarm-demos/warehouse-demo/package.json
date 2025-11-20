@@ -27,9 +27,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@actyx/machine-check": "file:../../machines/machine-check",
-    "@actyx/machine-runner": "file:../../machines/machine-runner",
-    "@actyx/sdk": "^0.5.9",
+    "@actyx/machine-check": "file:./vendor/actyx-machine-check-0.3.1.tgz",
+    "@actyx/machine-runner": "file:./vendor/actyx-machine-runner-0.5.7.tgz",
+    "@actyx/sdk": "^0.5.10",
     "@protobuf-ts/plugin": "^2.10.0",
     "lodash.camelcase": "^4.3.0",
     "protobufjs": "^7.5.3",

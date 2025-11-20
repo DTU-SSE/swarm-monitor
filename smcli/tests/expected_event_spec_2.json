@@ -1,197 +1,166 @@
 {
-  "variables": [
-    [
-      "var1",
-      "pos"
-    ],
-    [
-      "posName",
-      "pos"
-    ],
-    [
-      "partReqName",
-      "partReq"
-    ]
-  ],
-  "types": [
-    [
-      "Lars",
-      {
-        "type": "array",
-        "asString": "number[]",
-        "elementType": {
-          "type": "number",
-          "asString": "number"
-        }
-      }
-    ],
-    [
-      "Laquo",
-      {
-        "type": "union",
-        "asString": "boolean | string",
-        "members": [
-          {
-            "type": "boolean",
-            "asString": "boolean"
-          },
-          {
-            "type": "string",
-            "asString": "string"
-          }
-        ]
-      }
-    ],
-    [
-      "Boing",
-      {
-        "type": "reference",
-        "asString": "Laquo"
-      }
-    ],
-    [
-      "Haha",
-      {
-        "type": "string",
-        "asString": "string"
-      }
-    ],
-    [
-      "ClosingTypeNested",
-      {
-        "type": "object",
-        "asString": "{ number: number[], other: Boing}",
-        "properties": [
-          [
-            "number",
-            {
-              "type": "array",
-              "asString": "number[]",
-              "elementType": {
-                "type": "number",
-                "asString": "number"
+  "context": {
+    "typeVariables": [
+      [
+        "PartReqPayload",
+        {
+          "type": "object",
+          "asString": "PartReqPayload",
+          "properties": [
+            [
+              "partName",
+              {
+                "type": "string",
+                "asString": "string"
               }
-            }
-          ],
-          [
-            "other",
+            ]
+          ]
+        }
+      ],
+      [
+        "Laquo",
+        {
+          "type": "union",
+          "asString": "Laquo",
+          "members": [
             {
-              "type": "reference",
-              "asString": "Boing"
+              "type": "string",
+              "asString": "string"
+            },
+            {
+              "type": "boolean",
+              "asString": "boolean"
             }
           ]
-        ]
-      }
+        }
+      ],
+      [
+        "ClosingTypeNested",
+        {
+          "type": "object",
+          "asString": "ClosingTypeNested",
+          "properties": [
+            [
+              "number",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_number[]",
+                "elementType": {
+                  "type": "number",
+                  "asString": "number"
+                }
+              }
+            ],
+            [
+              "other",
+              {
+                "type": "reference",
+                "asString": "Laquo"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "ClosingTimePayload",
+        {
+          "type": "object",
+          "asString": "ClosingTimePayload",
+          "properties": [
+            [
+              "timeOfDay",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "nested",
+              {
+                "type": "reference",
+                "asString": "ClosingTypeNested"
+              }
+            ],
+            [
+              "closing",
+              {
+                "type": "reference",
+                "asString": "ClosingTimePayload"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "PartOKPayload",
+        {
+          "type": "object",
+          "asString": "PartOKPayload",
+          "properties": [
+            [
+              "partName",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "PosPayload",
+        {
+          "type": "object",
+          "asString": "PosPayload",
+          "properties": [
+            [
+              "position",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "partName",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "CarPayload",
+        {
+          "type": "object",
+          "asString": "CarPayload",
+          "properties": [
+            [
+              "partName",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "modelName",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ]
+          ]
+        }
+      ]
     ],
-    [
-      "ClosingTimePayload",
-      {
-        "type": "object",
-        "asString": "{ timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }",
-        "properties": [
-          [
-            "timeOfDay",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ],
-          [
-            "nested",
-            {
-              "type": "reference",
-              "asString": "ClosingTypeNested"
-            }
-          ],
-          [
-            "closing",
-            {
-              "type": "reference",
-              "asString": "ClosingTimePayload"
-            }
-          ]
-        ]
-      }
-    ],
-    [
-      "PartReqPayload",
-      {
-        "type": "object",
-        "asString": "{partName: Haha}",
-        "properties": [
-          [
-            "partName",
-            {
-              "type": "reference",
-              "asString": "Haha"
-            }
-          ]
-        ]
-      }
-    ],
-    [
-      "PosPayload",
-      {
-        "type": "object",
-        "asString": "{position: string, partName: string}",
-        "properties": [
-          [
-            "position",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ],
-          [
-            "partName",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ]
-        ]
-      }
-    ],
-    [
-      "PartOKPayload",
-      {
-        "type": "object",
-        "asString": "{partName: string}",
-        "properties": [
-          [
-            "partName",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ]
-        ]
-      }
-    ],
-    [
-      "CarPayload",
-      {
-        "type": "object",
-        "asString": "{partName: string, modelName: string}",
-        "properties": [
-          [
-            "partName",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ],
-          [
-            "modelName",
-            {
-              "type": "string",
-              "asString": "string"
-            }
-          ]
-        ]
-      }
+    "namedImports": [
+      [
+        "@actyx_machine-runner_MachineEvent",
+        "MachineEvent"
+      ]
     ]
-  ],
+  },
   "events": [
     {
       "eventTypeName": "partReq",
@@ -216,7 +185,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{partName: string}",
+        "asString": "PartOKPayload",
         "properties": [
           [
             "partName",
@@ -233,7 +202,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{position: string, partName: string}",
+        "asString": "PosPayload",
         "properties": [
           [
             "position",
@@ -257,7 +226,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{ timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }",
+        "asString": "ClosingTimePayload",
         "properties": [
           [
             "timeOfDay",
@@ -288,7 +257,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{partName: string, modelName: string}",
+        "asString": "CarPayload",
         "properties": [
           [
             "partName",
@@ -312,7 +281,7 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{name: string}",
+        "asString": "{ name: string; }",
         "properties": [
           [
             "name",

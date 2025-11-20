@@ -13,7 +13,6 @@ lazy val root = project
     ),
     resolvers ++= Seq(
       "novasys-mvn" at "https://novasys.di.fct.unl.pt/packages/mvn"
-      // "akka" at "https://repo.akka.io/snapshots"
     ),
     scalacOptions ++= Seq("-feature"),
     libraryDependencies += "com.lihaoyi" %% "mainargs" % mainargsVersion,

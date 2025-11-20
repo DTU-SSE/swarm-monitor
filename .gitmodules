@@ -1,3 +1,0 @@
-[submodule "machines"]
-	path = machines
-	url = git@github.com:lucas874/machines.git

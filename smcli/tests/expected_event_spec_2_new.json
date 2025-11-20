@@ -1,24 +1,11 @@
 {
-  "variables": [
-    [
-      "var1",
-      "pos"
-    ],
-    [
-      "posName",
-      "pos"
-    ],
-    [
-      "partReqName",
-      "partReq"
-    ]
-  ],
+  "variables": [],
   "types": [
     [
       "Lars",
       {
         "type": "array",
-        "asString": "number[]",
+        "asString": "Lars",
         "elementType": {
           "type": "number",
           "asString": "number"
@@ -29,15 +16,15 @@
       "Laquo",
       {
         "type": "union",
-        "asString": "boolean | string",
+        "asString": "Laquo",
         "members": [
-          {
-            "type": "boolean",
-            "asString": "boolean"
-          },
           {
             "type": "string",
             "asString": "string"
+          },
+          {
+            "type": "boolean",
+            "asString": "boolean"
           }
         ]
       }
@@ -45,8 +32,18 @@
     [
       "Boing",
       {
-        "type": "reference",
-        "asString": "Laquo"
+        "type": "union",
+        "asString": "Laquo",
+        "members": [
+          {
+            "type": "string",
+            "asString": "string"
+          },
+          {
+            "type": "boolean",
+            "asString": "boolean"
+          }
+        ]
       }
     ],
     [
@@ -60,8 +57,8 @@
       "ClosingTypeNested",
       {
         "type": "object",
-        "asString": "{ number: number[], other: Boing}",
-        "members": [
+        "asString": "ClosingTypeNested",
+        "properties": [
           [
             "number",
             {
@@ -77,7 +74,7 @@
             "other",
             {
               "type": "reference",
-              "asString": "Boing"
+              "asString": "Laquo"
             }
           ]
         ]
@@ -87,8 +84,8 @@
       "ClosingTimePayload",
       {
         "type": "object",
-        "asString": "{ timeOfDay: string, nested: ClosingTypeNested, closing: ClosingTimePayload }",
-        "members": [
+        "asString": "ClosingTimePayload",
+        "properties": [
           [
             "timeOfDay",
             {
@@ -117,13 +114,13 @@
       "PartReqPayload",
       {
         "type": "object",
-        "asString": "{partName: Haha}",
-        "members": [
+        "asString": "PartReqPayload",
+        "properties": [
           [
             "partName",
             {
-              "type": "reference",
-              "asString": "Haha"
+              "type": "string",
+              "asString": "string"
             }
           ]
         ]
@@ -133,8 +130,8 @@
       "PosPayload",
       {
         "type": "object",
-        "asString": "{position: string, partName: string}",
-        "members": [
+        "asString": "PosPayload",
+        "properties": [
           [
             "position",
             {
@@ -156,8 +153,8 @@
       "PartOKPayload",
       {
         "type": "object",
-        "asString": "{partName: string}",
-        "members": [
+        "asString": "PartOKPayload",
+        "properties": [
           [
             "partName",
             {
@@ -172,8 +169,8 @@
       "CarPayload",
       {
         "type": "object",
-        "asString": "{partName: string, modelName: string}",
-        "members": [
+        "asString": "CarPayload",
+        "properties": [
           [
             "partName",
             {
@@ -197,40 +194,114 @@
       "eventTypeName": "partReq",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "reference",
-        "asString": "PartReqPayload"
+        "type": "union",
+        "asString": "ClosingTimePayload | PartReqPayload",
+        "members": [
+          {
+            "type": "reference",
+            "asString": "ClosingTimePayload"
+          },
+          {
+            "type": "reference",
+            "asString": "PartReqPayload"
+          }
+        ]
       }
     },
     {
       "eventTypeName": "partOK",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "reference",
-        "asString": "PartOKPayload"
+        "type": "object",
+        "asString": "PartOKPayload",
+        "properties": [
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
       }
     },
     {
       "eventTypeName": "pos",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "reference",
-        "asString": "PosPayload"
+        "type": "object",
+        "asString": "PosPayload",
+        "properties": [
+          [
+            "position",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
       }
     },
     {
       "eventTypeName": "closingTime",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "reference",
-        "asString": "ClosingTimePayload"
+        "type": "object",
+        "asString": "ClosingTimePayload",
+        "properties": [
+          [
+            "timeOfDay",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "nested",
+            {
+              "type": "reference",
+              "asString": "ClosingTypeNested"
+            }
+          ],
+          [
+            "closing",
+            {
+              "type": "reference",
+              "asString": "ClosingTimePayload"
+            }
+          ]
+        ]
       }
     },
     {
       "eventTypeName": "car",
       "eventKind": "withPayload",
       "payloadType": {
-        "type": "reference",
-        "asString": "CarPayload"
+        "type": "object",
+        "asString": "CarPayload",
+        "properties": [
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "modelName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
       }
     },
     {
@@ -238,8 +309,8 @@
       "eventKind": "withPayload",
       "payloadType": {
         "type": "object",
-        "asString": "{name: string}",
-        "members": [
+        "asString": "{ name: string; }",
+        "properties": [
           [
             "name",
             {

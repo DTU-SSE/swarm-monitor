@@ -1,7 +1,7 @@
 import { Actyx } from '@actyx/sdk'
 import { createMachineRunner, createMachineRunnerBT} from '@actyx/machine-runner'
 import { Events, manifest, Composition, warehouse_factory_protocol, subs_composition, getRandomInt, warehouse_protocol, subs_warehouse, print_event } from './protocol'
-import { checkComposedProjection, projectionAndInformation } from '@actyx/machine-check'
+import { checkComposedProjection } from '@actyx/machine-check'
 import { Meta, PartOK, PartReq, Pos, ClosingTime, Msg} from './generated/warehouse'
 // import * as net from "net";
 import * as dgram from "dgram";
@@ -101,10 +101,10 @@ s0.react([Events.car], s0, (_, e) => { send_message_protobuf(e, client); return 
 //console.log(JSON.stringify(forwarder.createJSONForAnalysis(s0), null, 2))
 
 // Unfortunately we need this here right now..... Another reason to refactor? Projection of warehouse || factory over D
-const projectionInfoResult = projectionAndInformation(warehouse_protocol, subs_warehouse, "Forwarder")
+/* const projectionInfoResult = projectionAndInformation(warehouse_protocol, subs_warehouse, "Forwarder")
 if (projectionInfoResult.type == 'ERROR') throw new Error('error getting projection')
 const projectionInfo = projectionInfoResult.data
-
+ */
 //console.log(projectionInfo.branches)
 //console.log(projectionInfo.specialEventTypes)
 

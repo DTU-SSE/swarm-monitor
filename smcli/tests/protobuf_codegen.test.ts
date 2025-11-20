@@ -3,7 +3,7 @@ import { generateProtoBufMsgDefs } from "../src/lib/protobuf_codegen.js";
 import { metaMsgType, eventSpecToProtoBuf } from "../src/lib/encode_protobuf.js";
 import {readFileSync, unlinkSync } from "fs" // Is actually fine, it runs
 import protobuf from "protobufjs";
-import { extractTypesFromFileCleaned } from "../src/lib/extract_types.js";
+import { eventSpecificationCleaned } from "../src/lib/extract_types.js";
 
 const OUTDIR = "tests"
 
@@ -44,7 +44,7 @@ describe("test dummy messages", () => {
     })
     it("generate .proto from tests/warehouse-demo-events.ts", async () => {
         const expected: string = readFileSync('tests/expected_output_3_lbj.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/warehouse-demo-events.ts");
+        const eventSpec = eventSpecificationCleaned("tests/warehouse-demo-events.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_3.proto`
         await generateProtoBufMsgDefs(root, outputFile)
@@ -54,7 +54,7 @@ describe("test dummy messages", () => {
     })
     it("generate .proto with nested messages as separate message types", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_4.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/protocol_4.ts");
+        const eventSpec = eventSpecificationCleaned("tests/protocol_4.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_4.proto`
         await generateProtoBufMsgDefs(root, outputFile)
@@ -64,9 +64,39 @@ describe("test dummy messages", () => {
     })
     it("generate .proto with nested messages", async () => {
         const expected: string = readFileSync('tests/expected_output_protocol_5.proto', 'utf8');
-        const eventSpec = extractTypesFromFileCleaned("tests/protocol_5.ts");
+        const eventSpec = eventSpecificationCleaned("tests/protocol_5.ts");
         const root = eventSpecToProtoBuf("test", eventSpec, true)
         const outputFile = `${OUTDIR}/output_5.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
+    it("car-factory example", async () => {
+        const expected: string = readFileSync('tests/expected_car_factory.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/car_factory_protocol.ts");
+        const root = eventSpecToProtoBuf("car_factory_messages", eventSpec, true)
+        const outputFile = `${OUTDIR}/car_factory.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
+    it("generate .proto from tests/protocol_9.ts. Imports types of same name from different files and aliases them.", async () => {
+        const expected: string = readFileSync('tests/expected_output_protocol_9.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/protocol_9.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
+        const outputFile = `${OUTDIR}/output_9.proto`
+        await generateProtoBufMsgDefs(root, outputFile)
+        const generated = readFileSync(outputFile, 'utf8')
+        expect(generated).toEqual(expected)
+        unlinkSync(outputFile)
+    })
+    it("generate .proto from tests/protocol_6.ts. Unions and weird imports.", async () => {
+        const expected: string = readFileSync('tests/expected_output_protocol_6.proto', 'utf8');
+        const eventSpec = eventSpecificationCleaned("tests/protocol_6.ts");
+        const root = eventSpecToProtoBuf("test", eventSpec, true)
+        const outputFile = `${OUTDIR}/output_6.proto`
         await generateProtoBufMsgDefs(root, outputFile)
         const generated = readFileSync(outputFile, 'utf8')
         expect(generated).toEqual(expected)

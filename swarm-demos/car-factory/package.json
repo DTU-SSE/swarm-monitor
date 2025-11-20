@@ -36,8 +36,8 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@actyx/machine-check": "file:../../machines/machine-check",
-    "@actyx/machine-runner": "file:../../machines/machine-runner",
+    "@actyx/machine-check": "file:./vendor/actyx-machine-check-0.3.1.tgz",
+    "@actyx/machine-runner": "file:./vendor/actyx-machine-runner-0.5.7.tgz",
     "@actyx/sdk": "^0.5.10",
     "chalk": "^5.6.0",
     "lodash.camelcase": "^4.3.0",

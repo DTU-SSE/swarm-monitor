@@ -1,7 +1,9 @@
 import { TYPEINFO_TYPES, TYPEINFO_NAMES, META_NAMES, PROTOBUF_FIELD_TYPES } from "./constants.js";
-
+import { SourceFile } from "ts-morph"
 // Data structures to hold extracted info
 type Variables = Map<string, string>; // Variables and the values they are initialized with as strings -- fails if not a value e.g. a + b
+
+export type TypeKind = typeof TYPEINFO_TYPES[keyof typeof TYPEINFO_TYPES]
 
 // Our own intermediate representation of TypeScript types.
 export type TypeInfo = BooleanType | NumberType | StringType | ReferenceType | ArrayType | UnionType | ObjectType;
@@ -12,10 +14,12 @@ export type StringType = { type: typeof TYPEINFO_TYPES.STRING, asString: string 
 export type ReferenceType = { type: typeof TYPEINFO_TYPES.REFERENCE, asString: string };
 export type ArrayType = { type: typeof TYPEINFO_TYPES.ARRAY, asString: string, elementType: TypeInfo };
 export type UnionType = { type: typeof TYPEINFO_TYPES.UNION, asString: string, members: TypeInfo[] };
-export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: [string, TypeInfo][] };
+export type PropertyInfo = { propertyName: string, propertyType: TypeInfo }
+export type ObjectType = { type: typeof TYPEINFO_TYPES.OBJECT, asString: string, properties: PropertyInfo[] };
 
 // Payload of a Actyx event can be an object type or a unioni of object types. We do not currently support translating unions.
-export type PayloadType = ObjectType | (UnionType & { members: PayloadType[] });
+// TODO: Revise this!
+export type PayloadType = TypeInfo //ObjectType | (UnionType & { members: PayloadType[] });
 
 // Maps type aliases to the types they denote.
 export type TypeVariables = Map<string, TypeInfo>;
@@ -25,16 +29,25 @@ type EventWithoutPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_N
 type EventWithPayload = { eventTypeName: string; eventKind: typeof TYPEINFO_NAMES.WITH_PAYLOAD; payloadType: PayloadType };
 export type Event = EventWithoutPayload | EventWithPayload;
 
+export type Context = { sourceFile: SourceFile, typeVariables: TypeVariables, namedImports: Map<string, string> }
+
 // Constructed when parsing a TypeScript file defining Actyx events.
 export type EventSpec = {
-  variables: Variables;
-  typeVariables: TypeVariables;
+  context: Context,
   events: Event[];
 }
 
 // Primitive here refers to boolean, number and string. typeInfo is BOOLEAN or ...??
 export const isPrimitiveType = (typeInfo: TypeInfo): boolean => {
   return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING
+}
+
+export const isPrimitiveOrArray = (typeInfo: TypeInfo): boolean => {
+  return typeInfo.type === TYPEINFO_TYPES.BOOLEAN || typeInfo.type === TYPEINFO_TYPES.NUMBER || typeInfo.type === TYPEINFO_TYPES.STRING || typeInfo.type === TYPEINFO_TYPES.ARRAY
+}
+
+export const isListOfTypeReferences = (typeInfos: TypeInfo[]): typeInfos is ReferenceType[] => {
+  return typeInfos.every(typeInfo => typeInfo.type === TYPEINFO_TYPES.REFERENCE)
 }
 
 // Serializable things are to pretty print TypeInfo, Event and EventSpec
@@ -53,11 +66,11 @@ export function serializeTypeInfo(typeInfo: TypeInfo): Serializable {
     case 'union':
       return { type: typeInfo.type, asString: typeInfo.asString, members: typeInfo.members.map(m => serializeTypeInfo(m)) }
     case 'object':
-      return { type: typeInfo.type, asString: typeInfo.asString, properties: typeInfo.properties.map(([propertyName, typeInfo]) => [propertyName, serializeTypeInfo(typeInfo)]) }
-  }
+      return { type: typeInfo.type, asString: typeInfo.asString, properties: typeInfo.properties.map((p) => [p.propertyName, serializeTypeInfo(p.propertyType)]) }
+    }
 }
 
-function serializeEvent(event: Event): Serializable {
+export function serializeEvent(event: Event): Serializable {
   switch (event.eventKind) {
     case 'withPayload':
       return { eventTypeName: event.eventTypeName, eventKind: event.eventKind, payloadType: serializeTypeInfo(event.payloadType) }
@@ -68,8 +81,10 @@ function serializeEvent(event: Event): Serializable {
 
 export function serializeEventSpec(eventSpec: EventSpec): Serializable {
   return {
-    variables: Array.from(eventSpec.variables.entries()),
-    types: Array.from(eventSpec.typeVariables.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
+    context: {
+      typeVariables: Array.from(eventSpec.context.typeVariables.entries()).map(([typeName, typeInfo]) => [typeName, serializeTypeInfo(typeInfo)]),
+      namedImports: Array.from(eventSpec.context.namedImports.entries())
+    },
     events: eventSpec.events.map(e => serializeEvent(e))
   }
 }

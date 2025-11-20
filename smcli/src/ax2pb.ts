@@ -1,10 +1,10 @@
 import { Command } from "commander";
 import { generateProtoBufMsgDefs } from "./lib/protobuf_codegen.js";
 import { eventSpecToProtoBuf } from "./lib/encode_protobuf.js";
-import { extractTypesFromFileCleaned } from "./lib/extract_types.js";
 import path from "path";
 import { spinnerSuccess, updateSpinnerText } from "./lib/spinner.js";
 import { setUpAutoCompile } from "./lib/set_up_proto_buf_compilation.js";
+import { eventSpecificationCleaned } from "./lib/extract_types.js";
 
 type Options = {
     output: string,
@@ -14,7 +14,7 @@ type Options = {
 }
 
 export const ax2pb = new Command("ax2pb")
-    .description("Translate an Actyx event definition to a Protocol Buffers message types.")
+    .description("Translate Actyx event definitions to Protocol Buffers message types.")
     .argument("<FILE>")
     .option("-o, --output <FILE>", "Output file.", "output.proto")
     .option("-p, --package-name <PACKAGE>", "Name to give package containing message types.", "myPackage")
@@ -22,7 +22,10 @@ export const ax2pb = new Command("ax2pb")
     .option("-c, --compile", "Adds compilation of generated .proto to 'scripts' package.json")
     .action((file: string, options: Options) => {
         updateSpinnerText(`Generating ${options.output} from ${file}.`);
-        generateProtoBufMsgDefs(eventSpecToProtoBuf(options.packageName, extractTypesFromFileCleaned(path.resolve(process.cwd(), file)), options.branchTracking), path.resolve(process.cwd(), options.output))
+        const eventSpec = eventSpecificationCleaned(path.resolve(process.cwd(), file))
+        //console.log(eventSpecToString(eventSpec, null, 2))
+        const protoBufRoot = eventSpecToProtoBuf(options.packageName, eventSpec, options.branchTracking)
+        generateProtoBufMsgDefs(protoBufRoot, path.resolve(process.cwd(), options.output))
         spinnerSuccess()
         if (options.compile) {
             updateSpinnerText(`Setting up compilation scripts.`);

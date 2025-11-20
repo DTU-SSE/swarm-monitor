@@ -1,0 +1,1 @@
+export type MyObject = { field1: number }

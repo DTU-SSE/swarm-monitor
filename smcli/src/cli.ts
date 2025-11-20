@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import { ax2pb } from './ax2pb.js';
 import { mkfwd } from './mk_fwd.js';
-import { stopSpinner } from './lib/spinner.js';
+import { spinnerError } from './lib/spinner.js';
 
 // https://github.com/TerribleDev/example-ts-cli/blob/main/index.ts
 const program = new Command()
@@ -18,7 +18,6 @@ async function main() {
 }
 
 main().catch((err: Error) => {
-  stopSpinner()
-  console.error(`${err.name}: ${err.message}`);
+  spinnerError(err.message)
   process.exit(1);
 })

@@ -1,26 +1,13 @@
 import join_actors.api.*
-//import car_factory_monitor.runCarFactoryMonitor
-
-import mainargs.Flag
-import mainargs.ParserForClass
-import mainargs.ParserForMethods
-import mainargs.TokensReader
-import mainargs.arg
-import mainargs.main
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pt.unl.fct.di.novasys.babel.core.Babel;
-import pt.unl.fct.di.novasys.babel.exceptions.HandlerRegistrationException;
-import pt.unl.fct.di.novasys.babel.exceptions.InvalidParameterException;
-import pt.unl.fct.di.novasys.babel.exceptions.ProtocolAlreadyExistsException;
-
-import java.io.IOException;
 import java.util.Properties;
 
 import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future, Promise, ExecutionContext}
+import scala.concurrent.{Await, Promise, ExecutionContext}
+import car_factory_messages.car_factory.{EventMessage, Event}
 
 object Main:
 
@@ -42,15 +29,17 @@ object Main:
     val babel: Babel = Babel.getInstance
 
     val properties: Properties = Babel.loadConfig(args, null)
+    val actyxSwarmBridge: ActyxSwarmBridge = new ActyxSwarmBridge(stopSignal)
 
-    val carFactoryMonitor: CarFactoryMonitor = new CarFactoryMonitor
-    val actyxEventAdaptor: ActyxEventAdaptor = new ActyxEventAdaptor(stopSignal)
+    val carFactoryMonitor = monitor(MatchingAlgorithm.WhileLazyAlgorithm)
+    val parse: (Array[Byte]) => Event = (payload: Array[Byte]) => EventMessage.parseFrom(payload).toEvent
+    val monitorBridge: MonitorBridge[Event, Unit] = new MonitorBridge(carFactoryMonitor, parse)
 
-    babel.registerProtocol(carFactoryMonitor)
-    babel.registerProtocol(actyxEventAdaptor)
+    babel.registerProtocol(actyxSwarmBridge)
+    babel.registerProtocol(monitorBridge)
 
-    carFactoryMonitor.init(properties)
-    actyxEventAdaptor.init(properties)
+    monitorBridge.init(properties)
+    actyxSwarmBridge.init(properties)
 
     babel.start()
 

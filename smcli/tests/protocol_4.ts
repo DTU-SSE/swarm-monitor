@@ -1,5 +1,6 @@
-import { MachineEvent } from "./dummy_interface.js"
+import { MachineEvent } from "@actyx/machine-runner"
 
+type t1 = boolean
 type Lars = number[]
 type Laquo = Lars
 type Boing = Laquo
@@ -10,10 +11,12 @@ type PartReqPayload = {partName: Haha}
 type PosPayload = {position: string, partName: string}
 type PartOKPayload = {partName: string}
 type CarPayload = {partName: string, modelName: string}
-type ShouldNotBeIncluded1 = string[] | boolean
+type ShouldNotBeIncluded1 = string[] | boolean | number
 type ShouldNotBeIncluded2 = number | ShouldNotBeIncluded1
 type ShouldNotBeIncluded3 = { a: string, b: string, c: number | string }
 type ShouldNotBeIncluded4 = {field1: number, field2: ShouldNotBeIncluded2}
+type ShouldNotBeIncluded5 = {field1: number, field2: {a: string, b: number}}
+//type SomeArrayType = SomeArrayType[]
 const var1 = 'pos'
 const posName = var1
 const partReqName = 'partReq'

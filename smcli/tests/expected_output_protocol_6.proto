@@ -1,0 +1,280 @@
+syntax = "proto3";
+
+package test;
+
+message Meta {
+
+    bool is_local_event = 3;
+    repeated string tags = 4;
+    uint64 timestamp_micros = 5;
+    uint32 lamport = 6;
+    string app_id = 7;
+    string event_id = 8;
+    string stream = 9;
+    uint32 offset = 10;
+}
+
+message PartReqPayload {
+
+    string part_name = 3;
+}
+
+message SomeUnionType {
+
+    oneof oneof_1 {
+
+        bool oneof_1_0 = 3;
+        string oneof_1_1 = 4;
+    }
+}
+
+message payload_types_ClosingTypeNested {
+
+    repeated double number = 3;
+    repeated double other = 4;
+}
+
+message ClosingTimePayload {
+
+    string time_of_day = 3;
+    payload_types_ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+}
+
+message PosPayload {
+
+    string position = 3;
+    string part_name = 4;
+}
+
+message CarPayload {
+
+    string part_name = 3;
+    string model_name = 4;
+}
+
+message subfolder_protocol_7_ClosingTypeNested {
+
+    repeated string strings = 3;
+    bool boolean_field = 4;
+}
+
+message ClosingTimePayload1 {
+
+    oneof time_of_day {
+
+        string time_of_day_0 = 3;
+        double time_of_day_1 = 4;
+    }
+
+    subfolder_protocol_7_ClosingTypeNested nested = 5;
+}
+
+message protocol_7_ClosingTypeNested {
+
+    repeated double number = 3;
+    string other = 4;
+    bool my_field = 5;
+}
+
+message MyPosPayload {
+
+    oneof from_payload_types {
+
+        double from_payload_types_0 = 5;
+        bool from_payload_types_1 = 6;
+    }
+
+    string position = 3;
+    string part_name = 4;
+}
+
+message partReq {
+
+    PartReqPayload field1 = 3;
+    double field2 = 4;
+    SomeUnionType field3 = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message partOK {
+
+    string time_of_day = 3;
+    payload_types_ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message pos {
+
+    string position = 3;
+    string part_name = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message closingTime {
+
+    string time_of_day = 3;
+    payload_types_ClosingTypeNested nested = 4;
+    ClosingTimePayload closing = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message car {
+
+    string part_name = 3;
+    string model_name = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message thing {
+
+    string name = 3;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message thing2 {
+
+    PartReqPayload field1 = 3;
+    double field2 = 4;
+    SomeUnionType field3 = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message otherClosingTime {
+
+    oneof time_of_day {
+
+        string time_of_day_0 = 3;
+        double time_of_day_1 = 4;
+    }
+
+    subfolder_protocol_7_ClosingTypeNested nested = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message nestedClosing1 {
+
+    double field1 = 3;
+    ClosingTimePayload1 field2 = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message anotherEventType {
+
+    double field1 = 3;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message anotherEventType1 {
+
+    repeated PosPayload field1 = 3;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message noPayload {
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message noPayload1 {
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Events1Pos {
+
+    string position = 3;
+    string part_name = 4;
+    string the_other_pos_payload_does_not_have_this_field = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Events2Pos {
+
+    string position = 3;
+    string part_name = 4;
+    repeated string my_fieeeeld = 5;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Events2ClosingTime {
+
+    string time_of_day = 3;
+    protocol_7_ClosingTypeNested nested = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Events3Pos {
+
+    oneof from_payload_types {
+
+        double from_payload_types_0 = 5;
+        bool from_payload_types_1 = 6;
+    }
+
+    string position = 3;
+    string part_name = 4;
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Events3Pos1 {
+
+    oneof oneof_2 {
+
+        MyPosPayload oneof_2_0 = 3;
+        CarPayload oneof_2_1 = 4;
+    }
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message noPayload11 {
+
+    Meta meta = 1;
+    string lbj = 2;
+}
+
+message Event {
+
+    oneof sealed_value {
+
+        partReq part_req = 3;
+        partOK part_ok = 4;
+        pos pos = 5;
+        closingTime closing_time = 6;
+        car car = 7;
+        thing thing = 8;
+        thing2 thing_2 = 9;
+        otherClosingTime other_closing_time = 10;
+        nestedClosing1 nested_closing_1 = 11;
+        anotherEventType another_event_type = 12;
+        anotherEventType1 another_event_type_1 = 13;
+        noPayload no_payload = 14;
+        noPayload1 no_payload_1 = 15;
+        Events1Pos events_1_pos = 16;
+        Events2Pos events_2_pos = 17;
+        Events2ClosingTime events_2_closing_time = 18;
+        Events3Pos events_3_pos = 19;
+        Events3Pos1 events_3_pos_1 = 20;
+        noPayload11 no_payload_11 = 21;
+    }
+}

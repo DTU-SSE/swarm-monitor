@@ -1,0 +1,243 @@
+{
+  "context": {
+    "typeVariables": [
+      [
+        "PartReqPayload",
+        {
+          "type": "object",
+          "asString": "PartReqPayload",
+          "properties": [
+            [
+              "partName",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "Laquo",
+        {
+          "type": "union",
+          "asString": "Laquo",
+          "members": [
+            {
+              "type": "string",
+              "asString": "string"
+            },
+            {
+              "type": "boolean",
+              "asString": "boolean"
+            }
+          ]
+        }
+      ],
+      [
+        "ClosingTypeNested",
+        {
+          "type": "object",
+          "asString": "ClosingTypeNested",
+          "properties": [
+            [
+              "number",
+              {
+                "type": "array",
+                "asString": "node_modules_typescript_lib_lib_es5_d_number[]",
+                "elementType": {
+                  "type": "number",
+                  "asString": "number"
+                }
+              }
+            ],
+            [
+              "other",
+              {
+                "type": "reference",
+                "asString": "Laquo"
+              }
+            ]
+          ]
+        }
+      ],
+      [
+        "ClosingTimePayload",
+        {
+          "type": "object",
+          "asString": "ClosingTimePayload",
+          "properties": [
+            [
+              "timeOfDay",
+              {
+                "type": "string",
+                "asString": "string"
+              }
+            ],
+            [
+              "nested",
+              {
+                "type": "reference",
+                "asString": "ClosingTypeNested"
+              }
+            ],
+            [
+              "closing",
+              {
+                "type": "reference",
+                "asString": "ClosingTimePayload"
+              }
+            ]
+          ]
+        }
+      ]
+    ],
+    "namedImports": [
+      [
+        "@actyx_machine-runner_MachineEvent",
+        "MachineEvent"
+      ]
+    ]
+  },
+  "events": [
+    {
+      "eventTypeName": "partReq",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "union",
+        "asString": "PartReqPayload | ClosingTimePayload",
+        "members": [
+          {
+            "type": "reference",
+            "asString": "PartReqPayload"
+          },
+          {
+            "type": "reference",
+            "asString": "ClosingTimePayload"
+          }
+        ]
+      }
+    },
+    {
+      "eventTypeName": "partOK",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "PartOKPayload",
+        "properties": [
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "pos",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "PosPayload",
+        "properties": [
+          [
+            "position",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "closingTime",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "ClosingTimePayload",
+        "properties": [
+          [
+            "timeOfDay",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "nested",
+            {
+              "type": "reference",
+              "asString": "ClosingTypeNested"
+            }
+          ],
+          [
+            "closing",
+            {
+              "type": "reference",
+              "asString": "ClosingTimePayload"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "car",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "CarPayload",
+        "properties": [
+          [
+            "partName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ],
+          [
+            "modelName",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "thing",
+      "eventKind": "withPayload",
+      "payloadType": {
+        "type": "object",
+        "asString": "{ name: string; }",
+        "properties": [
+          [
+            "name",
+            {
+              "type": "string",
+              "asString": "string"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "eventTypeName": "noPayload",
+      "eventKind": "withoutPayload"
+    },
+    {
+      "eventTypeName": "noPayload1",
+      "eventKind": "withoutPayload"
+    }
+  ]
+}

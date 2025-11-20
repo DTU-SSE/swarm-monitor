@@ -6,7 +6,9 @@ export const TYPEINFO_TYPES = {
     REFERENCE: "reference",
     ARRAY: "array",
     UNION: "union",
-    OBJECT: "object"
+    OBJECT: "object",
+    TUPLE: "tuple",
+    UNKNOWN: "unknown"
 } as const;
 
 export const TYPEINFO_NAMES = {
@@ -49,4 +51,16 @@ export const META_NAMES = {
 export const FORWARDER_CONSTANTS = {
     FORWARDER_FILE_NAME: "forwarder.ts",
     MAIN_FUNCTION_CALL: "main()"
+}
+
+// Names from machine-runner
+export const MACHINE_RUNNER_NAMES = {
+    EVENT_DESIGN_FUNCTION: "design: <Key extends string>(key: Key) => EventFactoryIntermediate<Key>",
+    EVENT_D_TS: "event.d.ts",
+    EVENT_DEFINITION_FUNCTIONS: [
+        "withPayload: <Payload extends utils.SerializableObject>() => Factory<Key, Payload>;",
+        "withoutPayload: () => Factory<Key, Record<never, never>>;",
+        // TODO: implement support for zod
+        //"withZod: <Payload extends utils.SerializableObject>(z: z.ZodType<Payload>) => Factory<Key, Payload>;"
+    ]
 }
