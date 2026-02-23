@@ -46,15 +46,15 @@ export namespace Events {
 To generate Protocol Buffers message types from this specificatoin of events please run:
 
 ```
-smcli ax2pb src/protocol.ts \ # input file
-    -o protos/factory.proto \ # output file
-    -b                      \ # events inlcude branch-tracking information
-    -c                        # set up scripts to facilitate translation between TypeScript and Protocol Buffers at runtime
+smcli ax2pb src/protocol.ts \ `# input file`
+-o protos/factory.proto \ `# output file`
+-b                      \ `# events inlcude branch-tracking information`
+-c                        `# set up scripts to facilitate translation between TypeScript and Protocol Buffers at runtime`
 ```
 
 This command reads the event specification in `src/protocol.ts` and translates the specification to a set of Protocol Buffers message types storing the output in `protos/factory.proto`. Additionally, the command sets up scripts to facilitate generating concrete Protocol Buffers messages at runtime.
 
-The details of how events are encoded to Protocol Buffers can be found in [smcli/README.md].
+The details of how events are encoded to Protocol Buffers can be found in [smcli/README.md](smcli/README.md).
 
 ### 3. Generate a *forwarder*
 Having defined the Protocol Buffers message format, the next step is to generate a forwarder. The forwarder receives all events from the swarm. On receiving an event, it transforms it to a Protocol Buffers message
