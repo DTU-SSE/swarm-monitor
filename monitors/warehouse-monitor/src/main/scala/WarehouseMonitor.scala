@@ -1,13 +1,13 @@
 package warehouse_monitor
 
 import join_actors.api.*
-import warehouse_factory.warehouse_factory.ClosingTime
-import warehouse_factory.warehouse_factory.Event
-import warehouse_factory.warehouse_factory.EventMessage
-import warehouse_factory.warehouse_factory.Meta
-import warehouse_factory.warehouse_factory.PartOK
-import warehouse_factory.warehouse_factory.PartRequest
-import warehouse_factory.warehouse_factory.Position
+import myPackage.factory.ClosingTime
+import myPackage.factory.Event
+import myPackage.factory.EventMessage
+import myPackage.factory.Meta
+import myPackage.factory.PartOK
+import myPackage.factory.PartRequest
+import myPackage.factory.Position
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
