@@ -1,7 +1,0 @@
-{
-    "manifest": { "type": "import", "manifest": {"item": "manifest", "file": "./protocol.js"}},
-    "swarmProtocolImport": {"item": "Composition", "file": "./protocol.js"},
-    "eventDefinitionImport": {"item": "Events", "file": "./protocol.js"},
-    "tsProtoBufTypes": {"item": "Event", "file": "./generated/car_factory.js"},
-    "entityId": "car-factory"
-}

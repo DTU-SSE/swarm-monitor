@@ -1,7 +1,0 @@
-{
-    "manifest": { "type": "literal", "manifest": {"appId": "com.example.car-factory.session1", "displayName": "car-factory-session1", "version": "1.0.0"}},
-    "swarmProtocolImport": {"item": "Composition", "file": "./protocol.js"},
-    "eventDefinitionImport": {"item": "Events", "file": "./protocol.js"},
-    "tsProtoBufTypes": {"item": "Event", "file": "./generated/car_factory.js"},
-    "entityId": "car-factory-session1"
-}
