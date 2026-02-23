@@ -1,0 +1,7 @@
+{
+    "manifest": { "type": "literal", "manifest": {"appId": "com.example.car-factory", "displayName": "warehouse-factory", "version": "1.0.0"}},
+    "swarmProtocolImport": {"item": "Protocol", "file": "./protocol.js"},
+    "eventDefinitionImport": {"item": "Events", "file": "./protocol.js"},
+    "tsProtoBufTypes": {"item": "Event", "file": "./generated/warehouse_factory.js"},
+    "entityId": "warehouse-factory"
+}

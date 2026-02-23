@@ -1,13 +1,13 @@
 package warehouse_monitor
 
 import join_actors.api.*
-import warehouse_messages.warehouse.ClosingTime
-import warehouse_messages.warehouse.Event
-import warehouse_messages.warehouse.EventMessage
-import warehouse_messages.warehouse.Meta
-import warehouse_messages.warehouse.PartOK
-import warehouse_messages.warehouse.PartReq
-import warehouse_messages.warehouse.Pos
+import warehouse_factory.warehouse_factory.ClosingTime
+import warehouse_factory.warehouse_factory.Event
+import warehouse_factory.warehouse_factory.EventMessage
+import warehouse_factory.warehouse_factory.Meta
+import warehouse_factory.warehouse_factory.PartOK
+import warehouse_factory.warehouse_factory.PartRequest
+import warehouse_factory.warehouse_factory.Position
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -20,14 +20,14 @@ def monitor(algorithm: MatchingAlgorithm) =
   Actor[Event, Unit] {
     receive { (self: ActorRef[Event]) =>
       {
-        case PartReq(part1, meta1, lbj1, _)
-             &:& Pos(position, part2, meta2, lbj2, _)
+        case PartRequest(part1, meta1, lbj1, _)
+             &:& Position(position, part2, meta2, lbj2, _)
              &:& PartOK( part3, meta3, lbj3, _) => //if part1 == part2 && part2 == part3 =>
           println(
             s"========================= ${Console.BLUE}${Console.UNDERLINED}Join Pattern 01${Console.RESET} =========================\n"
           )
           println(
-            s"${Console.BLUE}${Console.UNDERLINED}Matched messages: PartReq(id = $part1, ...), Pos(position = $position, id = $part2, ...), PartOK(id = $part3, ...)${Console.RESET}\n"
+            s"${Console.BLUE}${Console.UNDERLINED}Matched messages: PartRequest(id = $part1, ...), Position(position = $position, id = $part2, ...), PartOK(id = $part3, ...)${Console.RESET}\n"
           )
           printMetaInner(meta1)
           printMetaInner(meta2)
@@ -36,14 +36,14 @@ def monitor(algorithm: MatchingAlgorithm) =
             s"\n========================= ${Console.BLUE}${Console.UNDERLINED}Join Pattern 01${Console.RESET} ========================="
           )
           Continue
-        case PartReq(part1, meta1, lbj1, _)
-             &:& Pos(position, part2, meta2, lbj2, _)
+        case PartRequest(part1, meta1, lbj1, _)
+             &:& Position(position, part2, meta2, lbj2, _)
              &:& PartOK(part3, meta3, lbj3, _) if part2 == "broken part" && part2 == part3 && lbj2 == lbj3 =>
           println(
             s"========================= ${Console.YELLOW}${Console.UNDERLINED}Join Pattern 02${Console.RESET} =========================\n"
           )
           println(
-            s"${Console.YELLOW}${Console.UNDERLINED}Matched messages: PartReq(id = $part1, ...), PartReq(position = $position, id = $part2, ...), PartOK(id = $part3, ...)${Console.RESET}\n"
+            s"${Console.YELLOW}${Console.UNDERLINED}Matched messages: PartRequest(id = $part1, ...), PartRequest(position = $position, id = $part2, ...), PartOK(id = $part3, ...)${Console.RESET}\n"
           )
           printMetaInner(meta1)
           printMetaInner(meta2)
@@ -66,9 +66,9 @@ def monitor(algorithm: MatchingAlgorithm) =
   }
 
 def printMeta(e: Event) = e match
-  case PartReq(partName, meta, lbj, unknownFields)       => printMetaInner(meta)
+  case PartRequest(partName, meta, lbj, unknownFields)       => printMetaInner(meta)
   case PartOK(partName, meta, lbj, unknownFields)        => printMetaInner(meta)
-  case Pos(position, partName, meta, lbj, unknownFields) => printMetaInner(meta)
+  case Position(position, partName, meta, lbj, unknownFields) => printMetaInner(meta)
   case ClosingTime(timeOfDay, meta, lbj, unknownFields)  => printMetaInner(meta)
   case _                                                 => ()
 

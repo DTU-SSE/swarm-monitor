@@ -1,0 +1,46 @@
+{
+  "name": "warehouse_factory_demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start-door": "node dist/src/machine_drivers/door.js",
+    "start-forklift": "node dist/src/machine_drivers/forklift.js",
+    "start-transport": "node dist/src/machine_drivers/transport.js",
+    "start-factory-robot": "node dist/src/machine_drivers/factory_robot.js",
+    "start-quality-control": "node dist/src/machine_drivers/quality_control.js",
+    "pretest": "npm run compile-proto",
+    "prebuild": "npm run compile-proto",
+    "prestart-door": "npm run compile-proto",
+    "prestart-forklift": "npm run compile-proto",
+    "prestart-transport": "npm run compile-proto",
+    "prestart-factory-robot": "npm run compile-proto",
+    "prestart-quality-control": "npm run compile-proto",
+    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/warehouse_factory.proto src/generated/warehouse_factory.ts",
+    "prestart-forwarder": "npm run compile-proto",
+    "start-forwarder": "tsc && node dist/src/forwarder.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.26.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.3",
+    "@protobuf-ts/plugin": "^2.11.1",
+    "@protobuf-ts/runtime": "^2.11.1",
+    "tsx": "^4.20.5",
+    "@types/lodash.camelcase": "^4.3.9",
+    "@types/yargs": "^17.0.33"
+  },
+  "dependencies": {
+    "machine-core": "file:./vendor/machine-core-0.1.0.tgz",
+    "@actyx/machine-check": "file:./vendor/actyx-machine-check-0.3.1.tgz",
+    "@actyx/machine-runner": "file:./vendor/actyx-machine-runner-0.5.7.tgz",
+    "@actyx/sdk": "^0.5.10",
+    "lodash.camelcase": "^4.3.0",
+    "yargs": "^18.0.0"
+  }
+}

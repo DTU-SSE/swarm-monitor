@@ -1,0 +1,8 @@
+node_modules/
+actyx-data/
+ax-data/
+dist/
+protos/
+scripts/
+src/forwarder.ts
+src/generated/
