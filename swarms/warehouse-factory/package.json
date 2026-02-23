@@ -10,16 +10,8 @@
     "start-transport": "node dist/src/machine_drivers/transport.js",
     "start-factory-robot": "node dist/src/machine_drivers/factory_robot.js",
     "start-quality-control": "node dist/src/machine_drivers/quality_control.js",
-    "pretest": "npm run compile-proto",
-    "prebuild": "npm run compile-proto",
-    "prestart-door": "npm run compile-proto",
-    "prestart-forklift": "npm run compile-proto",
-    "prestart-transport": "npm run compile-proto",
-    "prestart-factory-robot": "npm run compile-proto",
-    "prestart-quality-control": "npm run compile-proto",
     "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/warehouse_factory.proto src/generated/warehouse_factory.ts",
-    "prestart-forwarder": "npm run compile-proto",
-    "start-forwarder": "tsc && node dist/src/forwarder.js"
+    "start-forwarder": "node dist/src/forwarder.js"
   },
   "keywords": [],
   "author": "",

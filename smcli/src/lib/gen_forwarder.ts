@@ -290,10 +290,8 @@ export function updatePackageJsonFwd(filePath: string) {
       { key: "yargs", value: "^18.0.0" },
 
     ],
-    // sketchy. assumes there is this compile-proto script...
     scripts: [
-      { key: "prestart-forwarder", value: `npm run compile-proto`, preScript: false},
-      { key: "start-forwarder", value: `tsc && node ${executablePath}`, preScript: false}]
+      { key: "start-forwarder", value: `node ${executablePath}`, preScript: false}]
     }
 
   updatePackageJson(path.join(projectRoot, "package.json"), updates)

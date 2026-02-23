@@ -68,7 +68,7 @@ const compileProtoBufScript = (scriptFilename: string) => {
     sourceFile.saveSync()
 }
 
-export async function setUpAutoCompile(protoBufFile: string) {
+export async function setUpCompilationScript(protoBufFile: string) {
     try {
         const updates: PackageJsonEntries = {
         devDependencies: [
