@@ -29,7 +29,11 @@ cd smcli && npm i    \
 ### 2. Generating Protocol Buffers message types
 Protocol Buffers are language-neutral, platform-neutral data format for serializing structured data. The `smcli` tool translates the event specification of a swarm to a set of Protocol Buffers message types. This allows a simple, compact representation of events and allows implementing monitors that consume the events in a variety of languages.
 
-The directory `swarms/warehouse-factory/` contains the implementation of an example swarm modelling an automated factory. To continue along this guide, please cd to this directory.
+The directory `swarms/warehouse-factory/` contains the implementation of an example swarm modelling an automated factory. To continue along this guide, please run:
+```
+cd .. # assuming the step 1. was performed at that you are currently in smcli/
+cd swarms/warehouse-factory/ && npm i
+```
 
 The formats of the events emitted by a swarm are specified by defining a number of constructor types referred to as [`Factories`](https://github.com/Actyx/machines/blob/386149638c608c8b1436bfe3eb5636ee4f83a5b8/machine-runner/src/design/event.ts#L207). These type constructors serve as a blueprint for the resulting event instances. The specification of the events of our example swarm is found in `swarms/warehouse-factory/src/protocol.ts` and contains the following:
 
@@ -46,13 +50,12 @@ export namespace Events {
 To generate Protocol Buffers message types from this specificatoin of events please run:
 
 ```
-smcli ax2pb src/protocol.ts \ `# input file`
--o protos/factory.proto \ `# output file`
--b                      \ `# events inlcude branch-tracking information`
--c                        `# set up scripts to facilitate translation between TypeScript and Protocol Buffers at runtime`
+smcli ax2pb src/protocol.ts \
+    -o protos/factory.proto \
+    -bc
 ```
 
-This command reads the event specification in `src/protocol.ts` and translates the specification to a set of Protocol Buffers message types storing the output in `protos/factory.proto`. Additionally, the command sets up scripts to facilitate generating concrete Protocol Buffers messages at runtime.
+This command reads the event specification in `src/protocol.ts` and translates the specification to a set of Protocol Buffers message types storing the output in `protos/factory.proto`. Additionally, the command specifies that events inlcude "branch-tracking" information (-b) and sets up scripts to facilitate generating concrete Protocol Buffers messages at runtime (-c).
 
 The details of how events are encoded to Protocol Buffers can be found in [smcli/README.md](smcli/README.md).
 
