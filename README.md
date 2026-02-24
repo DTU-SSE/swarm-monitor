@@ -83,11 +83,13 @@ This command generates the forwarder `src/forwarder.ts`. The command takes as in
 
 
 ### 4. Scala monitor based on [join-actors](https://github.com/a-y-man/join-actors)
-The last piece
+The remaining piece is the monitor. The monitor could be written in any language and follow any desired application logic. In this example we will use a monitor based on the [join-actors](https://github.com/a-y-man/join-actors) library using [join pattern matching](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2024.17) to look for interesting combinations of messages.
+
+
 
 
 
 ### Run the swarm and the monitor
 
-
-Through an example use case, this guide shows how to:
+We are now ready to run the swarm and the monitor together. We will start up the monitor in one terminal and the swarm in another.
+To start the monitor open a terminal and move to the directory `monitors/warehouse-monitor`
