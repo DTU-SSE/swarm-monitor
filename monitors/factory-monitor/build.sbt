@@ -7,7 +7,7 @@ lazy val mainargsVersion      = "0.7.6"
 lazy val root = project
   .in(file("."))
   .settings(
-    name := "warehouse-monitor",
+    name := "factory-monitor",
 
     Compile / PB.targets := Seq(
         scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"

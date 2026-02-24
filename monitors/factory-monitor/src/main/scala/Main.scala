@@ -1,5 +1,5 @@
 import join_actors.api.*
-import warehouse_monitor.runWarehouseMonitor
+import factory_monitor.runFactoryMonitor
 
 import mainargs.Flag
 import mainargs.ParserForClass
@@ -26,7 +26,7 @@ object Main:
 
 
   @main
-  def warehouseMonitor(
+  def factoryMonitor(
     @arg(name = "algorithm", doc = "Matching algorithm to use (default: WhileLazyAlgorithm)")
     algorithm: MatchingAlgorithm = MatchingAlgorithm.WhileLazyAlgorithm,
     @arg(name = "port", doc = "Port to listen on (default: 9999)")
@@ -34,7 +34,7 @@ object Main:
     @arg(name = "host", doc = "Host to listen on (default: localhost)")
     host: String = "localhost"
   ): Unit =
-    runWarehouseMonitor(algorithm, port, host)
+    runFactoryMonitor(algorithm, port, host)
 
   def main(args: Array[String]): Unit =
     ParserForMethods(this).runOrExit(args)

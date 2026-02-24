@@ -1,4 +1,4 @@
-package warehouse_monitor
+package factory_monitor
 
 import join_actors.api.*
 import myPackage.factory.ClosingTime
@@ -8,6 +8,7 @@ import myPackage.factory.Meta
 import myPackage.factory.PartOK
 import myPackage.factory.PartRequest
 import myPackage.factory.Position
+import myPackage.factory.Car
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -52,13 +53,31 @@ def monitor(algorithm: MatchingAlgorithm) =
             s"\n========================= ${Console.YELLOW}${Console.UNDERLINED}Join Pattern 02${Console.RESET} ========================="
           )
           Continue
+        case Car(partName, modelName, meta, lbj, _) =>
+          println(
+            s"========================= ${Console.GREEN}${Console.UNDERLINED}Join Pattern 03${Console.RESET} =========================\n"
+          )
+          println(
+            s"${Console.GREEN}${Console.UNDERLINED}Matched messages: Car(partName = $partName, modelName= $modelName)${Console.RESET}\n"
+          )
+          printMetaInner(meta)
+          println(
+            s"\n========================= ${Console.GREEN}${Console.UNDERLINED}Join Pattern 03${Console.RESET} ========================="
+          )
+          Continue
         case ClosingTime(time, meta, lbj, _) =>
+          println(
+            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RED} =========================\n"
+          )
           println(
             s"${Console.RED}${Console.UNDERLINED}Matched messages: ClosingTime(timeOfDay = $time, ...)${Console.RESET}\n"
           )
           printMetaInner(meta)
           println(
             s"${Console.RED}${Console.UNDERLINED}Shutting down monitor actor...${Console.RESET}"
+          )
+          println(
+            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RED} =========================\n"
           )
           Stop(())
       }
@@ -77,12 +96,12 @@ def printMetaInner(meta: Option[Meta]) = meta match
     println(s"Offset: ${value.offset} Timestamp: ${value.lamport}. eventID: ${value.eventId}")
   case None => ()
 
-def runWarehouseMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
+def runFactoryMonitor(algorithm: MatchingAlgorithm, port: Int, host: String) =
   val (monitorFut, monitorRef) = monitor(algorithm).start()
   val socket                   = new DatagramSocket(port, java.net.InetAddress.getByName(host))
 
   println(
-    s"${Console.GREEN}🚀 Warehouse Monitor ready and listening on ${host}:${port} 📦${Console.RESET}"
+    s"${Console.GREEN}🚀 Factory Monitor ready and listening on ${host}:${port} 📦${Console.RESET}"
   )
   receiveLoop(socket, monitorFut, monitorRef)
 
