@@ -67,10 +67,14 @@ smcli ax2pb src/protocol.ts \
     -bc
 ```
 
-This command reads the event specification in `src/protocol.ts` and translates it to a set of Protocol Buffers message types written to `protos/factory.proto`. The details of how events are encoded to Protocol Buffers can be found in [smcli/README.md](smcli/README.md). Additionally, the command specifies that events inlcude "branch-tracking" information (-b) and sets up a script to facilitate generating concrete Protocol Buffers messages at runtime (-c). Specifically, the -c flag creates the file `scripts/compile_protobuf.ts`, which generates TypeScript representations of the Protocol Buffers message types, and adds the command `"compile-proto": "npx tsx scripts/compile_protobuf.ts protos/factory.proto src/generated/factory.ts"` to the `package.json` of the example project for invoking the script and storing the resulting TypeScript types in `src/generated/factory.ts`.
+This command reads the event specification in `src/protocol.ts` and translates it to a set of Protocol Buffers message types written to `protos/factory.proto`. The details of how events are encoded to Protocol Buffers can be found in [smcli/README.md](smcli/README.md).
 
+Additionally, the command specifies that events inlcude "branch-tracking" information (-b) and sets up a script to facilitate generating concrete Protocol Buffers messages at runtime (-c). Specifically, the -c flag creates the file `scripts/compile_protobuf.ts`, which generates TypeScript representations of the Protocol Buffers message types, and adds the command `"compile-proto": "npx tsx scripts/compile_protobuf.ts protos/factory.proto src/generated/factory.ts"` to the `package.json` of the example project for invoking the script and storing the resulting TypeScript types in `src/generated/factory.ts`.
 
-
+These TypeScript types are needed for the next step. To generate them please run:
+```
+npm run compile-proto
+```
 
 ### 3. Generate a *forwarder*
 Having defined the Protocol Buffers message format, the next step is to generate a forwarder. The forwarder receives all events from the swarm. On receiving an event, it transforms it to a TypeScript type representing a Protocol Buffers message and sends it to a communication endpoint. To generate the forwarder, please run:
