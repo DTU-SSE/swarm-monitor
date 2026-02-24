@@ -17,6 +17,18 @@ This guide explains the usage of the `smcli` tool via an example. In four steps,
 3. Generate a *forwarder* acting as a bridge between the swarm and a monitoring process consuming events from the swarm.
 4. Implement a Scala *monitor* based on the [join-actors](https://github.com/a-y-man/join-actors) library to consume the events from the swarm.
 
+The example system we are building in this guide is depicted below.
+
+<div align="center">
+    <figure>
+        <img
+        src="swarm-monitor-architecture-readme.svg"
+        alt="Architecture of swarm and monitor"
+        title="Architecture"
+        width="1000">
+        <figcaption>Architecture of swarm and monitor.</figcaption>
+    </figure>
+</div>
 
 ### 1. Install `smcli`
 To install `smcli`, please run:
