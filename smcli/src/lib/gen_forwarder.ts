@@ -3,9 +3,10 @@ import {
   QuoteKind,
   VariableDeclarationKind,
   SourceFile,
+  ts
 } from "ts-morph";
 
-import fs from 'fs';
+import fs, { type PathLike } from 'fs';
 import { z } from "zod";
 import { FORWARDER_CONSTANTS } from "./constants.js";
 import { findProjectRoot, updatePackageJson } from "./update_config_files.js";
@@ -39,6 +40,7 @@ const ConfigSchema = z.object({
   eventDefinitionImport: ImportInfoSchema,
   tsProtoBufTypes: ImportInfoSchema,
   entityId: z.string(),
+  tsConfigPath: z.string(),
 })
 
 export type ImportInfo = z.infer<typeof ImportInfoSchema>;
@@ -252,7 +254,7 @@ function getConfig(path: string): Config {
   try {
     return ConfigSchema.parse(JSON.parse(fs.readFileSync(path, 'utf8')))
   } catch(error) {
-    throw Error /// return to this. Improve
+    throw error
   }
 
 }
@@ -274,12 +276,15 @@ export function getText(project: Project, file: string): string {
 }
 
 // Add imports to package.json and add a script for starting forwarder.
-export function updatePackageJsonFwd(filePath: string) {
+export function updatePackageJsonFwd(filePath: string, compilerOptions: ts.CompilerOptions) {
+  const projectRoot = findProjectRoot(filePath) // Not the same as compilerOptions.rootDir which is the root folder within the source files.
+  const outDir = compilerOptions.outDir ?? "dist" // Guess on 'dist' if outDir is not set in tsconfig.
 
-  const projectRoot = findProjectRoot(filePath)
-  path.resolve()
-  // little sketchy... what if filePath is /home/a/b/src/forwarder.ts ??
-  const executablePath = path.join("dist", path.dirname(filePath), `${path.basename(filePath, ".ts")}.js`)
+  // Sketchy. Unstable if rootDir is not defined.
+  const executablePath = compilerOptions.rootDir && path.dirname(path.resolve(filePath)).startsWith(compilerOptions.rootDir) ?
+    path.join(path.basename(outDir), path.dirname(path.resolve(filePath)).substring(compilerOptions.rootDir.length + 1), `${path.basename(filePath, ".ts")}.js`)
+    : path.join(path.basename(outDir), path.dirname(filePath), `${path.basename(filePath, ".ts")}.js`)
+
   const updates: PackageJsonEntries = {
     devDependencies: [
         { key: "@types/lodash.camelcase", value: "^4.3.9" },
@@ -297,12 +302,11 @@ export function updatePackageJsonFwd(filePath: string) {
   updatePackageJson(path.join(projectRoot, "package.json"), updates)
 }
 
-export function generateForwarder(configFile: string, outputFile: string): Project {
+export function generateForwarderProject(config: Config, outputFile: string): Project {
   try {
-    const config = getConfig(configFile)
-
     const project = new Project({
       manipulationSettings: { quoteKind: QuoteKind.Double },
+      tsConfigFilePath: config.tsConfigPath
     });
 
     const sourceFile = project.createSourceFile(outputFile, "", { overwrite: true });
@@ -313,6 +317,19 @@ export function generateForwarder(configFile: string, outputFile: string): Proje
     sourceFile.addStatements(FORWARDER_CONSTANTS.MAIN_FUNCTION_CALL);
 
     return project
+
+  } catch (error) {
+    throw error
+  }
+}
+
+export function generateForwarder(configFile: string, outputFile: string) {
+  try {
+    const config = getConfig(path.resolve(process.cwd(), configFile))
+    const generated = generateForwarderProject(config, outputFile)
+    writeSourceFile(generated, outputFile)
+    console.log(generated.getCompilerOptions())
+    updatePackageJsonFwd(outputFile, generated.getCompilerOptions())
 
   } catch (error) {
     throw error
