@@ -81,15 +81,33 @@ smcli mkfwd forwarder.config.json -o src/forwarder.ts
 
 This command generates the forwarder `src/forwarder.ts`. The command takes as input a configuration file specifiyng among other things the path of the TypeScript representation of the Protocol Buffers message types and the [manifest](https://developer.actyx.com/docs/tutorials/getting-started/machine-runner/first-machine#defining-the-application-manifest) used by the swarm.
 
+Note, the "rootDir" field of the `tsconfig.json` used for the project must be set for `mkfwd` to work.
 
 ### 4. Scala monitor based on [join-actors](https://github.com/a-y-man/join-actors)
 The remaining piece is the monitor. The monitor could be written in any language and follow any desired application logic. In this example we will use a monitor based on the [join-actors](https://github.com/a-y-man/join-actors) library using [join pattern matching](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2024.17) to look for interesting combinations of messages.
 
 
-
+The directory `monitors/factory-monitor` contains a monitor made for this example. To make it work please copy the file `factory.proto` generated in step 2 into `factory-monitor/src/main/protobuf/`.
 
 
 ### Run the swarm and the monitor
 
 We are now ready to run the swarm and the monitor together. We will start up the monitor in one terminal and the swarm in another.
-To start the monitor open a terminal and move to the directory `monitors/warehouse-monitor`
+
+To start the monitor, please move to the directory `monitors/warehouse-monitor` and run:
+```
+sbt "run --algorithm while-lazy --port 9999 --host localhost"
+```
+After compiling it should output:
+```
+🚀 Factory Monitor ready and listening on localhost:9999 📦
+```
+
+Now, to start the swawrm, please open a new terminal, move to `swarms/warehouse-factory/` and run:
+```
+npm i
+bash start_factory_forwarding.sh session1 localhost 9999
+```
+
+This should start the swarm, splitting the terminal into five windows each
+

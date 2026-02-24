@@ -20,8 +20,8 @@
     "start-window-installer": "node dist/machine_drivers/window_installation_protocol/window_installer.js",
     "start-window-checker": "node dist/machine_drivers/window_installation_protocol/window_checker.js",
     "start-quality-control": "node dist/machine_drivers/quality_control_protocol/quality_control.js",
-    "start-forwarder": "tsc && node dist/forwarder.js",
-    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts"
+    "compile-proto": "npx tsx scripts/compile_protobuf.ts protos/car_factory.proto src/generated/car_factory.ts",
+    "start-forwarder": "node dist/forwarder.js"
   },
   "devDependencies": {
     "@protobuf-ts/plugin": "^2.11.1",
