@@ -3,5 +3,6 @@
     "swarmProtocolImport": {"item": "Composition", "file": "./protocol"},
     "eventDefinitionImport": {"item": "Events", "file": "./protocol"},
     "tsProtoBufTypes": {"item": "Event", "file": "./generated/warehouse"},
-    "entityId": "warehouse"
+    "entityId": "warehouse",
+    "tsConfigPath": "tests/test-tsconfig.json"
 }

@@ -250,7 +250,7 @@ function getManifest(manifestStr: string): string {
       .replace("\"signature\"", "signature")
 }
 
-function getConfig(path: string): Config {
+export function getConfig(path: string): Config {
   try {
     return ConfigSchema.parse(JSON.parse(fs.readFileSync(path, 'utf8')))
   } catch(error) {
@@ -328,7 +328,6 @@ export function generateForwarder(configFile: string, outputFile: string) {
     const config = getConfig(path.resolve(process.cwd(), configFile))
     const generated = generateForwarderProject(config, outputFile)
     writeSourceFile(generated, outputFile)
-    console.log(generated.getCompilerOptions())
     updatePackageJsonFwd(outputFile, generated.getCompilerOptions())
 
   } catch (error) {

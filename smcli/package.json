@@ -8,7 +8,8 @@
     "codegen": "tsc && node dist/protobuf_codegen.js",
     "encode": "tsc && node dist/encode_protobuf.js",
     "gen-forwarder": "tsc && node dist/gen_forwarder.js",
-    "build": "tsc"
+    "build": "tsc",
+    "start-forwarder": "node dist/forwarder.js"
   },
   "devDependencies": {
     "@actyx/machine-runner": "^0.5.7",
@@ -23,7 +24,8 @@
     "lodash.isequal": "^4.5.0",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "@types/lodash.camelcase": "^4.3.9"
   },
   "dependencies": {
     "commander": "^14.0.0",
@@ -34,7 +36,8 @@
     "protobufjs-cli": "^1.1.3",
     "ts-morph": "^26.0.0",
     "yargs": "^18.0.0",
-    "zod": "^4.1.1"
+    "zod": "^4.1.1",
+    "lodash.camelcase": "^4.3.0"
   },
   "files": [
     "dist/",
