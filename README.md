@@ -109,5 +109,7 @@ npm i
 bash start_factory_forwarding.sh session1 localhost 9999
 ```
 
-This should start the swarm, splitting the terminal into five windows each
+This should start the swarm, splitting the terminal into five windows showing the ouputs of the machines of the swarm and the forwarder.
+
+Now follow, as the swarm emits events and the monitor matches on the messages received from the swarm.
 
