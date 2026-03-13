@@ -1,0 +1,29 @@
+# build
+#FROM sbtscala/scala-sbt:17.0.9_1.9.9_3.3.1 AS builder
+FROM sbtscala/scala-sbt:eclipse-temurin-17.0.4_1.7.1_3.2.0 AS builder
+
+
+WORKDIR /build
+RUN mkdir monitors && mkdir monitors/factory-monitor
+
+COPY ../monitors/factory-monitor/build.sbt monitors/factory-monitor/build.sbt
+COPY ../monitors/factory-monitor/project monitors/factory-monitor/project
+COPY ../monitors/factory-monitor/lib monitors/factory-monitor/lib
+COPY ../monitors/factory-monitor/src monitors/factory-monitor/src
+COPY docker/build_sbt_files/assembly.sbt monitors/factory-monitor/project/assembly.sbt
+
+
+RUN sbt assembly
+
+# runtime
+FROM alpine:3.23
+
+RUN apk add openjdk8-jre
+
+WORKDIR /app
+
+COPY --from=builder /build/factory-monitor/target/scala-3.7.2/factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
+
+EXPOSE 9999/udp
+
+CMD [ "java", "-jar", "monitors/factory-monitor.jar" ]
