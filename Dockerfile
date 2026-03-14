@@ -31,10 +31,7 @@ RUN cd swarms/factory && npm i && npm run build
 
 FROM rust:alpine3.23 AS ax_builder
 WORKDIR /build
-# Install cargo and ax
-#RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-#ENV PATH="/root/.cargo/bin:${PATH}"
+# Install ax and its build dependencies
 RUN apk add --no-cache gcc musl-dev libc-dev make protoc
 RUN cargo install ax
 
@@ -42,14 +39,7 @@ RUN cargo install ax
 # runtime
 FROM alpine:3.23
 
-RUN apk add --no-cache openjdk21-jre tmux curl nodejs gcc musl-dev libc-dev make protoc bash ncurses libevent
-
-# Install cargo and ax
-#RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-#ENV PATH="/root/.cargo/bin:${PATH}"
-
-#RUN cargo install ax
+RUN apk add --no-cache openjdk21-jre tmux nodejs musl-dev libc-dev protoc bash ncurses libevent
 
 WORKDIR /app
 
@@ -73,5 +63,4 @@ COPY --from=swarm_builder /build/swarms/factory/dist swarms/factory/dist
 
 COPY --from=swarm_builder /build/swarms/factory/node_modules swarms/factory/node_modules
 
-#CMD [ "java", "-jar", "monitors/factory-monitor.jar" ]
 ENTRYPOINT [ "./entrypoint.sh" ]

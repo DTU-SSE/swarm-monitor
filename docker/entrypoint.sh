@@ -2,10 +2,11 @@
 
 case "$1" in
   factory-monitor)
-    java -jar monitors/factory-monitor.jar
+    java -jar monitors/factory-monitor.jar --algorithm while-lazy --port 9999 --host 0.0.0.0
     ;;
   factory-swarm)
-    cd swarms/factory && bash start_factory_forwarding.sh "session1" "localhost" "9999" "/dev/null" "/dev/null"
+    MONITOR=monitor
+    cd swarms/factory && bash start_factory_forwarding.sh "session1" "$MONITOR" "9999" "/dev/null" "/dev/null"
     ;;
   *)
     echo "usage: factory-monitor | factory-swarm"
