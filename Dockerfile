@@ -1,24 +1,42 @@
-# build scala monitor
+# Install ax and its build dependencies
+FROM rust:alpine3.23 AS ax_builder
+
+WORKDIR /build
+
+RUN apk add --no-cache gcc musl-dev libc-dev make protoc
+
+RUN cargo install ax
+
+# Build scala monitor
 FROM sbtscala/scala-sbt:eclipse-temurin-alpine-21.0.8_9_1.12.5_3.8.2 AS monitor_builder
 
 WORKDIR /build
 
-COPY docker/car-factory.build.sbt monitors/factory-monitor/build.sbt
+#COPY docker/car-factory.build.sbt monitors/factory-monitor/build.sbt
 
-COPY monitors/factory-monitor/project monitors/factory-monitor/project
+#COPY monitors/factory-monitor/project monitors/factory-monitor/project
+
+#COPY docker/assembly.sbt monitors/factory-monitor/project/assembly.sbt
+
+#COPY monitors/factory-monitor/lib monitors/factory-monitor/lib
+
+#COPY monitors/factory-monitor/src monitors/factory-monitor/src
+
+#RUN cd monitors/factory-monitor && sbt assembly
+
+COPY docker/babel-factory.build.sbt monitors/factory-monitor/build.sbt
+
+COPY monitors/babel-factory-monitor/project monitors/factory-monitor/project
 
 COPY docker/assembly.sbt monitors/factory-monitor/project/assembly.sbt
 
-COPY monitors/factory-monitor/lib monitors/factory-monitor/lib
+COPY monitors/babel-factory-monitor/lib monitors/factory-monitor/lib
 
-# not necessary?
-#RUN cd monitors/factory-monitor && sbt update
+COPY monitors/babel-factory-monitor/src monitors/factory-monitor/src
 
-COPY monitors/factory-monitor/src monitors/factory-monitor/src
+RUN cd monitors/babel-factory-monitor && sbt assembly
 
-RUN cd monitors/factory-monitor && sbt assembly
-
-# build typescript swarms
+# Build typescript swarms
 FROM node:slim AS swarm_builder
 
 WORKDIR /build
@@ -29,17 +47,7 @@ COPY swarms/warehouse-factory swarms/factory
 
 RUN cd swarms/factory && npm i && npm run build
 
-FROM rust:alpine3.23 AS ax_builder
-
-WORKDIR /build
-
-# Install ax and its build dependencies
-
-RUN apk add --no-cache gcc musl-dev libc-dev make protoc
-
-RUN cargo install ax
-
-# runtime
+# Runtime
 FROM alpine:3.23
 
 RUN apk add --no-cache openjdk21-jre tmux nodejs musl-dev libc-dev protoc bash ncurses libevent
