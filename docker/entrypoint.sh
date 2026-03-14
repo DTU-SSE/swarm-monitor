@@ -2,7 +2,7 @@
 
 case "$1" in
   factory-monitor)
-    java -jar monitors/factory-monitor.jar --algorithm while-lazy --port 9999 --host 0.0.0.0
+    java -jar monitors/factory-monitor.jar port=9999 address=0.0.0.0
     ;;
   factory-swarm)
     MONITOR=monitor

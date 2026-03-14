@@ -34,7 +34,7 @@ COPY monitors/babel-factory-monitor/lib monitors/factory-monitor/lib
 
 COPY monitors/babel-factory-monitor/src monitors/factory-monitor/src
 
-RUN cd monitors/babel-factory-monitor && sbt assembly
+RUN cd monitors/factory-monitor && sbt assembly
 
 # Build typescript swarms
 FROM node:slim AS swarm_builder
@@ -54,7 +54,9 @@ RUN apk add --no-cache openjdk21-jre tmux nodejs musl-dev libc-dev protoc bash n
 
 WORKDIR /app
 
-COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
+#COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
+
+COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/car-factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
 
 COPY --from=ax_builder /usr/local/cargo/bin/ax /usr/local/bin/ax
 
