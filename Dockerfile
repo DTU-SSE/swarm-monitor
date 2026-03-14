@@ -32,7 +32,7 @@ RUN cd swarms/factory && npm i && npm run build
 # runtime
 FROM alpine:3.23
 
-RUN apk add openjdk21-jre tmux curl nodejs gcc musl-dev libc-dev make protoc
+RUN apk add --no-cache openjdk21-jre tmux curl nodejs gcc musl-dev libc-dev make protoc bash ncurses libevent
 
 # Install cargo and ax
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -55,7 +55,6 @@ RUN chmod +x swarms/factory/start_factory_forwarding.sh &&\
     chmod +x swarms/split_and_run.sh                    &&\
     chmod +x entrypoint.sh
 
-RUN apk add bash ncurses libevent
 ENV TERM=xterm-256color
 
 COPY --from=swarm_builder /build/swarms/factory/dist swarms/factory/dist
