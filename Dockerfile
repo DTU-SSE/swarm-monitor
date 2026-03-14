@@ -30,11 +30,14 @@ COPY swarms/warehouse-factory swarms/factory
 RUN cd swarms/factory && npm i && npm run build
 
 FROM rust:alpine3.23 AS ax_builder
-WORKDIR /build
-# Install ax and its build dependencies
-RUN apk add --no-cache gcc musl-dev libc-dev make protoc
-RUN cargo install ax
 
+WORKDIR /build
+
+# Install ax and its build dependencies
+
+RUN apk add --no-cache gcc musl-dev libc-dev make protoc
+
+RUN cargo install ax
 
 # runtime
 FROM alpine:3.23
