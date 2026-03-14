@@ -45,16 +45,13 @@ def monitor(algorithm: MatchingAlgorithm) =
           Continue
         case ClosingTime(time, meta, lbj, _) =>
           println(
-            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RED} =========================\n"
+            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RESET} =========================\n"
           )
           println(
             s"${Console.RED}${Console.UNDERLINED}Matched messages: ClosingTime(timeOfDay = $time, ...)${Console.RESET}\n"
           )
           println(
-            s"${Console.RED}${Console.UNDERLINED}Shutting down monitor actor...${Console.RESET}"
-          )
-          println(
-            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RED} =========================\n"
+            s"========================= ${Console.RED}${Console.UNDERLINED}Join Pattern 04${Console.RESET} =========================\n"
           )
           Stop(())
       }

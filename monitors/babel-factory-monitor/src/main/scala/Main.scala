@@ -45,3 +45,5 @@ object Main:
 
     Await.ready(stopSignal.future, Duration.Inf)
     executor.shutdown()
+
+    println(s"Press CTRL + C to quit.")

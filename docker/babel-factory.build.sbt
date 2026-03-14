@@ -25,8 +25,9 @@ lazy val root = project
     libraryDependencies += "io.netty" % "netty-buffer" % "4.2.6.Final"
   )
 
-// Source - https://stackoverflow.com/a/39058507. Deduplication errors.
 assembly / assemblyMergeStrategy := {
- case PathList("META-INF", _*) => MergeStrategy.discard
- case _                        => MergeStrategy.first
+  case PathList("META-INF", "services", xs @ _*) => MergeStrategy.concat
+  case PathList("META-INF", "org", "apache", "logging", xs @ _*) => MergeStrategy.concat
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
 }
