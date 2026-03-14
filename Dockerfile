@@ -29,21 +29,33 @@ COPY swarms/warehouse-factory swarms/factory
 
 RUN cd swarms/factory && npm i && npm run build
 
+FROM rust:alpine3.23 AS ax_builder
+WORKDIR /build
+# Install cargo and ax
+#RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+#ENV PATH="/root/.cargo/bin:${PATH}"
+RUN apk add --no-cache gcc musl-dev libc-dev make protoc
+RUN cargo install ax
+
+
 # runtime
 FROM alpine:3.23
 
 RUN apk add --no-cache openjdk21-jre tmux curl nodejs gcc musl-dev libc-dev make protoc bash ncurses libevent
 
 # Install cargo and ax
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+#RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-ENV PATH="/root/.cargo/bin:${PATH}"
+#ENV PATH="/root/.cargo/bin:${PATH}"
 
-RUN cargo install ax
+#RUN cargo install ax
 
 WORKDIR /app
 
 COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
+
+COPY --from=ax_builder /usr/local/cargo/bin/ax /usr/local/bin/ax
 
 COPY docker/split_and_run.sh swarms/split_and_run.sh
 
