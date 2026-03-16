@@ -42,21 +42,22 @@ RUN apk add --no-cache openjdk21-jre tmux nodejs musl-dev libc-dev protoc bash n
 
 WORKDIR /app
 
-#COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
-
 COPY --from=monitor_builder /build/monitors/factory-monitor/target/scala-3.7.2/car-factory-monitor-assembly-0.1.jar monitors/factory-monitor.jar
 
 COPY --from=ax_builder /usr/local/cargo/bin/ax /usr/local/bin/ax
 
-COPY docker/split_and_run.sh swarms/split_and_run.sh
+COPY docker/split_and_run.sh /usr/local/bin/split_and_run.sh
 
 COPY docker/start_factory_forwarding.sh swarms/factory/start_factory_forwarding.sh
 
 COPY docker/entrypoint.sh entrypoint.sh
 
+COPY docker/bin ./bin
+
 RUN chmod +x swarms/factory/start_factory_forwarding.sh &&\
-    chmod +x swarms/split_and_run.sh                    &&\
-    chmod +x entrypoint.sh
+    chmod +x /usr/local/bin/split_and_run.sh            &&\
+    chmod +x entrypoint.sh                              &&\
+    chmod +x bin/*
 
 ENV TERM=xterm-256color
 

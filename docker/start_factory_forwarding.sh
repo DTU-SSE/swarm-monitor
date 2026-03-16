@@ -21,4 +21,4 @@ START_FORWARDER="node dist/forwarder.js --address="$address" --port="$port";exec
 
 npm run build >> $build_log 2>&1
 
-bash ../split_and_run.sh $session_name $ax_log "$START_TRANSPORT" "$START_DOOR" "$START_FORKLIFT" "$START_ROBOT" "$START_FORWARDER"
+split_and_run.sh $session_name $ax_log "$START_TRANSPORT" "$START_DOOR" "$START_FORKLIFT" "$START_ROBOT" "$START_FORWARDER"
