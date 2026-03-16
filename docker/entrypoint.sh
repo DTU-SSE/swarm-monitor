@@ -1,15 +1,44 @@
 #!/usr/bin/env bash
 
-case "$1" in
-  factory-monitor)
-    java -jar monitors/factory-monitor.jar port=9999 address=0.0.0.0
+set -euo pipefail
+
+app=$1
+address="0.0.0.0"
+port="9999"
+swarm="swarm"
+monitor_name=""
+
+shift 1
+
+if [ "$app" = "$swarm" ]; then
+  while getopts ":m:" opt; do
+    case "${opt}" in
+      m)
+        monitor_name=$OPTARG
+        ;;
+      *)
+        echo "Supply a monitor name with -m <MONITOR NAME> when running a swarm: ./entrypoint.sh swarm -m <MONITOR NAME>"
+        exit 1
+        ;;
+    esac
+  done
+
+  if [ -z "$monitor_name" ]; then
+    echo "Supply a monitor name with -m <MONITOR NAME>"
+    exit 1
+  fi
+fi
+
+case "$app" in
+  monitor)
+    exec java -jar monitors/factory-monitor.jar "port=$port" "address=$address"
     ;;
-  factory-swarm)
-    MONITOR=monitor
-    cd swarms/factory && bash start_factory_forwarding.sh "session1" "$MONITOR" "9999" "/dev/null" "/dev/null"
+  swarm)
+    cd swarms/factory
+    exec ./start_factory_forwarding.sh "session1" "$monitor_name" "$port" "/dev/null" "/dev/null"
     ;;
   *)
-    echo "usage: factory-monitor | factory-swarm"
+    echo "usage: monitor | swarm"
     exit 1
     ;;
 esac

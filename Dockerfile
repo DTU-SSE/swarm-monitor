@@ -12,18 +12,6 @@ FROM sbtscala/scala-sbt:eclipse-temurin-alpine-21.0.8_9_1.12.5_3.8.2 AS monitor_
 
 WORKDIR /build
 
-#COPY docker/car-factory.build.sbt monitors/factory-monitor/build.sbt
-
-#COPY monitors/factory-monitor/project monitors/factory-monitor/project
-
-#COPY docker/assembly.sbt monitors/factory-monitor/project/assembly.sbt
-
-#COPY monitors/factory-monitor/lib monitors/factory-monitor/lib
-
-#COPY monitors/factory-monitor/src monitors/factory-monitor/src
-
-#RUN cd monitors/factory-monitor && sbt assembly
-
 COPY docker/babel-factory.build.sbt monitors/factory-monitor/build.sbt
 
 COPY monitors/babel-factory-monitor/project monitors/factory-monitor/project
@@ -36,7 +24,7 @@ COPY monitors/babel-factory-monitor/src monitors/factory-monitor/src
 
 RUN cd monitors/factory-monitor && sbt assembly
 
-# Build typescript swarms
+# Build typescript swarm
 FROM node:slim AS swarm_builder
 
 WORKDIR /build
