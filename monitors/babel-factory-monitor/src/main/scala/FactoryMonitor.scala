@@ -8,7 +8,7 @@ def monitor(algorithm: MatchingAlgorithm) =
       {
         case PartRequest(part1, meta1, lbj1, _)
              &:& Position(position, part2, meta2, lbj2, _)
-             &:& PartOK( part3, meta3, lbj3, _) => //if part1 == part2 && part2 == part3 =>
+             &:& PartOK( part3, meta3, lbj3, _) if part1 == part2 && part2 == part3 =>
           println(
             s"========================= ${Console.BLUE}${Console.UNDERLINED}Join Pattern 01${Console.RESET} =========================\n"
           )

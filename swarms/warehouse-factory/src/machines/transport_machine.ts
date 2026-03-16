@@ -28,7 +28,7 @@ export const closedState = transport.designEmpty("closedState").finish()
 initialState.react([Events.partReqEvent], requestedState, () => requestedState.make())
 initialState.react([Events.closingTimeEvent], closedState, () => closedState.make())
 requestedState.react([Events.positionEvent], deliverState, (_, event) =>
-    deliverState.make( {partName: event.payload.position }))
+    deliverState.make( {partName: event.payload.partName }))
 deliverState.react([Events.partOKEvent], initialState, () => initialState.make())
 
 // Check that the machine is implemented correctlty w.r.t. the warehouse protocol
