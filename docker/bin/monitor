@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+address="0.0.0.0"
+port="9999"
+
+while getopts ":p:a:" opt; do
+    case "${opt}" in
+        a)
+        address=$OPTARG
+        ;;
+        p)
+        port=$OPTARG
+        ;;
+        *)
+        echo "./monitor [-p <port> (defaults to 9999)] [-a <address> (defaults to 0.0.0.0)]"
+        exit 1
+        ;;
+    esac
+done
+
+exec java -jar monitors/factory-monitor.jar "port=$port" "address=$address"
