@@ -117,3 +117,5 @@ This should start the swarm, splitting the terminal into five windows showing th
 
 Now follow, as the swarm emits events and the monitor matches on the messages received from the swarm.
 
+## Acknowledgement
+The development of this tool was partly funded by the Horizon Europe project 101093006 TaRDIS - [https://project-tardis.eu/](https://project-tardis.eu/).
