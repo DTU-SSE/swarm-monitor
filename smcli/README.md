@@ -80,3 +80,6 @@ message Event {
         myEventTypeN my_event_type_N = n;
     }
 }```
+
+## Acknowledgement
+The development of this tool was partly funded by the Horizon Europe project 101093006 TaRDIS - [https://project-tardis.eu/](https://project-tardis.eu/).
