@@ -25,7 +25,7 @@ The monitor uses [*join patterns*](https://doi.org/10.4230/LIPIcs.ECOOP.2024.17)
 3. A car has been built.
 4. The warehouse has closed.
 
-The monitor consists of a component receiving messages from the forwarder and a component performing the join pattern matching. The [Babel](https://codelab.fct.unl.pt/di/research/tardis/wp6/babel) framework is for communication between these two components.
+The monitor consists of a component receiving messages from the forwarder and a component performing the join pattern matching. The [Babel](https://codelab.fct.unl.pt/di/research/tardis/wp6/babel) framework is used for communication between these two components.
 
 ## Getting and running the example
 The example application is available as [a Docker image](https://hub.docker.com/r/lucas8744/swarm-monitor) on Docker Hub. The four steps below shows how to fetch the image and run the application.
