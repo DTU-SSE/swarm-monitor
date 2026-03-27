@@ -90,24 +90,30 @@ Note, the "rootDir" field of the `tsconfig.json` used for the project must be se
 ### 4. Scala monitor based on [join-actors](https://github.com/a-y-man/join-actors)
 The remaining piece is the monitor. The monitor could be written in any language and follow any desired application logic. In this example we will use a monitor based on the [join-actors](https://github.com/a-y-man/join-actors) library using [join pattern matching](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2024.17) to look for interesting combinations of messages.
 
+The monitor uses join patterns to look for certain combinations of messages received from the forwarder. Specifically, the monitor looks for four different message combinations, respectively indicating that:
+1. A part has been requested and successfully delivered from the warehouse.
+2. A part has been requested and delivered from the warehouse, but is found to be defectful.
+3. A car has been built.
+4. The warehouse has closed.
 
-The directory `monitors/factory-monitor` contains a monitor made for this example. To make it work please copy the file `factory.proto` generated in step 2 into `factory-monitor/src/main/protobuf/`.
+The monitor consists of a component receiving messages from the forwarder and a component performing the join pattern matching. The [Babel framework](https://codelab.fct.unl.pt/di/research/tardis/wp6/babel) is used for communication between these two components.
 
+The directory `monitors/babel-factory-monitor` contains a monitor made for this example. To make it work please copy the file `factory.proto` generated in step 2 into `monitors/babel-factory-monitor/src/main/protobuf/`.
 
 ### Run the swarm and the monitor
 
 We are now ready to run the swarm and the monitor together. We will start up the monitor in one terminal and the swarm in another.
 
-To start the monitor, please move to the directory `monitors/warehouse-monitor` and run:
+To start the monitor, please move to the directory `monitors/babel-factory-monitor` and run:
 ```
-sbt "run --algorithm while-lazy --port 9999 --host localhost"
+sbt "run port=9999 address=localhost"
 ```
 After compiling it should output:
 ```
 🚀 Factory Monitor ready and listening on localhost:9999 📦
 ```
 
-Now, to start the swawrm, please open a new terminal, move to `swarms/warehouse-factory/` and run:
+Now, to start the swarm, **please open a new terminal**, move to `swarms/warehouse-factory/` and run:
 ```
 npm i
 bash start_factory_forwarding.sh session1 localhost 9999
